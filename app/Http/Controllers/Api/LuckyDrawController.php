@@ -45,4 +45,17 @@ class LuckyDrawController extends Controller
             'data' => $luckyWinner
         ]);
     }
+ 
+    public function getWinners($eventId)
+    {
+        $winners = LuckyDrawWinner::with('registration.user')
+            ->where('event_id', $eventId)
+            ->orderBy('won_at', 'desc')
+            ->get();
+ 
+        return response()->json([
+            'success' => true,
+            'data' => $winners
+        ]);
+    }
 }

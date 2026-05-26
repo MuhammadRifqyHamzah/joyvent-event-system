@@ -41,4 +41,9 @@ class Event extends Model
     {
         return $this->hasMany(TicketCategory::class);
     }
+
+    public function registrations()
+    {
+        return $this->hasMany(Registration::class);
+    }
 }

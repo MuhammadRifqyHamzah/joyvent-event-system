@@ -57,4 +57,20 @@ class CertificateController extends Controller
             'data' => $certificate
         ]);
     }
+ 
+    public function myCertificates(Request $request)
+    {
+        $userId = $request->user()->id;
+ 
+        $certificates = Certificate::with(['registration.event'])
+            ->whereHas('registration', function($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->get();
+ 
+        return response()->json([
+            'success' => true,
+            'data' => $certificates
+        ]);
+    }
 }

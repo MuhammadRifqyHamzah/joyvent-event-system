@@ -48,9 +48,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // LUCKY DRAW
     Route::post('/lucky-draw', [LuckyDrawController::class, 'draw']);
+    Route::get('/events/{eventId}/winners', [LuckyDrawController::class, 'getWinners']);
 
     // CERTIFICATE
     Route::post('/generate-certificate', [CertificateController::class, 'generate']);
+    Route::get('/my-certificates', [CertificateController::class, 'myCertificates']);
 
     // SEATS
     Route::get('/events/{eventId}/seats', [SeatController::class, 'index']);

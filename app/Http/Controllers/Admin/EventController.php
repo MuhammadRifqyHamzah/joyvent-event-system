@@ -85,7 +85,7 @@ class EventController extends Controller
             'end_time' => $request->end_time,
 
             'capacity' => $request->capacity,
-            'status' => $request->status,
+            'status' => $request->status === 'active' ? 'open' : $request->status,
 
             'has_certificate' => $request->has_certificate ? 1 : 0,
             'has_seat_layout' => $request->has_seat_layout ? 1 : 0,
@@ -102,5 +102,71 @@ class EventController extends Controller
         return redirect()
             ->route('admin.tickets.index', $event->id)
             ->with('success', 'Event berhasil dibuat! 🎉');
+    }
+ 
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT EVENT PAGE
+    |--------------------------------------------------------------------------
+    */
+ 
+    public function edit(Event $event)
+    {
+        return view('admin.events.edit', compact('event'));
+    }
+ 
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE EVENT
+    |--------------------------------------------------------------------------
+    */
+ 
+    public function update(Request $request, Event $event)
+    {
+        $validated = $request->validate([
+            'name' => 'required|max:255',
+            'description' => 'required',
+            'location' => 'required',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            'start_time' => 'required',
+            'end_time' => 'required',
+            'capacity' => 'required|integer',
+            'status' => 'required',
+        ]);
+ 
+        $event->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'location' => $request->location,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'capacity' => $request->capacity,
+            'status' => $request->status === 'active' ? 'open' : $request->status,
+            'has_certificate' => $request->has_certificate ? 1 : 0,
+            'has_seat_layout' => $request->has_seat_layout ? 1 : 0,
+            'has_lucky_draw' => $request->has_lucky_draw ? 1 : 0,
+        ]);
+ 
+        return redirect()
+            ->route('admin.events')
+            ->with('success', 'Event berhasil diperbarui! 🎉');
+    }
+ 
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE EVENT
+    |--------------------------------------------------------------------------
+    */
+ 
+    public function destroy(Event $event)
+    {
+        $event->delete();
+ 
+        return redirect()
+            ->route('admin.events')
+            ->with('success', 'Event berhasil dihapus! 🗑');
     }
 }
