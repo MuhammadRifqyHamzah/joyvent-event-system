@@ -16,41 +16,9 @@ class SeatController extends Controller
     |--------------------------------------------------------------------------
     */
  
-    public function index(Request $request)
+    public function index(Event $event, Request $request)
     {
-        $events = Event::orderBy('name', 'asc')->get();
-        $eventId = $request->query('event_id');
-        
-        $event = null;
-        $groupedSeats = collect();
-        $registrations = collect();
- 
-        if ($eventId) {
-            $event = Event::findOrFail($eventId);
-            
-            // Get seats sorted by row and column
-            $seats = Seat::where('event_id', $eventId)
-                ->orderBy('row', 'asc')
-                ->orderBy('column', 'asc')
-                ->get();
- 
-            $groupedSeats = $seats->groupBy('row');
-            
-            // Fetch registrations with seat numbers assigned
-            $registrations = Registration::with('user')
-                ->where('event_id', $eventId)
-                ->whereNotNull('seat_number')
-                ->get()
-                ->keyBy('seat_number');
-        }
- 
-        return view('admin.seats.index', compact(
-            'events',
-            'eventId',
-            'event',
-            'groupedSeats',
-            'registrations'
-        ));
+        return redirect()->route('admin.events.show', ['event' => $event->id, 'tab' => 'seats']);
     }
  
     /*
@@ -84,6 +52,7 @@ class SeatController extends Controller
         $totalGenerated = 0;
  
         foreach ($rows as $row) {
+            $rowInt = is_numeric($row) ? intval($row) : (ord(strtoupper($row)) - 64);
             for ($col = 1; $col <= $seatsPerRow; $col++) {
                 $seatNumber = $row . $col;
                 
@@ -94,7 +63,7 @@ class SeatController extends Controller
                         'seat_number' => $seatNumber,
                     ],
                     [
-                        'row' => $row,
+                        'row' => $rowInt,
                         'column' => $col,
                         'status' => 'available',
                     ]

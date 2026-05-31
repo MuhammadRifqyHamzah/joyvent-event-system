@@ -14,6 +14,7 @@ class Event extends Model
 
         'name',
         'description',
+        'category',
         'location',
 
         'start_date',
@@ -22,14 +23,78 @@ class Event extends Model
         'start_time',
         'end_time',
 
-        'capacity',
+        'capacity', // Deprecated: use ticket categories quota sum instead
         'status',
 
         'has_certificate',
         'has_seat_layout',
         'has_lucky_draw',
 
+        'certificate_title',
+        'organizer_name',
+        'certificate_template',
+        'signature_image',
+        'seat_layout',
+        'prize_name',
+        'prize_description',
+        'winner_count',
+        'is_configured',
+
     ];
+
+    protected $appends = [
+        'banner_image',
+        'calculated_status',
+    ];
+
+    /**
+     * Get the dynamically calculated status based on date/time.
+     *
+     * @return string
+     */
+    public function getCalculatedStatusAttribute()
+    {
+        $now = now();
+        $startDate = \Carbon\Carbon::parse($this->start_date . ' ' . $this->start_time);
+        $endDate = \Carbon\Carbon::parse($this->end_date . ' ' . $this->end_time);
+
+        if ($now->greaterThan($endDate)) {
+            return 'finished';
+        } elseif ($now->lessThan($startDate)) {
+            return 'upcoming';
+        } else {
+            return 'ongoing';
+        }
+    }
+
+    /**
+     * Get the dynamically calculated capacity from ticket categories quota sum.
+     * Overrides the deprecated 'capacity' database column.
+     *
+     * @return int
+     */
+    public function getCapacityAttribute()
+    {
+        if ($this->relationLoaded('ticketCategories')) {
+            return $this->ticketCategories->sum('quota');
+        }
+        return (int) ($this->ticketCategories()->sum('quota') ?? 0);
+    }
+
+    public function getBannerImageAttribute()
+    {
+        $bannerDir = public_path('storage/banners');
+        if (\Illuminate\Support\Facades\File::exists($bannerDir)) {
+            $files = \Illuminate\Support\Facades\File::files($bannerDir);
+            foreach ($files as $f) {
+                if (str_starts_with($f->getFilename(), 'banner_image_' . $this->id . '.')) {
+                    return asset('storage/banners/' . $f->getFilename());
+                }
+            }
+        }
+        return null;
+    }
+
 
     /*
     |--------------------------------------------------------------------------

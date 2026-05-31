@@ -15,36 +15,9 @@ class ParticipantController extends Controller
     |--------------------------------------------------------------------------
     */
  
-    public function index(Request $request)
+    public function index(Event $event, Request $request)
     {
-        $events = Event::orderBy('name', 'asc')->get();
-        $eventId = $request->query('event_id');
- 
-        // Build query
-        $query = Registration::with(['user', 'event', 'ticketCategory'])
-            ->orderBy('created_at', 'desc');
- 
-        if ($eventId) {
-            $query->where('event_id', $eventId);
-        }
- 
-        $registrations = $query->get();
- 
-        // Calculate statistics
-        $totalRegistrations = $registrations->count();
-        $totalAttended = $registrations->where('is_checked_in', 1)->count();
-        $attendanceRate = $totalRegistrations > 0 
-            ? round(($totalAttended / $totalRegistrations) * 100, 1) 
-            : 0;
- 
-        return view('admin.participants.index', compact(
-            'registrations',
-            'events',
-            'eventId',
-            'totalRegistrations',
-            'totalAttended',
-            'attendanceRate'
-        ));
+        return redirect()->route('admin.events.show', ['event' => $event->id, 'tab' => 'participants']);
     }
  
     /*
@@ -70,5 +43,22 @@ class ParticipantController extends Controller
         return redirect()
             ->back()
             ->with('success', $message);
+    }
+ 
+    /*
+    |--------------------------------------------------------------------------
+    | RESET ALL CHECK-INS FOR EVENT
+    |--------------------------------------------------------------------------
+    */
+    public function resetCheckIn(Event $event)
+    {
+        Registration::where('event_id', $event->id)->update([
+            'is_checked_in' => 0,
+            'checked_in_at' => null,
+        ]);
+ 
+        return redirect()
+            ->back()
+            ->with('success', 'Data kehadiran seluruh peserta berhasil di-reset! ↺');
     }
 }

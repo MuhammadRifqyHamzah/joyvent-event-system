@@ -74,6 +74,24 @@
 
                         </div>
 
+                        <!-- Event Category -->
+                        <div class="mb-6">
+
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                Kategori Event
+                            </label>
+
+                            <select name="category" required
+                                class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                <option value="Entertainment" {{ old('category') == 'Entertainment' ? 'selected' : '' }}>Entertainment</option>
+                                <option value="Education" {{ old('category') == 'Education' ? 'selected' : '' }}>Education</option>
+                                <option value="Sports" {{ old('category') == 'Sports' ? 'selected' : '' }}>Sports</option>
+                                <option value="Business" {{ old('category') == 'Business' ? 'selected' : '' }}>Business</option>
+                                <option value="Community" {{ old('category') == 'Community' ? 'selected' : '' }}>Community</option>
+                            </select>
+
+                        </div>
+
                         <!-- Description -->
                         <div class="mb-6">
 
@@ -163,32 +181,6 @@
 
                             <input type="number" name="capacity" value="{{ old('capacity') }}" placeholder="300"
                                 class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-                        </div>
-
-                        <!-- Status -->
-                        <div class="mb-6">
-
-                            <label class="block text-sm font-semibold text-gray-700 mb-3">
-                                Status Event
-                            </label>
-
-                            <select name="status"
-                                class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-                                <option value="">
-                                    -- Pilih Status --
-                                </option>
-
-                                <option value="draft" {{ old('status') == 'draft' ? 'selected' : '' }}>
-                                    Draft
-                                </option>
-
-                                <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>
-                                    Active
-                                </option>
-
-                            </select>
 
                         </div>
 

@@ -5,6 +5,10 @@
 @section('content')
  
 <div class="space-y-8">
+    @include('admin.events.partials.header')
+    @php
+        $eventStatus = $event->calculated_status;
+    @endphp
  
     {{-- Success Alert Notification --}}
     @if(session('success'))
@@ -16,7 +20,7 @@
         </div>
     @endif
  
-    <!-- Header: Title and Selector -->
+    <!-- Header: Title -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <h1 class="text-4xl font-extrabold text-gray-800 tracking-tight">
@@ -26,95 +30,88 @@
                 Unggah template latar belakang dan terbitkan sertifikat massal untuk peserta terdaftar yang hadir.
             </p>
         </div>
- 
-        <!-- Dropdown Selector -->
-        <div class="relative w-full md:w-80">
-            <select id="eventSelect" onchange="window.location.href = '?event_id=' + this.value" 
-                class="w-full border border-gray-200 bg-white rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-sm text-gray-700 appearance-none cursor-pointer">
-                <option value="">-- Pilih Event --</option>
-                @foreach($events as $evt)
-                    <option value="{{ $evt->id }}" {{ $eventId == $evt->id ? 'selected' : '' }}>
-                        {{ $evt->name }}
-                    </option>
-                @endforeach
-            </select>
-            <!-- Arrow icon overlay -->
-            <div class="pointer-events-none absolute inset-y-0 right-5 flex items-center text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                </svg>
-            </div>
-        </div>
     </div>
  
-    @if(!$eventId)
-        <!-- Landing State: Select Event -->
-        <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-16 text-center">
-            <div class="w-20 h-20 bg-blue-50 border border-blue-100/30 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-10 h-10 text-blue-600">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M12 21v-8.25" />
-                </svg>
-            </div>
-            <h3 class="text-xl font-extrabold text-gray-800 tracking-tight">Silakan Pilih Event</h3>
-            <p class="text-gray-400 text-sm mt-2 max-w-md mx-auto leading-relaxed font-semibold">
-                Pilih event yang mendukung modul Sertifikat untuk mengunggah template dan memicu cetak massal. 🎓
-            </p>
-        </div>
-    @else
+
         <!-- Grid layout -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
  
-            <!-- Left Panel: Uploader & Canvas Preview -->
+            <!-- Left Panel: Uploader / Locked Status -->
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 space-y-6">
-                    <div>
-                        <h3 class="text-xl font-extrabold text-gray-800 tracking-tight">
-                            Setup Template 🖼️
-                        </h3>
-                        <p class="text-gray-400 text-xs mt-1.5 font-semibold leading-relaxed">
-                            Unggah template gambar beresolusi tinggi (misal landscape 1920x1080).
-                        </p>
-                    </div>
- 
-                    <form action="{{ route('admin.certificates.generate') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                        @csrf
-                        <input type="hidden" name="event_id" value="{{ $eventId }}">
-                        
-                        <!-- Drag Drop Upload Area -->
-                        <div class="border-2 border-dashed border-gray-200 hover:border-blue-500 rounded-2xl p-6 text-center cursor-pointer transition relative group">
-                            <input type="file" name="template" id="templateFileInput" onchange="previewTemplateFile(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                            <div class="space-y-2 pointer-events-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8 text-gray-400 mx-auto group-hover:text-blue-500 transition">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                </svg>
-                                <span class="block text-xs font-bold text-gray-500">Pilih Template Gambar</span>
-                                <span class="block text-[10px] text-gray-400">JPG, PNG berukuran maks. 4MB</span>
-                            </div>
+                @if($eventStatus === 'upcoming')
+                    <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 text-center space-y-6">
+                        <div class="w-16 h-16 bg-slate-50 border border-slate-200/50 text-slate-400 rounded-3xl flex items-center justify-center mx-auto shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-8 h-8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                            </svg>
                         </div>
- 
-                        <!-- Template Preview Canvas Wrapper -->
+                        <div>
+                            <h3 class="text-lg font-extrabold text-gray-800">Certificates Locked</h3>
+                            <p class="text-xs text-gray-400 font-semibold mt-2 leading-relaxed">
+                                Penerbitan sertifikat dinonaktifkan karena event belum dimulai.
+                            </p>
+                        </div>
+                        
                         @if($templateUrl)
-                            <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100/50">
-                                <span class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-2.5">Live Preview Template</span>
+                            <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100/50 text-left">
+                                <span class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-2.5">Template Aktif</span>
                                 <div class="overflow-hidden rounded-xl border border-gray-200">
                                     <canvas id="templatePreviewCanvas" class="w-full h-auto bg-slate-100"></canvas>
                                 </div>
                             </div>
                         @endif
- 
-                        <!-- Action Button -->
-                        @if($candidates->isEmpty())
-                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-4 px-6 rounded-2xl text-xs tracking-wider uppercase shadow-md transition cursor-pointer">
-                                🔄 Upload Template Saja
-                            </button>
-                        @else
-                            <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:scale-[1.02] hover:shadow-blue-500/20 hover:shadow-lg text-white font-extrabold py-4 px-6 rounded-2xl text-xs tracking-wider uppercase transition duration-300 cursor-pointer shadow-md">
-                                🚀 Terbitkan Massal ({{ $candidates->count() }} Orang)
-                            </button>
-                        @endif
-                    </form>
- 
-                </div>
+                    </div>
+                @else
+                    <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 space-y-6">
+                        <div>
+                            <h3 class="text-xl font-extrabold text-gray-800 tracking-tight">
+                                Setup Template 🖼️
+                            </h3>
+                            <p class="text-gray-400 text-xs mt-1.5 font-semibold leading-relaxed">
+                                Unggah template gambar beresolusi tinggi (misal landscape 1920x1080).
+                            </p>
+                        </div>
+     
+                        <form action="{{ route('admin.certificates.generate') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                            @csrf
+                            <input type="hidden" name="event_id" value="{{ $eventId }}">
+                            
+                            <!-- Drag Drop Upload Area -->
+                            <div class="border-2 border-dashed border-gray-200 hover:border-blue-500 rounded-2xl p-6 text-center cursor-pointer transition relative group">
+                                <input type="file" name="template" id="templateFileInput" onchange="previewTemplateFile(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                <div class="space-y-2 pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8 text-gray-400 mx-auto group-hover:text-blue-500 transition">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    </svg>
+                                    <span class="block text-xs font-bold text-gray-500">Pilih Template Gambar</span>
+                                    <span class="block text-[10px] text-gray-400">JPG, PNG berukuran maks. 4MB</span>
+                                </div>
+                            </div>
+     
+                            <!-- Template Preview Canvas Wrapper -->
+                            @if($templateUrl)
+                                <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100/50">
+                                    <span class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-2.5">Live Preview Template</span>
+                                    <div class="overflow-hidden rounded-xl border border-gray-200">
+                                        <canvas id="templatePreviewCanvas" class="w-full h-auto bg-slate-100"></canvas>
+                                    </div>
+                                </div>
+                            @endif
+     
+                            <!-- Action Button -->
+                            @if($candidates->isEmpty())
+                                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-4 px-6 rounded-2xl text-xs tracking-wider uppercase shadow-md transition cursor-pointer">
+                                    🔄 Upload Template Saja
+                                </button>
+                            @else
+                                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:scale-[1.02] hover:shadow-blue-500/20 hover:shadow-lg text-white font-extrabold py-4 px-6 rounded-2xl text-xs tracking-wider uppercase transition duration-300 cursor-pointer shadow-md">
+                                    🚀 Terbitkan Massal ({{ $candidates->count() }} Orang)
+                                </button>
+                            @endif
+                        </form>
+     
+                    </div>
+                @endif
             </div>
  
             <!-- Right Panel: Issued Certificates Table -->
@@ -198,7 +195,6 @@
             </div>
  
         </div>
-    @endif
  
 </div>
  

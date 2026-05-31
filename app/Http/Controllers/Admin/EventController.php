@@ -14,9 +14,31 @@ class EventController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function index()
+    public function index(Request $request)
     {
-        $events = Event::latest()->get();
+        $status = $request->query('status');
+        $query = Event::where('is_configured', 1)->latest();
+
+        if ($status) {
+            $nowString = now()->toDateTimeString();
+            if ($status === 'open' || $status === 'ongoing') {
+                $query->whereRaw("CONCAT(start_date, ' ', start_time) <= ?", [$nowString])
+                      ->whereRaw("CONCAT(end_date, ' ', end_time) >= ?", [$nowString]);
+            } elseif ($status === 'upcoming') {
+                $query->whereRaw("CONCAT(start_date, ' ', start_time) > ?", [$nowString]);
+            } elseif ($status === 'finished') {
+                $query->whereRaw("CONCAT(end_date, ' ', end_time) < ?", [$nowString]);
+            }
+        }
+
+        $events = $query->withCount([
+            'registrations',
+            'registrations as attended_count' => function ($q) {
+                $q->where('is_checked_in', 1);
+            }
+        ])
+        ->with('ticketCategories')
+        ->get();
 
         return view('admin.events.index', compact('events'));
     }
@@ -25,6 +47,7 @@ class EventController extends Controller
     |--------------------------------------------------------------------------
     | CREATE EVENT PAGE
     |--------------------------------------------------------------------------
+    |
     */
 
     public function create()
@@ -36,6 +59,7 @@ class EventController extends Controller
     |--------------------------------------------------------------------------
     | STORE EVENT
     |--------------------------------------------------------------------------
+    |
     */
 
     public function store(Request $request)
@@ -50,6 +74,7 @@ class EventController extends Controller
 
             'name' => 'required|max:255',
             'description' => 'required',
+            'category' => 'required|in:Entertainment,Education,Sports,Business,Community',
 
             'location' => 'required',
 
@@ -60,8 +85,7 @@ class EventController extends Controller
             'end_time' => 'required',
 
             'capacity' => 'required|integer',
-
-            'status' => 'required',
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
 
         ]);
 
@@ -75,6 +99,7 @@ class EventController extends Controller
 
             'name' => $request->name,
             'description' => $request->description,
+            'category' => $request->category,
 
             'location' => $request->location,
 
@@ -85,13 +110,24 @@ class EventController extends Controller
             'end_time' => $request->end_time,
 
             'capacity' => $request->capacity,
-            'status' => $request->status === 'active' ? 'open' : $request->status,
 
             'has_certificate' => $request->has_certificate ? 1 : 0,
             'has_seat_layout' => $request->has_seat_layout ? 1 : 0,
             'has_lucky_draw' => $request->has_lucky_draw ? 1 : 0,
 
         ]);
+
+        // Handle Banner Upload
+        if ($request->hasFile('banner')) {
+            $file = $request->file('banner');
+            $bannerDir = public_path('storage/banners');
+            if (!\Illuminate\Support\Facades\File::exists($bannerDir)) {
+                \Illuminate\Support\Facades\File::makeDirectory($bannerDir, 0755, true);
+            }
+
+            $filename = 'banner_image_' . $event->id . '.' . $file->getClientOriginalExtension();
+            $file->move($bannerDir, $filename);
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -102,6 +138,484 @@ class EventController extends Controller
         return redirect()
             ->route('admin.tickets.index', $event->id)
             ->with('success', 'Event berhasil dibuat! 🎉');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | EVENT DETAIL PAGE
+    |--------------------------------------------------------------------------
+    */
+
+    /*
+    |--------------------------------------------------------------------------
+    | EVENT DETAIL PAGE (Central Router)
+    |--------------------------------------------------------------------------
+    */
+
+    public function show(Event $event)
+    {
+        if (!$event->is_configured) {
+            return redirect()
+                ->route('admin.tickets.index', $event->id)
+                ->with('info', 'Harap selesaikan pembuatan event terlebih dahulu.');
+        }
+
+        // Determine Status and redirect
+        $now = now();
+        $startDate = \Carbon\Carbon::parse($event->start_date . ' ' . $event->start_time);
+        $endDate = \Carbon\Carbon::parse($event->end_date . ' ' . $event->end_time);
+
+        $queryParams = request()->query();
+
+        if ($now->greaterThan($endDate)) {
+            return redirect()->route('admin.events.finished', array_merge(['event' => $event->id], $queryParams));
+        } elseif ($now->lessThan($startDate)) {
+            return redirect()->route('admin.events.upcoming', array_merge(['event' => $event->id], $queryParams));
+        } else {
+            return redirect()->route('admin.events.ongoing', array_merge(['event' => $event->id], $queryParams));
+        }
+    }
+
+    /**
+     * Helper to compute base event details & statistics
+     */
+    private function getEventBaseData(Event $event)
+    {
+        // Eager load relations
+        $event->load([
+            'ticketCategories',
+            'registrations' => function ($q) {
+                $q->with(['user', 'ticketCategory'])->latest();
+            }
+        ]);
+
+        // Calculate statistics
+        $capacity = $event->ticketCategories->sum('quota');
+        $ticketsSold = $event->registrations->count();
+        $remainingSeats = $ticketsSold === 0 ? $capacity : max(0, $capacity - $ticketsSold);
+
+        // Sum price of sold tickets
+        $totalRevenue = $event->registrations->sum(function ($registration) {
+            return $registration->ticketCategory->price ?? 0;
+        });
+
+        // Ticket Sales progress percentage
+        $soldPercentage = $capacity > 0 ? round(($ticketsSold / $capacity) * 100, 1) : 0;
+
+        // Group and count registrations by ticket category
+        $soldCounts = \App\Models\Registration::where('event_id', $event->id)
+            ->groupBy('ticket_category_id')
+            ->selectRaw('ticket_category_id, COUNT(*) as count')
+            ->pluck('count', 'ticket_category_id');
+
+        return compact(
+            'event',
+            'capacity',
+            'ticketsSold',
+            'remainingSeats',
+            'totalRevenue',
+            'soldPercentage',
+            'soldCounts'
+        );
+    }
+
+    /**
+     * Helper to compute full event details, statistics, lists, and features
+     */
+    private function getEventDetailsData(Event $event)
+    {
+        $baseData = $this->getEventBaseData($event);
+
+        // Attendance stats
+        $totalParticipants = $baseData['ticketsSold'];
+        $attended_count = $event->registrations->where('is_checked_in', 1)->count();
+        $notAttendedCount = max(0, $totalParticipants - $attended_count);
+        $attendancePercentage = $totalParticipants > 0 ? round(($attended_count / $totalParticipants) * 100, 1) : 0;
+
+        // Seat Layout (if active)
+        $groupedSeats = collect();
+        $seatBookings = collect();
+        if ($event->has_seat_layout) {
+            $seats = \App\Models\Seat::where('event_id', $event->id)
+                ->orderBy('row', 'asc')
+                ->orderBy('column', 'asc')
+                ->get();
+
+            $groupedSeats = $seats->groupBy(function($seat) {
+                return is_numeric($seat->row) && $seat->row >= 1 && $seat->row <= 26 
+                    ? chr($seat->row + 64) 
+                    : $seat->row;
+            });
+
+            $seatBookings = \App\Models\Registration::with('user')
+                ->where('event_id', $event->id)
+                ->whereNotNull('seat_number')
+                ->get()
+                ->keyBy('seat_number');
+        }
+
+        // Lucky Draw (if active)
+        $winners = collect();
+        $candidates = collect();
+        if ($event->has_lucky_draw) {
+            $winners = \App\Models\LuckyDrawWinner::with('registration.user')
+                ->where('event_id', $event->id)
+                ->orderBy('won_at', 'desc')
+                ->get();
+
+            $winnerRegistrationIds = $winners->pluck('registration_id');
+            $candidates = \App\Models\Registration::with('user')
+                ->where('event_id', $event->id)
+                ->where('is_checked_in', 1)
+                ->whereNotIn('id', $winnerRegistrationIds)
+                ->get();
+        }
+
+        // Certificate (if active)
+        $certificates = collect();
+        $certCandidates = collect();
+        $templateUrl = null;
+        if ($event->has_certificate) {
+            $certificates = \App\Models\Certificate::with(['registration.user', 'registration.ticketCategory'])
+                ->whereHas('registration', function($query) use ($event) {
+                    $query->where('event_id', $event->id);
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $issuedRegistrationIds = \App\Models\Certificate::pluck('registration_id');
+            $certCandidates = \App\Models\Registration::with('user')
+                ->where('event_id', $event->id)
+                ->where('is_checked_in', 1)
+                ->whereNotIn('id', $issuedRegistrationIds)
+                ->get();
+
+            $templateDirectory = public_path('storage/certificates/templates');
+            if (\Illuminate\Support\Facades\File::exists($templateDirectory)) {
+                $files = \Illuminate\Support\Facades\File::files($templateDirectory);
+                foreach ($files as $file) {
+                    $filename = $file->getFilename();
+                    if (str_starts_with($filename, 'template_' . $event->id . '.')) {
+                        $templateUrl = asset('storage/certificates/templates/' . $filename);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Combined Recent Activity for this event
+        $recentActivities = $this->getEventRecentActivity($event);
+
+        // Refunds
+        $refunds = \App\Models\Refund::whereHas('registration', function ($query) use ($event) {
+            $query->where('event_id', $event->id);
+        })->with(['registration.user', 'registration.ticketCategory'])->latest()->get();
+
+        $pendingRefundsCount = $refunds->where('status', 'pending')->count();
+        $approvedRefundsCount = $refunds->where('status', 'approved')->count();
+        $rejectedRefundsCount = $refunds->where('status', 'rejected')->count();
+
+        return array_merge($baseData, compact(
+            'totalParticipants',
+            'attended_count',
+            'notAttendedCount',
+            'attendancePercentage',
+            'groupedSeats',
+            'seatBookings',
+            'winners',
+            'candidates',
+            'certificates',
+            'certCandidates',
+            'templateUrl',
+            'recentActivities',
+            'refunds',
+            'pendingRefundsCount',
+            'approvedRefundsCount',
+            'rejectedRefundsCount'
+        ));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPCOMING EVENT DETAIL
+    |--------------------------------------------------------------------------
+    */
+    public function showUpcoming(Event $event)
+    {
+        // Redirect if status changed (e.g. now ongoing or finished)
+        $now = now();
+        $startDate = \Carbon\Carbon::parse($event->start_date . ' ' . $event->start_time);
+        $endDate = \Carbon\Carbon::parse($event->end_date . ' ' . $event->end_time);
+        if ($now->greaterThan($endDate)) {
+            return redirect()->route('admin.events.finished', array_merge(['event' => $event->id], request()->query()));
+        } elseif ($now->greaterThanOrEqualTo($startDate)) {
+            return redirect()->route('admin.events.ongoing', array_merge(['event' => $event->id], request()->query()));
+        }
+
+        $data = $this->getEventDetailsData($event);
+        return view('admin.events.upcoming', $data);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ON-GOING EVENT DETAIL (Realtime Monitoring Dashboard)
+    |--------------------------------------------------------------------------
+    */
+    public function showOngoing(Event $event)
+    {
+        // Redirect if status changed (e.g. not ongoing anymore)
+        $now = now();
+        $startDate = \Carbon\Carbon::parse($event->start_date . ' ' . $event->start_time);
+        $endDate = \Carbon\Carbon::parse($event->end_date . ' ' . $event->end_time);
+        if ($now->lessThan($startDate)) {
+            return redirect()->route('admin.events.upcoming', array_merge(['event' => $event->id], request()->query()));
+        } elseif ($now->greaterThan($endDate)) {
+            return redirect()->route('admin.events.finished', array_merge(['event' => $event->id], request()->query()));
+        }
+
+        $data = $this->getEventDetailsData($event);
+        return view('admin.events.ongoing', $data);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | FINISHED EVENT DETAIL
+    |--------------------------------------------------------------------------
+    */
+    public function showFinished(Event $event)
+    {
+        // Redirect if status changed (e.g. not finished yet)
+        $now = now();
+        $startDate = \Carbon\Carbon::parse($event->start_date . ' ' . $event->start_time);
+        $endDate = \Carbon\Carbon::parse($event->end_date . ' ' . $event->end_time);
+        if ($now->lessThan($startDate)) {
+            return redirect()->route('admin.events.upcoming', array_merge(['event' => $event->id], request()->query()));
+        } elseif ($now->lessThanOrEqualTo($endDate)) {
+            return redirect()->route('admin.events.ongoing', array_merge(['event' => $event->id], request()->query()));
+        }
+
+        $data = $this->getEventDetailsData($event);
+        return view('admin.events.finished', $data);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | REALTIME POLL STATS API
+    |--------------------------------------------------------------------------
+    */
+    public function ongoingStats(Event $event)
+    {
+        $event->load(['registrations.user', 'registrations.ticketCategory']);
+        $totalParticipants = $event->registrations->count();
+        $attended_count = $event->registrations->where('is_checked_in', 1)->count();
+        $notAttendedCount = max(0, $totalParticipants - $attended_count);
+        $attendancePercentage = $totalParticipants > 0 ? round(($attended_count / $totalParticipants) * 100, 1) : 0;
+
+        // Base metrics
+        $capacity = $event->ticketCategories->sum('quota');
+        $remainingSeats = $totalParticipants === 0 ? $capacity : max(0, $capacity - $totalParticipants);
+
+        // Winners count
+        $winnerRegistrationIds = \App\Models\LuckyDrawWinner::where('event_id', $event->id)->pluck('registration_id');
+        $candidatesCount = \App\Models\Registration::where('event_id', $event->id)
+            ->where('is_checked_in', 1)
+            ->whereNotIn('id', $winnerRegistrationIds)
+            ->count();
+
+        // Recent Activity
+        $recentActivities = $this->getEventRecentActivity($event);
+
+        // Winners List
+        $winnersList = \App\Models\LuckyDrawWinner::with('registration.user')
+            ->where('event_id', $event->id)
+            ->orderBy('won_at', 'desc')
+            ->get()
+            ->map(function ($w) {
+                return [
+                    'id' => $w->id,
+                    'name' => $w->registration->user->name ?? 'Guest',
+                    'prize_name' => $w->prize_name,
+                    'destroy_url' => route('admin.lucky_draw.destroy', $w->id)
+                ];
+            });
+
+        // Participants minimal list
+        $participants = $event->registrations->map(function ($reg) {
+            return [
+                'id' => $reg->id,
+                'name' => $reg->user->name ?? 'Guest',
+                'email' => $reg->user->email ?? '-',
+                'ticket_class' => $reg->ticketCategory->name ?? '-',
+                'is_checked_in' => $reg->is_checked_in,
+                'checked_in_at' => $reg->checked_in_at ? \Carbon\Carbon::parse($reg->checked_in_at)->format('d M Y, H:i') : null,
+                'toggle_url' => route('admin.participants.check_in', $reg->id)
+            ];
+        });
+
+        // Certificate stats if active
+        $pendingCertificates = 0;
+        if ($event->has_certificate) {
+            $pendingCertificates = \App\Models\Registration::where('event_id', $event->id)
+                ->where('is_checked_in', true)
+                ->whereDoesntHave('certificate')
+                ->count();
+        }
+
+        // Refunds stats
+        $refunds = \App\Models\Refund::whereHas('registration', function ($query) use ($event) {
+            $query->where('event_id', $event->id);
+        })->with(['registration.user', 'registration.ticketCategory'])->latest()->get();
+
+        $pendingRefunds = $refunds->where('status', 'pending')->count();
+        $approvedRefunds = $refunds->where('status', 'approved')->count();
+        $rejectedRefunds = $refunds->where('status', 'rejected')->count();
+
+        $refundsList = $refunds->map(function ($refund) {
+            return [
+                'id' => $refund->id,
+                'participant_name' => $refund->registration->user->name ?? 'Guest',
+                'participant_email' => $refund->registration->user->email ?? '-',
+                'ticket_type' => $refund->registration->ticketCategory->name ?? '-',
+                'ticket_price' => $refund->registration->ticketCategory->price ?? 0,
+                'reason' => $refund->reason,
+                'additional_notes' => $refund->additional_notes ?? '-',
+                'request_date' => $refund->created_at->format('d M Y, H:i'),
+                'purchase_date' => $refund->registration->created_at->format('d M Y, H:i'),
+                'status' => $refund->status,
+                'approve_url' => route('admin.refunds.approve', $refund->id),
+                'reject_url' => route('admin.refunds.reject', $refund->id),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'ticketsSold' => $totalParticipants,
+            'capacity' => $capacity,
+            'remainingSeats' => $remainingSeats,
+            'attended_count' => $attended_count,
+            'notAttendedCount' => $notAttendedCount,
+            'attendancePercentage' => $attendancePercentage,
+            'candidatesCount' => $candidatesCount,
+            'pendingCertificates' => $pendingCertificates,
+            'recentActivities' => $recentActivities,
+            'winners' => $winnersList,
+            'participants' => $participants,
+            'pendingRefundsCount' => $pendingRefunds,
+            'approvedRefundsCount' => $approvedRefunds,
+            'rejectedRefundsCount' => $rejectedRefunds,
+            'refunds' => $refundsList
+        ]);
+    }
+
+    public function checkInQr(Request $request, Event $event)
+    {
+        $validated = $request->validate([
+            'qr_code' => 'required|string',
+        ]);
+
+        $registration = \App\Models\Registration::where('event_id', $event->id)
+            ->where('qr_code', $request->qr_code)
+            ->first();
+
+        if (!$registration) {
+            return response()->json([
+                'success' => false,
+                'message' => 'QR Code tidak terdaftar untuk event ini.'
+            ], 404);
+        }
+
+        if ($registration->is_checked_in) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Peserta ' . $registration->user->name . ' sudah check-in sebelumnya.'
+            ], 400);
+        }
+
+        $registration->update([
+            'is_checked_in' => true,
+            'checked_in_at' => now()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Check-in ' . $registration->user->name . ' berhasil! 🏆',
+            'registration' => [
+                'id' => $registration->id,
+                'name' => $registration->user->name ?? 'Guest',
+                'email' => $registration->user->email ?? '-',
+            ]
+        ]);
+    }
+
+    /**
+     * Helper to get sorted combined recent activities for a specific event
+     */
+    private function getEventRecentActivity(Event $event)
+    {
+        $checkIns = \App\Models\Registration::with(['user'])
+            ->where('event_id', $event->id)
+            ->where('is_checked_in', true)
+            ->orderBy('checked_in_at', 'desc')
+            ->take(5)
+            ->get();
+
+        $newRegistrations = \App\Models\Registration::with(['user'])
+            ->where('event_id', $event->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        $newCertificates = \App\Models\Certificate::with(['registration.user'])
+            ->whereHas('registration', function ($q) use ($event) {
+                $q->where('event_id', $event->id);
+            })
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        $activities = collect();
+
+        foreach ($checkIns as $checkIn) {
+            if ($checkIn->user && $checkIn->checked_in_at) {
+                $checkedInTime = \Carbon\Carbon::parse($checkIn->checked_in_at);
+                $activities->push([
+                    'icon' => '👤',
+                    'bg_color' => 'bg-green-50',
+                    'text_color' => 'text-green-600',
+                    'title' => '<strong>' . e($checkIn->user->name) . '</strong> berhasil check-in.',
+                    'time' => $checkedInTime->diffForHumans(),
+                    'timestamp' => $checkedInTime->timestamp
+                ]);
+            }
+        }
+
+        foreach ($newRegistrations as $reg) {
+            if ($reg->user) {
+                $activities->push([
+                    'icon' => '📝',
+                    'bg_color' => 'bg-blue-50',
+                    'text_color' => 'text-blue-600',
+                    'title' => '<strong>' . e($reg->user->name) . '</strong> mendaftar di event.',
+                    'time' => $reg->created_at->diffForHumans(),
+                    'timestamp' => $reg->created_at->timestamp
+                ]);
+            }
+        }
+
+        foreach ($newCertificates as $cert) {
+            if ($cert->registration && $cert->registration->user) {
+                $activities->push([
+                    'icon' => '🏆',
+                    'bg_color' => 'bg-green-50',
+                    'text_color' => 'text-green-600',
+                    'title' => 'Sertifikat berhasil dibuat untuk <strong>' . e($cert->registration->user->name) . '</strong>.',
+                    'time' => $cert->created_at->diffForHumans(),
+                    'timestamp' => $cert->created_at->timestamp
+                ]);
+            }
+        }
+
+        return $activities->sortByDesc('timestamp')->take(5)->values()->toArray();
     }
  
     /*
@@ -126,29 +640,50 @@ class EventController extends Controller
         $validated = $request->validate([
             'name' => 'required|max:255',
             'description' => 'required',
+            'category' => 'required|in:Entertainment,Education,Sports,Business,Community',
             'location' => 'required',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'start_time' => 'required',
             'end_time' => 'required',
             'capacity' => 'required|integer',
-            'status' => 'required',
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
         ]);
  
         $event->update([
             'name' => $request->name,
             'description' => $request->description,
+            'category' => $request->category,
             'location' => $request->location,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
             'capacity' => $request->capacity,
-            'status' => $request->status === 'active' ? 'open' : $request->status,
             'has_certificate' => $request->has_certificate ? 1 : 0,
             'has_seat_layout' => $request->has_seat_layout ? 1 : 0,
             'has_lucky_draw' => $request->has_lucky_draw ? 1 : 0,
         ]);
+
+        // Handle Banner Upload
+        if ($request->hasFile('banner')) {
+            $file = $request->file('banner');
+            $bannerDir = public_path('storage/banners');
+            if (!\Illuminate\Support\Facades\File::exists($bannerDir)) {
+                \Illuminate\Support\Facades\File::makeDirectory($bannerDir, 0755, true);
+            }
+
+            // Delete old banners
+            $files = \Illuminate\Support\Facades\File::files($bannerDir);
+            foreach ($files as $f) {
+                if (str_starts_with($f->getFilename(), 'banner_image_' . $event->id . '.')) {
+                    \Illuminate\Support\Facades\File::delete($f->getRealPath());
+                }
+            }
+
+            $filename = 'banner_image_' . $event->id . '.' . $file->getClientOriginalExtension();
+            $file->move($bannerDir, $filename);
+        }
  
         return redirect()
             ->route('admin.events')
@@ -163,10 +698,184 @@ class EventController extends Controller
  
     public function destroy(Event $event)
     {
+        // Delete banner image if exists
+        $bannerDir = public_path('storage/banners');
+        if (\Illuminate\Support\Facades\File::exists($bannerDir)) {
+            $files = \Illuminate\Support\Facades\File::files($bannerDir);
+            foreach ($files as $f) {
+                if (str_starts_with($f->getFilename(), 'banner_image_' . $event->id . '.')) {
+                    \Illuminate\Support\Facades\File::delete($f->getRealPath());
+                }
+            }
+        }
+
         $event->delete();
  
         return redirect()
             ->route('admin.events')
             ->with('success', 'Event berhasil dihapus! 🗑');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | EVENT FEATURE SETUP
+    |--------------------------------------------------------------------------
+    */
+
+    public function showFeatures(Event $event)
+    {
+        // Check if at least one feature is enabled
+        $hasFeatures = $event->has_certificate || $event->has_seat_layout || $event->has_lucky_draw;
+        if (!$hasFeatures) {
+            $event->is_configured = true;
+            $event->save();
+            return redirect()
+                ->route('admin.events')
+                ->with('success', 'Event berhasil dibuat. 🎉');
+        }
+
+        $tickets = $event->ticketCategories;
+        // Parse current layout if stored
+        $seatLayouts = json_decode($event->seat_layout ?? '{}', true);
+
+        return view('admin.events.features', compact('event', 'tickets', 'seatLayouts'));
+    }
+
+    public function storeFeatures(Request $request, Event $event)
+    {
+        $validationRules = [];
+
+        if ($event->has_certificate) {
+            $validationRules = array_merge($validationRules, [
+                'certificate_title' => 'required|max:255',
+                'organizer_name' => 'required|max:255',
+                'certificate_template' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
+                'signature_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            ]);
+        }
+
+        if ($event->has_seat_layout) {
+            $validationRules = array_merge($validationRules, [
+                'seat_layout' => 'required|array',
+                'seat_layout.*' => 'required|string',
+            ]);
+        }
+
+        if ($event->has_lucky_draw) {
+            $validationRules = array_merge($validationRules, [
+                'prize_name' => 'required|max:255',
+                'prize_description' => 'required',
+                'winner_count' => 'required|integer|min:1',
+            ]);
+        }
+
+        $request->validate($validationRules);
+
+        // 1. Certificate config
+        if ($event->has_certificate) {
+            $event->certificate_title = $request->certificate_title;
+            $event->organizer_name = $request->organizer_name;
+
+            // Handle Template
+            if ($request->hasFile('certificate_template')) {
+                $file = $request->file('certificate_template');
+                $templateDir = public_path('storage/certificates/templates');
+                if (!\Illuminate\Support\Facades\File::exists($templateDir)) {
+                    \Illuminate\Support\Facades\File::makeDirectory($templateDir, 0755, true);
+                }
+
+                // Delete old templates
+                $files = \Illuminate\Support\Facades\File::files($templateDir);
+                foreach ($files as $f) {
+                    if (str_starts_with($f->getFilename(), 'template_' . $event->id . '.')) {
+                        \Illuminate\Support\Facades\File::delete($f->getRealPath());
+                    }
+                }
+
+                $filename = 'template_' . $event->id . '.' . $file->getClientOriginalExtension();
+                $file->move($templateDir, $filename);
+                $event->certificate_template = $filename;
+            }
+
+            // Handle Signature
+            if ($request->hasFile('signature_image')) {
+                $file = $request->file('signature_image');
+                $signatureDir = public_path('storage/certificates/signatures');
+                if (!\Illuminate\Support\Facades\File::exists($signatureDir)) {
+                    \Illuminate\Support\Facades\File::makeDirectory($signatureDir, 0755, true);
+                }
+
+                // Delete old signatures
+                $files = \Illuminate\Support\Facades\File::files($signatureDir);
+                foreach ($files as $f) {
+                    if (str_starts_with($f->getFilename(), 'signature_' . $event->id . '.')) {
+                        \Illuminate\Support\Facades\File::delete($f->getRealPath());
+                    }
+                }
+
+                $filename = 'signature_' . $event->id . '.' . $file->getClientOriginalExtension();
+                $file->move($signatureDir, $filename);
+                $event->signature_image = $filename;
+            }
+        }
+
+        // 2. Seat Layout Config
+        if ($event->has_seat_layout) {
+            $layouts = $request->input('seat_layout', []);
+            $event->seat_layout = json_encode($layouts);
+
+            // Re-generate seats table
+            \App\Models\Seat::where('event_id', $event->id)->delete();
+
+            foreach ($layouts as $ticketCategoryId => $layoutString) {
+                $ranges = array_filter(array_map('trim', explode(',', $layoutString)));
+                foreach ($ranges as $range) {
+                    if (preg_match('/^([A-Z]+)(\d+)-([A-Z]*?)(\d+)$/i', $range, $matches)) {
+                        $row = strtoupper($matches[1]);
+                        $startCol = intval($matches[2]);
+                        $endCol = intval($matches[4]);
+
+                        $minCol = min($startCol, $endCol);
+                        $maxCol = max($startCol, $endCol);
+
+                        $rowInt = is_numeric($row) ? intval($row) : (ord(strtoupper($row)) - 64);
+                        for ($col = $minCol; $col <= $maxCol; $col++) {
+                            $seatNumber = $row . $col;
+                            \App\Models\Seat::create([
+                                'event_id' => $event->id,
+                                'seat_number' => $seatNumber,
+                                'row' => $rowInt,
+                                'column' => $col,
+                                'status' => 'available',
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. Lucky Draw Config
+        if ($event->has_lucky_draw) {
+            $event->prize_name = $request->prize_name;
+            $event->prize_description = $request->prize_description;
+            $event->winner_count = $request->winner_count;
+        }
+
+        $event->is_configured = true;
+        $event->save();
+
+        return redirect()
+            ->route('admin.events')
+            ->with('success', 'Event successfully configured. 🎉');
+    }
+
+    public function finishSetup(Event $event)
+    {
+        $event->is_configured = true;
+        $event->save();
+
+        return redirect()
+            ->route('admin.events')
+            ->with('success', 'Event berhasil dibuat. 🎉');
     }
 }

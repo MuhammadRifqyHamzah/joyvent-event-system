@@ -17,61 +17,9 @@ class CertificateController extends Controller
     |--------------------------------------------------------------------------
     */
  
-    public function index(Request $request)
+    public function index(Event $event, Request $request)
     {
-        // Only load events configured with has_certificate = 1
-        $events = Event::where('has_certificate', 1)
-            ->orderBy('name', 'asc')
-            ->get();
-            
-        $eventId = $request->query('event_id');
-        
-        $event = null;
-        $certificates = collect();
-        $candidates = collect();
-        $templateUrl = null;
- 
-        if ($eventId) {
-            $event = Event::findOrFail($eventId);
-            
-            // Get already generated certificates
-            $certificates = Certificate::with(['registration.user', 'registration.ticketCategory'])
-                ->whereHas('registration', function($query) use ($eventId) {
-                    $query->where('event_id', $eventId);
-                })
-                ->orderBy('created_at', 'desc')
-                ->get();
-                
-            // Get checked-in participants who do NOT have a certificate issued yet
-            $issuedRegistrationIds = Certificate::pluck('registration_id');
-            $candidates = Registration::with('user')
-                ->where('event_id', $eventId)
-                ->where('is_checked_in', 1)
-                ->whereNotIn('id', $issuedRegistrationIds)
-                ->get();
- 
-            // Check if there is an uploaded template background image
-            $templateDirectory = public_path('storage/certificates/templates');
-            if (File::exists($templateDirectory)) {
-                $files = File::files($templateDirectory);
-                foreach ($files as $file) {
-                    $filename = $file->getFilename();
-                    if (str_starts_with($filename, 'template_' . $eventId . '.')) {
-                        $templateUrl = asset('storage/certificates/templates/' . $filename);
-                        break;
-                    }
-                }
-            }
-        }
- 
-        return view('admin.certificates.index', compact(
-            'events',
-            'eventId',
-            'event',
-            'certificates',
-            'candidates',
-            'templateUrl'
-        ));
+        return redirect()->route('admin.events.show', ['event' => $event->id, 'tab' => 'certificates']);
     }
  
     /*

@@ -61,6 +61,21 @@
                                 class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-700">
                         </div>
  
+                        <!-- Event Category -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider text-xs">
+                                Kategori Event
+                            </label>
+                            <select name="category" required
+                                class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-gray-700 bg-white">
+                                <option value="Entertainment" {{ old('category', $event->category) == 'Entertainment' ? 'selected' : '' }}>Entertainment</option>
+                                <option value="Education" {{ old('category', $event->category) == 'Education' ? 'selected' : '' }}>Education</option>
+                                <option value="Sports" {{ old('category', $event->category) == 'Sports' ? 'selected' : '' }}>Sports</option>
+                                <option value="Business" {{ old('category', $event->category) == 'Business' ? 'selected' : '' }}>Business</option>
+                                <option value="Community" {{ old('category', $event->category) == 'Community' ? 'selected' : '' }}>Community</option>
+                            </select>
+                        </div>
+ 
                         <!-- Description -->
                         <div class="mb-6">
                             <label class="block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider text-xs">
@@ -123,7 +138,7 @@
                             </div>
                         </div>
  
-                        <!-- Capacity & Status Grid -->
+                        <!-- Capacity & Banner Grid -->
                         <div class="grid grid-cols-2 gap-6 mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider text-xs">
@@ -135,26 +150,11 @@
  
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider text-xs">
-                                    Status Event
+                                    Banner Event (Opsional)
                                 </label>
-                                <select name="status"
-                                    class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-gray-700 bg-white">
-                                    <option value="">-- Pilih Status --</option>
-                                    <option value="draft" {{ old('status', $event->status) == 'draft' ? 'selected' : '' }}>Draft</option>
-                                    <option value="active" {{ old('status', $event->status) == 'active' || old('status', $event->status) == 'open' ? 'selected' : '' }}>Active</option>
-                                    <option value="closed" {{ old('status', $event->status) == 'closed' ? 'selected' : '' }}>Closed</option>
-                                    <option value="finished" {{ old('status', $event->status) == 'finished' ? 'selected' : '' }}>Finished</option>
-                                </select>
+                                <input type="file" name="banner"
+                                    class="w-full border border-gray-200 rounded-2xl px-5 py-4 font-semibold text-gray-500">
                             </div>
-                        </div>
- 
-                        <!-- Banner -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider text-xs">
-                                Banner Event (Opsional)
-                            </label>
-                            <input type="file" name="banner"
-                                class="w-full border border-gray-200 rounded-2xl px-5 py-4 font-semibold text-gray-500">
                         </div>
  
                     </div>

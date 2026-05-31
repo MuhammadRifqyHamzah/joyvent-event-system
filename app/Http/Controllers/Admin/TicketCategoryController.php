@@ -37,13 +37,21 @@ class TicketCategoryController extends Controller
             'description' => 'nullable',
         ]);
  
-        $event->ticketCategories()->create([
+        $ticket = $event->ticketCategories()->create([
             'name' => $request->name,
             'price' => $request->price,
             'quota' => $request->quota,
             'description' => $request->description,
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Ticket category berhasil dibuat! 🎟️',
+                'ticket' => $ticket,
+            ]);
+        }
  
         return redirect()
             ->route('admin.tickets.index', $event->id)

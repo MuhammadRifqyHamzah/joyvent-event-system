@@ -5,6 +5,10 @@
 @section('content')
  
 <div class="space-y-8">
+    @include('admin.events.partials.header')
+    @php
+        $eventStatus = $event->calculated_status;
+    @endphp
  
     {{-- Success Alert Notification --}}
     @if(session('success'))
@@ -26,7 +30,7 @@
         </div>
     @endif
  
-    <!-- Header: Title and Selector -->
+    <!-- Header: Title -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
  
         <div>
@@ -38,42 +42,10 @@
             </p>
         </div>
  
-        <!-- Dropdown Selector -->
-        <div class="relative w-full md:w-80">
-            <select id="eventSelect" onchange="window.location.href = '?event_id=' + this.value" 
-                class="w-full border border-gray-200 bg-white rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-sm text-gray-700 appearance-none cursor-pointer">
-                <option value="">-- Pilih Event --</option>
-                @foreach($events as $evt)
-                    <option value="{{ $evt->id }}" {{ $eventId == $evt->id ? 'selected' : '' }}>
-                        {{ $evt->name }}
-                    </option>
-                @endforeach
-            </select>
-            <!-- Arrow icon overlay -->
-            <div class="pointer-events-none absolute inset-y-0 right-5 flex items-center text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                </svg>
-            </div>
-        </div>
- 
     </div>
  
     <!-- Content Cards -->
-    @if(!$eventId)
-        <!-- Landing State: Select Event -->
-        <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-16 text-center">
-            <div class="w-20 h-20 bg-indigo-50 border border-indigo-100/30 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-10 h-10 text-indigo-655">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6c0-1.243 1.007-2.25 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5Z" />
-                </svg>
-            </div>
-            <h3 class="text-xl font-extrabold text-gray-800 tracking-tight">Silakan Pilih Event</h3>
-            <p class="text-gray-400 text-sm mt-2 max-w-md mx-auto leading-relaxed font-semibold">
-                Silakan pilih salah satu event pada dropdown di kanan atas untuk mengelola peta layout tempat duduk peserta. 🪑
-            </p>
-        </div>
-    @elseif($event && !$event->has_seat_layout)
+    @if($event && !$event->has_seat_layout)
         <!-- State: Event is standing (No Seat Layout) -->
         <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-16 text-center">
             <div class="w-20 h-20 bg-amber-50 border border-amber-100/30 rounded-3xl flex items-center justify-center mx-auto mb-6">
@@ -104,8 +76,20 @@
                     </div>
                 </div>
  
-                <!-- Mass Generator Card (Only shows if no seats generated yet) -->
-                @if($groupedSeats->isEmpty())
+                <!-- Mass Generator / Layout Summary Card -->
+                @if($eventStatus === 'finished')
+                    <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 text-center">
+                        <div class="w-14 h-14 bg-slate-50 border border-slate-200 text-slate-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                            </svg>
+                        </div>
+                        <h4 class="text-sm font-extrabold text-gray-800">Konfigurasi Dikunci</h4>
+                        <p class="text-xs text-gray-400 mt-2 font-semibold leading-relaxed">
+                            Layout tempat duduk tidak dapat diubah karena event telah selesai.
+                        </p>
+                    </div>
+                @elseif($groupedSeats->isEmpty())
                 <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8">
                     <h4 class="text-base font-extrabold text-gray-800 tracking-tight flex items-center gap-2 mb-4">
                         <span>🪑 Mass Seat Generator</span>
@@ -249,14 +233,22 @@
                                             
                                             <!-- Seat Item Container -->
                                             <div class="relative group">
-                                                <form action="{{ route('admin.seats.toggle_status', $seat->id) }}" method="POST" class="inline">
-                                                    @csrf
-                                                    <button type="submit" 
-                                                        {{ $status === 'booked' ? 'disabled' : '' }}
-                                                        class="w-10 h-10 rounded-xl border flex items-center justify-center font-bold text-xs tracking-tight transition shadow-sm cursor-pointer disabled:cursor-not-allowed select-none {{ $btnColor }}">
+                                                @if($eventStatus === 'finished')
+                                                    <button type="button" 
+                                                        disabled
+                                                        class="w-10 h-10 rounded-xl border flex items-center justify-center font-bold text-xs tracking-tight transition shadow-sm disabled:cursor-not-allowed select-none {{ $btnColor }}">
                                                         {{ $seat->column }}
                                                     </button>
-                                                </form>
+                                                @else
+                                                    <form action="{{ route('admin.seats.toggle_status', $seat->id) }}" method="POST" class="inline">
+                                                        @csrf
+                                                        <button type="submit" 
+                                                            {{ $status === 'booked' ? 'disabled' : '' }}
+                                                            class="w-10 h-10 rounded-xl border flex items-center justify-center font-bold text-xs tracking-tight transition shadow-sm cursor-pointer disabled:cursor-not-allowed select-none {{ $btnColor }}">
+                                                            {{ $seat->column }}
+                                                        </button>
+                                                    </form>
+                                                @endif
                                                 
                                                 <!-- Tooltip overlay for Booked / Occupied Seat -->
                                                 @if($status === 'booked' && $booking && $booking->user)

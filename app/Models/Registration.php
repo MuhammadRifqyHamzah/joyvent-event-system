@@ -39,4 +39,9 @@ class Registration extends Model
     {
         return $this->hasOne(Certificate::class);
     }
+
+    public function refund()
+    {
+        return $this->hasOne(Refund::class);
+    }
 }

@@ -12,11 +12,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
-
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        // Panggil AdminSeeder terlebih dahulu untuk memastikan akun admin default terbentuk
+        // Setelah itu baru jalankan EventSeeder untuk seed data demo/event
+        $this->call([
+            AdminSeeder::class,
+            EventSeeder::class,
+            RefundSeeder::class,
+        ]);
     }
 }

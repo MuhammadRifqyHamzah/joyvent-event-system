@@ -5,6 +5,10 @@
 @section('content')
  
 <div class="space-y-8">
+    @include('admin.events.partials.header')
+    @php
+        $eventStatus = $event->calculated_status;
+    @endphp
  
     {{-- Success Alert Notification --}}
     @if(session('success'))
@@ -16,7 +20,7 @@
         </div>
     @endif
  
-    <!-- Header: Title and Selector -->
+    <!-- Header: Title -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <h1 class="text-4xl font-extrabold text-gray-800 tracking-tight">
@@ -26,41 +30,9 @@
                 Undi hadiah menarik bagi para peserta yang telah hadir di lokasi event.
             </p>
         </div>
- 
-        <!-- Dropdown Selector -->
-        <div class="relative w-full md:w-80">
-            <select id="eventSelect" onchange="window.location.href = '?event_id=' + this.value" 
-                class="w-full border border-gray-200 bg-white rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-sm text-gray-700 appearance-none cursor-pointer">
-                <option value="">-- Pilih Event --</option>
-                @foreach($events as $evt)
-                    <option value="{{ $evt->id }}" {{ $eventId == $evt->id ? 'selected' : '' }}>
-                        {{ $evt->name }}
-                    </option>
-                @endforeach
-            </select>
-            <!-- Arrow icon overlay -->
-            <div class="pointer-events-none absolute inset-y-0 right-5 flex items-center text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                </svg>
-            </div>
-        </div>
     </div>
  
-    @if(!$eventId)
-        <!-- Landing State: Select Event -->
-        <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-16 text-center">
-            <div class="w-20 h-20 bg-amber-50 border border-amber-100/30 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-10 h-10 text-amber-600">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 21L14.907 18M18 10.5c0-4.142-3.358-7.5-7.5-7.5-3.666 0-6.702 2.628-7.362 6.1M18 10.5c0 .35-.027.693-.08 1.026M18 10.5c-.244 1.583-.984 3.003-2.07 4.1M10.5 18a7.48 7.48 0 0 1-5.638-2.5M10.5 18c1.554 0 2.96-.474 4.122-1.286M10.5 18v3" />
-                </svg>
-            </div>
-            <h3 class="text-xl font-extrabold text-gray-800 tracking-tight">Silakan Pilih Event</h3>
-            <p class="text-gray-400 text-sm mt-2 max-w-md mx-auto leading-relaxed font-semibold">
-                Silakan pilih event yang memiliki fitur Lucky Draw aktif untuk memulai undian. 🎰
-            </p>
-        </div>
-    @else
+
         <!-- Seated Event Layout Editor -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 relative">
             
@@ -68,6 +40,7 @@
             <canvas id="confettiCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-50 rounded-[32px]"></canvas>
  
             <!-- Left Side: Interactive neon Slot Machine Card (Takes 2 Columns) -->
+            @if($eventStatus !== 'finished')
             <div class="lg:col-span-2 space-y-6">
                 <div class="bg-slate-950 rounded-[32px] border border-slate-800 shadow-2xl p-10 text-center relative overflow-hidden min-h-[420px] flex flex-col justify-between">
                     
@@ -111,7 +84,11 @@
                             >
                         </div>
  
-                        @if($candidates->isEmpty())
+                        @if($eventStatus === 'upcoming')
+                            <button disabled class="w-full bg-slate-805 text-slate-500 font-extrabold py-4 px-6 rounded-2xl text-xs tracking-widest uppercase cursor-not-allowed select-none shadow-md">
+                                Undian Belum Bisa Dimulai (Event Belum Mulai) 🔒
+                            </button>
+                        @elseif($candidates->isEmpty())
                             <button disabled class="w-full bg-slate-800 text-slate-500 font-extrabold py-4 px-6 rounded-2xl text-xs tracking-widest uppercase cursor-not-allowed select-none shadow-md">
                                 Tidak Ada Kandidat (Harus Check-In) 💡
                             </button>
@@ -124,10 +101,11 @@
  
                 </div>
             </div>
+            @endif
  
-            <!-- Right Side: Winner History Logs (Takes 1 Column) -->
-            <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 flex flex-col justify-between min-h-[420px]">
+            <!-- Right Side: Winner History Logs -->
+            <div class="{{ $eventStatus === 'finished' ? 'lg:col-span-3' : 'lg:col-span-1' }} space-y-6">
+                <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 flex flex-col justify-between {{ $eventStatus === 'finished' ? 'min-h-[250px]' : 'min-h-[420px]' }}">
                     
                     <div>
                         <h3 class="text-xl font-extrabold text-gray-800 tracking-tight flex items-center gap-2">
@@ -139,7 +117,7 @@
                     </div>
  
                     <!-- History List -->
-                    <div class="my-6 flex-grow overflow-y-auto max-h-[220px] pr-2 space-y-3" id="winnersListContainer">
+                    <div class="my-6 flex-grow overflow-y-auto pr-2 {{ $eventStatus === 'finished' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4' : 'space-y-3 max-h-[220px]' }}" id="winnersListContainer">
                         @if($winners->isEmpty())
                             <div class="h-full flex flex-col items-center justify-center text-center p-6 bg-gray-50 border border-gray-100/50 rounded-2xl">
                                 <span class="text-2xl mb-1">🎁</span>
@@ -158,6 +136,7 @@
                                     </div>
                                     
                                     <!-- Delete Reset Button -->
+                                    @if($eventStatus !== 'finished')
                                     <form action="{{ route('admin.lucky_draw.destroy', $win->id) }}" method="POST" class="opacity-0 group-hover:opacity-100 transition flex-shrink-0">
                                         @csrf
                                         @method('DELETE')
@@ -167,24 +146,26 @@
                                             </svg>
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
                             @endforeach
                         @endif
                     </div>
                     
                     <!-- Candidates Summary Badge -->
+                    @if($eventStatus !== 'finished')
                     <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-center">
                         <span class="text-[9px] font-extrabold text-indigo-500 uppercase tracking-widest">Kandidat Peserta Hadir</span>
                         <span class="block text-2xl font-black text-indigo-750 mt-1" id="candidatesCountBadge">
                             {{ $candidates->count() }} Orang
                         </span>
                     </div>
+                    @endif
  
                 </div>
             </div>
  
         </div>
-    @endif
  
 </div>
  

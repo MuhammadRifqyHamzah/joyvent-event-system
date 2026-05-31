@@ -5,6 +5,10 @@
 @section('content')
  
 <div class="space-y-8">
+    @include('admin.events.partials.header')
+    @php
+        $eventStatus = $event->calculated_status;
+    @endphp
  
     {{-- Success Alert Notification --}}
     @if(session('success'))
@@ -69,7 +73,7 @@
  
     </div>
  
-    <!-- Header: Title and Controls (Filter + Search) -->
+    <!-- Header: Title and Controls (Search) -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-2">
  
         <div>
@@ -84,25 +88,6 @@
         <!-- Action Controls -->
         <div class="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
             
-            <!-- Event Dropdown Filter -->
-            <div class="relative w-full sm:w-64">
-                <select id="eventFilter" onchange="filterByEvent(this.value)" 
-                    class="w-full border border-gray-200 bg-white rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-sm text-gray-700 appearance-none cursor-pointer">
-                    <option value="">All Events</option>
-                    @foreach($events as $event)
-                        <option value="{{ $event->id }}" {{ $eventId == $event->id ? 'selected' : '' }}>
-                            {{ $event->name }}
-                        </option>
-                    @endforeach
-                </select>
-                <!-- Arrow icon overlay -->
-                <div class="pointer-events-none absolute inset-y-0 right-5 flex items-center text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                    </svg>
-                </div>
-            </div>
- 
             <!-- Search Participant input -->
             <div class="relative w-full sm:w-80">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-5 h-5 text-gray-400 absolute left-4.5 top-1/2 transform -translate-y-1/2">
@@ -219,20 +204,30 @@
  
                         <!-- Check-in Action Toggle -->
                         <td class="py-5">
-                            <form action="{{ route('admin.participants.check_in', $reg->id) }}" method="POST">
-                                @csrf
-                                @if($reg->is_checked_in)
-                                    <button type="submit" 
-                                        class="bg-gray-100 hover:bg-gray-200 text-gray-650 px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition border border-gray-200/50 cursor-pointer">
-                                        Cancel Check-In
-                                    </button>
-                                @else
-                                    <button type="submit" 
-                                        class="bg-green-50 hover:bg-green-100 text-green-600 px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition border border-green-100/50 cursor-pointer">
-                                        Check-In
-                                    </button>
-                                @endif
-                            </form>
+                            @if($eventStatus === 'ongoing')
+                                <form action="{{ route('admin.participants.check_in', $reg->id) }}" method="POST">
+                                    @csrf
+                                    @if($reg->is_checked_in)
+                                        <button type="submit" 
+                                            class="bg-gray-100 hover:bg-gray-200 text-gray-650 px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition border border-gray-200/50 cursor-pointer">
+                                            Cancel Check-In
+                                        </button>
+                                    @else
+                                        <button type="submit" 
+                                            class="bg-green-50 hover:bg-green-100 text-green-600 px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition border border-green-100/50 cursor-pointer">
+                                            Check-In
+                                        </button>
+                                    @endif
+                                </form>
+                            @elseif($eventStatus === 'upcoming')
+                                <button disabled class="bg-gray-100 text-gray-450 px-4 py-2 rounded-xl text-xs font-bold tracking-wide border border-gray-250/50 cursor-not-allowed select-none">
+                                    Belum Mulai
+                                </button>
+                            @else
+                                <button disabled class="bg-gray-150 text-gray-400 px-4 py-2 rounded-xl text-xs font-bold tracking-wide border border-gray-200/50 cursor-not-allowed select-none">
+                                    Selesai
+                                </button>
+                            @endif
                         </td>
  
                     </tr>
@@ -296,17 +291,6 @@
                 nativeEmptyRow.style.display = foundAny ? 'none' : (query === '' ? '' : 'none');
             }
         });
-    }
- 
-    // Dropdown Event Filtering Redirection
-    function filterByEvent(val) {
-        const url = new URL(window.location.href);
-        if (val) {
-            url.searchParams.set('event_id', val);
-        } else {
-            url.searchParams.delete('event_id');
-        }
-        window.location.href = url.toString();
     }
 </script>
  

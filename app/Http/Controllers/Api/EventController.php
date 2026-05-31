@@ -13,7 +13,7 @@ class EventController extends Controller
      */
     public function index()
     {
-        $events = Event::latest()->get();
+        $events = Event::with('ticketCategories')->where('is_configured', 1)->latest()->get();
 
         return response()->json([
             'message' => 'List Event',
@@ -61,7 +61,7 @@ class EventController extends Controller
      */
     public function show(string $id)
     {
-        $event = Event::findOrFail($id);
+        $event = Event::with('ticketCategories')->where('is_configured', 1)->findOrFail($id);
 
         return response()->json([
             'message' => 'Detail Event',

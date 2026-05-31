@@ -16,47 +16,9 @@ class LuckyDrawController extends Controller
     |--------------------------------------------------------------------------
     */
  
-    public function index(Request $request)
+    public function index(Event $event, Request $request)
     {
-        // Only load events configured with has_lucky_draw = 1
-        $events = Event::where('has_lucky_draw', 1)
-            ->orderBy('name', 'asc')
-            ->get();
-            
-        $eventId = $request->query('event_id');
-        
-        $event = null;
-        $winners = collect();
-        $candidates = collect();
- 
-        if ($eventId) {
-            $event = Event::findOrFail($eventId);
-            
-            // Get already won registrants to prevent duplicate winning
-            $winnerRegistrationIds = LuckyDrawWinner::where('event_id', $eventId)
-                ->pluck('registration_id');
-                
-            // Load all winners for history logs
-            $winners = LuckyDrawWinner::with('registration.user')
-                ->where('event_id', $eventId)
-                ->orderBy('won_at', 'desc')
-                ->get();
-                
-            // Eligible candidates must be checked-in and have NOT won yet
-            $candidates = Registration::with('user')
-                ->where('event_id', $eventId)
-                ->where('is_checked_in', 1)
-                ->whereNotIn('id', $winnerRegistrationIds)
-                ->get();
-        }
- 
-        return view('admin.luckydraw.index', compact(
-            'events',
-            'eventId',
-            'event',
-            'winners',
-            'candidates'
-        ));
+        return redirect()->route('admin.events.show', ['event' => $event->id, 'tab' => 'lucky_draw']);
     }
  
     /*
