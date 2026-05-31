@@ -157,4 +157,16 @@ class SettingsTest extends TestCase
         $this->assertEquals('new-org@joyvent.com', Setting::getValue('organizer_email'));
         $this->assertEquals('08999999999', Setting::getValue('organizer_phone'));
     }
+
+    /**
+     * Test unauthenticated guest is redirected to login.
+     */
+    public function test_guest_is_redirected_to_login()
+    {
+        $response = $this->get('/admin/settings');
+        $response->assertRedirect(route('admin.login'));
+
+        $responseDashboard = $this->get('/admin/dashboard');
+        $responseDashboard->assertRedirect(route('admin.login'));
+    }
 }
