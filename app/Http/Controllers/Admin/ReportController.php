@@ -21,7 +21,7 @@ class ReportController extends Controller
 
         // Get only events where status is finished dynamically based on date & time
         $finishedEvents = Event::where('is_configured', 1)
-            ->whereRaw("CONCAT(end_date, ' ', end_time) < ?", [$nowString])
+            ->finished()
             ->orderBy('start_date', 'desc')
             ->get();
 

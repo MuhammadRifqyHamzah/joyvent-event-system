@@ -109,4 +109,92 @@ class SeatController extends Controller
             ->back()
             ->with('success', $message);
     }
+
+    public function showBuilder(Event $event)
+    {
+        $tickets = $event->ticketCategories;
+        return view('admin.seats.builder', compact('event', 'tickets'));
+    }
+
+    public function saveBuilderLayout(Request $request, Event $event)
+    {
+        // Check for existing bookings to protect data
+        $hasBookedSeats = Seat::where('event_id', $event->id)
+            ->where('status', 'booked')
+            ->exists();
+
+        $hasRegistrationsWithSeats = Registration::where('event_id', $event->id)
+            ->whereNotNull('seat_number')
+            ->exists();
+
+        if ($hasBookedSeats || $hasRegistrationsWithSeats) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot regenerate layout. Some seats are already booked by participants! 🚫'
+            ], 422);
+        }
+
+        $request->validate([
+            'config' => 'required|array',
+            'seats' => 'required|array',
+            'desks' => 'nullable|array'
+        ]);
+
+        $config = $request->input('config');
+        $seatsPayload = $request->input('seats');
+
+        $ticketCategories = $event->ticketCategories;
+        $categoryMapping = [];
+        foreach ($ticketCategories as $tc) {
+            $categoryMapping[strtolower($tc->name)] = $tc->id;
+        }
+
+        // Save layout configuration in events table
+        $event->seat_layout = json_encode([
+            'config' => $config,
+            'seats' => $seatsPayload,
+            'desks' => $request->input('desks', [])
+        ]);
+        $event->is_configured = true;
+        $event->save();
+
+        // Delete old seats
+        Seat::where('event_id', $event->id)->delete();
+
+        // Create new seat records
+        foreach ($seatsPayload as $seatData) {
+            $categoryName = $seatData['category'] ?? '';
+            $catId = $categoryMapping[strtolower($categoryName)] ?? null;
+
+            if (!$catId) {
+                foreach ($categoryMapping as $nameKey => $idVal) {
+                    if (str_contains(strtolower($categoryName), $nameKey) || str_contains($nameKey, strtolower($categoryName))) {
+                        $catId = $idVal;
+                        break;
+                    }
+                }
+            }
+
+            $rowLabel = $seatData['row'] ?? '';
+            $rowInt = is_numeric($rowLabel) ? intval($rowLabel) : (ord(strtoupper($rowLabel)) - 64);
+
+            Seat::create([
+                'event_id' => $event->id,
+                'ticket_category_id' => $catId,
+                'seat_number' => $seatData['seat'] ?? $seatData['seat_number'] ?? '',
+                'row' => $rowInt,
+                'column' => $seatData['position'] ?? null,
+                'status' => 'available',
+                'x' => $seatData['x'] ?? null,
+                'y' => $seatData['y'] ?? null,
+                'rotation' => $seatData['rotation'] ?? 0
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Layout successfully configured and saved! 🎉',
+            'redirect_url' => route('admin.events')
+        ]);
+    }
 }

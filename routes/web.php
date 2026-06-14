@@ -165,6 +165,11 @@ Route::middleware('auth')->group(function () {
      
     Route::post('/admin/seats/{seat}/toggle-status', [SeatController::class, 'toggleStatus'])
         ->name('admin.seats.toggle_status');
+
+    Route::get('/admin/events/{event}/seat-layout-builder', [SeatController::class, 'showBuilder'])
+        ->name('admin.seats.builder');
+    Route::post('/admin/events/{event}/seat-layout-builder', [SeatController::class, 'saveBuilderLayout'])
+        ->name('admin.seats.builder.save');
      
     /*
     |--------------------------------------------------------------------------
@@ -243,4 +248,13 @@ Route::middleware('auth')->group(function () {
         ->name('admin.settings.password');
     Route::post('/admin/settings/organizer', [SettingsController::class, 'updateOrganizer'])
         ->name('admin.settings.organizer');
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEAT LAYOUT BUILDER PROTOTYPE V4.1 (ACTIVE)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/admin/seat-layout-prototype-v41', function () {
+        return view('admin.seats.prototype_v41');
+    })->name('admin.seats.prototype_v41');
 });

@@ -21,7 +21,7 @@ class SettingsController extends Controller
         $user = Auth::user();
 
         // System Statistics
-        $totalEvents = Event::count();
+        $totalEvents = Event::where('is_configured', 1)->count();
         $totalParticipants = User::where('role', 'participant')->count();
 
         // Software versions

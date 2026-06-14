@@ -75,6 +75,16 @@
  
             </a>
  
+            <!-- Seat Layout Builder V4.1 (Prototype) -->
+            <a href="/admin/seat-layout-prototype-v41"
+                class="flex items-center gap-4 px-5 py-4.5 rounded-2xl font-bold transition duration-200
+                {{ request()->is('admin/seat-layout-prototype-v41') ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M19.5 3v11.25a2.25 2.25 0 0 1-2.25 2.25H15M3.75 11.25h16.5M3.75 16.5h16.5M12 3v18M12 21h-3.75m3.75 0H15" />
+                </svg>
+                <span class="text-sm">Seat Builder V4.1 (Proto)</span>
+            </a>
+
             <!-- Settings -->
             <a href="/admin/settings"
                 class="flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition duration-200

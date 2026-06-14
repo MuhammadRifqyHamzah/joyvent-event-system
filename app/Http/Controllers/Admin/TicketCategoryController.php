@@ -36,6 +36,16 @@ class TicketCategoryController extends Controller
             'quota' => 'required|integer|min:0',
             'description' => 'nullable',
         ]);
+
+        $eventCapacityLimit = $event->getEventCapacityLimit();
+        $currentTotalQuota = $event->ticketCategories()->sum('quota');
+        $newQuota = (int) $request->quota;
+
+        if ($currentTotalQuota + $newQuota > $eventCapacityLimit) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'quota' => ["Total kuota tiket tidak boleh melebihi kapasitas event ({$eventCapacityLimit} peserta)."]
+            ]);
+        }
  
         $ticket = $event->ticketCategories()->create([
             'name' => $request->name,

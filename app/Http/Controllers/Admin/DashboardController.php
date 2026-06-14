@@ -37,12 +37,14 @@ class DashboardController extends Controller
             $ongoingEventsCount = $ongoingEvents->count();
             $eventSubtext = '⚡ Sedang aktif';
 
-            // 2. Total Event (all events ever created) & Growth
-            $totalEventsCount = Event::count();
-            $eventsThisMonth = Event::whereMonth('created_at', now()->month)
+            // 2. Total Event (configured only) & Growth
+            $totalEventsCount = Event::where('is_configured', 1)->active()->count();
+            $eventsThisMonth = Event::where('is_configured', 1)->active()
+                ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->count();
-            $eventsLastMonth = Event::whereMonth('created_at', now()->subMonth()->month)
+            $eventsLastMonth = Event::where('is_configured', 1)->active()
+                ->whereMonth('created_at', now()->subMonth()->month)
                 ->whereYear('created_at', now()->subMonth()->year)
                 ->count();
             $eventGrowth = $this->calculateGrowth($eventsThisMonth, $eventsLastMonth);
@@ -190,8 +192,9 @@ class DashboardController extends Controller
 
             $sortedActivities = $activities->sortByDesc('timestamp')->take(5);
 
-            // 5. Laporan Penjualan Event Selesai
-            $finishedEventsReport = Event::where('status', 'finished')
+            // 5. Laporan Penjualan Event Selesai (Dynamic Datetime Filter)
+            $finishedEventsReport = Event::where('is_configured', 1)
+                ->finished()
                 ->select('id', 'name')
                 ->withCount([
                     'registrations as tickets_sold' => function ($q) {
@@ -215,6 +218,21 @@ class DashboardController extends Controller
             $sortedFinishedEvents = $finishedEventsReport->sortByDesc('revenue');
             $highestRevenueEvent = $sortedFinishedEvents->first();
             $highestRevenueEventName = $highestRevenueEvent && $highestRevenueEvent->revenue > 0 ? $highestRevenueEvent->name : 'Tidak Ada';
+
+            // 6. Breakdown Penjualan Tiket (Grouped by Event Status)
+            $ticketBreakdown = Event::where('is_configured', 1)
+                ->whereHas('registrations', function ($q) {
+                    $q->where('status', 'confirmed');
+                })
+                ->withCount([
+                    'registrations as tickets_sold' => function ($q) {
+                        $q->where('status', 'confirmed');
+                    }
+                ])
+                ->get()
+                ->groupBy(function ($event) {
+                    return $event->calculated_status; // 'ongoing', 'upcoming', 'finished'
+                });
 
             return compact(
                 'ongoingEvents',
@@ -242,7 +260,8 @@ class DashboardController extends Controller
                 'totalFinishedRevenue',
                 'averageFinishedRevenue',
                 'sortedFinishedEvents',
-                'highestRevenueEventName'
+                'highestRevenueEventName',
+                'ticketBreakdown'
             );
         });
  

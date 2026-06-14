@@ -11,14 +11,23 @@ class Seat extends Model
 
     protected $fillable = [
         'event_id',
+        'ticket_category_id',
         'seat_number',
         'row',
         'column',
-        'status'
+        'status',
+        'x',
+        'y',
+        'rotation'
     ];
 
     public function event()
     {
         return $this->belongsTo(Event::class);
+    }
+
+    public function ticketCategory()
+    {
+        return $this->belongsTo(TicketCategory::class);
     }
 }

@@ -27,6 +27,17 @@ class TicketCategoryController extends Controller
             'quota' => 'required|integer'
         ]);
 
+        $event = \App\Models\Event::findOrFail($request->event_id);
+        $eventCapacityLimit = $event->getEventCapacityLimit();
+        $currentTotalQuota = $event->ticketCategories()->sum('quota');
+        $newQuota = (int) $request->quota;
+
+        if ($currentTotalQuota + $newQuota > $eventCapacityLimit) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'quota' => ["Total kuota tiket tidak boleh melebihi kapasitas event ({$eventCapacityLimit} peserta)."]
+            ]);
+        }
+
         $ticket = TicketCategory::create([
             'event_id' => $request->event_id,
             'name' => $request->name,
@@ -55,6 +66,27 @@ class TicketCategoryController extends Controller
     public function update(Request $request, string $id)
     {
         $ticket = TicketCategory::findOrFail($id);
+
+        $rules = [];
+        if ($request->has('quota')) {
+            $rules['quota'] = 'integer';
+        }
+        $request->validate($rules);
+
+        if ($request->has('quota')) {
+            $event = $ticket->event;
+            $eventCapacityLimit = $event->getEventCapacityLimit();
+            $otherTicketsQuota = $event->ticketCategories()
+                ->where('id', '!=', $ticket->id)
+                ->sum('quota');
+            $newQuota = (int) $request->quota;
+
+            if ($otherTicketsQuota + $newQuota > $eventCapacityLimit) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'quota' => ["Total kuota tiket tidak boleh melebihi kapasitas event ({$eventCapacityLimit} peserta)."]
+                ]);
+            }
+        }
 
         $ticket->update($request->all());
 

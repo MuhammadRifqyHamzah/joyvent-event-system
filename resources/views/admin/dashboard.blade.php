@@ -569,19 +569,19 @@
     </div>
 </div>
 
-<!-- Modal Finished Events Report -->
+<!-- Modal Breakdown Tiket Terjual -->
 <div id="finishedEventsReportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 opacity-0 pointer-events-none transition-all duration-300">
     <!-- Backdrop Overlay -->
     <div id="finishedEventsReportModalBackdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-300"></div>
 
     <!-- Modal Content Box -->
-    <div id="finishedEventsReportModalBox" class="bg-white w-full max-w-2xl rounded-2xl border border-gray-100 shadow-2xl flex flex-col max-h-[85vh] overflow-hidden transform scale-95 transition-all duration-300 z-10">
+    <div id="finishedEventsReportModalBox" class="bg-white w-full max-w-2xl rounded-3xl border border-gray-100 shadow-2xl flex flex-col max-h-[85vh] overflow-hidden transform scale-95 transition-all duration-300 z-10">
         
         <!-- Header -->
-        <div class="flex justify-between items-center px-6 py-5 border-b border-gray-100/80 bg-gray-50/50">
+        <div class="flex justify-between items-center px-8 py-5 border-b border-gray-100/80 bg-gray-50/50">
             <div class="flex items-center gap-3">
-                <span class="text-2xl">📊</span>
-                <h2 class="text-xl font-extrabold text-gray-800 tracking-tight">Laporan Penjualan Event Selesai</h2>
+                <span class="text-2xl">🎟️</span>
+                <h2 class="text-xl font-extrabold text-gray-800 tracking-tight">Breakdown Penjualan Tiket</h2>
             </div>
             
             <button id="closeFinishedEventsReportModal" class="text-gray-400 hover:text-gray-600 bg-white hover:bg-gray-100 border border-gray-100 p-2 rounded-full transition duration-200 cursor-pointer shadow-sm flex items-center justify-center">
@@ -593,40 +593,67 @@
         </div>
 
         <!-- Body -->
-        <div class="flex-1 overflow-y-auto p-6 bg-slate-50/30">
-            @if($finishedEventsReport->isNotEmpty())
-                <div class="overflow-x-auto border border-gray-150 rounded-2xl bg-white shadow-sm">
-                    <table class="w-full border-collapse text-left">
-                        <thead>
-                            <tr class="bg-slate-50 text-gray-400 uppercase text-[10px] font-bold tracking-wider border-b border-gray-150">
-                                <th class="py-4 px-6">Nama Event</th>
-                                <th class="py-4 px-6 text-center">Total Tiket Terjual</th>
-                                <th class="py-4 px-6 text-right">Total Pendapatan</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 text-sm">
-                            @foreach($finishedEventsReport as $report)
-                                <tr class="hover:bg-slate-50/50 transition">
-                                    <td class="py-4 px-6 font-bold text-gray-800">{{ $report->name }}</td>
-                                    <td class="py-4 px-6 text-center text-gray-600 font-semibold">{{ number_format($report->tickets_sold) }}</td>
-                                    <td class="py-4 px-6 text-right text-gray-800 font-extrabold">Rp {{ number_format($report->revenue, 0, ',', '.') }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+        <div class="flex-1 overflow-y-auto p-8 bg-slate-50/30 space-y-8">
+            
+            <!-- Indicator Total Global -->
+            <div class="p-6 bg-blue-50/40 border border-blue-100/50 rounded-3xl flex items-center justify-between shadow-sm">
+                <div>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Total Tiket Terjual (Semua Event)</span>
+                    <h3 class="text-4xl font-extrabold text-blue-600 mt-2 leading-none">{{ number_format($ticketsSold) }}</h3>
                 </div>
+                <span class="text-4xl">🎫</span>
+            </div>
 
-                <!-- Summary Section -->
-                <div class="mt-6 p-6 bg-blue-50/30 border border-blue-100/50 rounded-2xl grid grid-cols-2 gap-6">
-                    <div class="space-y-1">
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Tiket Terjual</span>
-                        <h3 class="text-3xl font-extrabold text-gray-800 leading-none">{{ number_format($totalFinishedTicketsSold) }}</h3>
-                    </div>
-                    <div class="space-y-1 text-right">
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Pendapatan</span>
-                        <h3 class="text-3xl font-extrabold text-blue-600 leading-none">Rp {{ number_format($totalFinishedRevenue, 0, ',', '.') }}</h3>
-                    </div>
-                </div>
+            @php
+                $statusGroups = [
+                    'ongoing' => ['label' => 'Sedang Berlangsung (On-Going)', 'color' => 'bg-green-50 text-green-600 border-green-100/50'],
+                    'upcoming' => ['label' => 'Mendatang (Upcoming)', 'color' => 'bg-blue-50 text-blue-600 border-blue-100/50'],
+                    'finished' => ['label' => 'Selesai (Finished)', 'color' => 'bg-slate-100 text-slate-700 border-slate-200/60']
+                ];
+                $hasAnyData = false;
+                foreach($statusGroups as $statusKey => $groupInfo) {
+                    if(isset($ticketBreakdown[$statusKey]) && $ticketBreakdown[$statusKey]->isNotEmpty()) {
+                        $hasAnyData = true;
+                    }
+                }
+            @endphp
+
+            @if($hasAnyData)
+                @foreach($statusGroups as $statusKey => $groupInfo)
+                    @if(isset($ticketBreakdown[$statusKey]) && $ticketBreakdown[$statusKey]->isNotEmpty())
+                        <div class="space-y-3.5">
+                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full @if($statusKey === 'ongoing') bg-green-500 @elseif($statusKey === 'upcoming') bg-blue-500 @else bg-slate-400 @endif"></span>
+                                {{ $groupInfo['label'] }}
+                            </h4>
+                            
+                            <div class="overflow-x-auto border border-gray-150 rounded-2xl bg-white shadow-sm">
+                                <table class="w-full border-collapse text-left">
+                                    <thead>
+                                        <tr class="bg-slate-50 text-gray-400 uppercase text-[9px] font-bold tracking-wider border-b border-gray-150">
+                                            <th class="py-3.5 px-6">Nama Event</th>
+                                            <th class="py-3.5 px-6 text-center">Status</th>
+                                            <th class="py-3.5 px-6 text-right">Tiket Terjual</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100 text-xs">
+                                        @foreach($ticketBreakdown[$statusKey] as $event)
+                                            <tr class="hover:bg-slate-50/50 transition">
+                                                <td class="py-4 px-6 font-bold text-gray-800">{{ $event->name }}</td>
+                                                <td class="py-4 px-6 text-center">
+                                                    <span class="px-3 py-1 rounded-full text-[10px] font-bold border {{ $groupInfo['color'] }}">
+                                                        @if($statusKey === 'ongoing') On-going @elseif($statusKey === 'upcoming') Upcoming @else Finished @endif
+                                                    </span>
+                                                </td>
+                                                <td class="py-4 px-6 text-right font-extrabold text-gray-700 text-sm">{{ number_format($event->tickets_sold) }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
+                @endforeach
             @else
                 <!-- Empty State -->
                 <div class="bg-white rounded-2xl border border-gray-100/80 p-12 text-center flex flex-col items-center justify-center shadow-sm w-full">
@@ -635,17 +662,18 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
                         </svg>
                     </div>
-                    <h3 class="text-lg font-extrabold text-gray-800 tracking-tight">Tidak Ada Event Selesai</h3>
+                    <h3 class="text-lg font-extrabold text-gray-800 tracking-tight">Tidak Ada Tiket Terjual</h3>
                     <p class="text-gray-400 font-semibold text-xs mt-2">
-                        Belum ada laporan untuk event dengan status selesai.
+                        Belum ada penjualan tiket yang terkonfirmasi di database.
                     </p>
                 </div>
             @endif
+
         </div>
 
         <!-- Footer -->
-        <div class="px-6 py-4 border-t border-gray-100/80 bg-gray-50/50 flex justify-end">
-            <button id="closeFinishedEventsReportModalBtn" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-xs shadow-sm hover:shadow transition duration-200 cursor-pointer">
+        <div class="px-8 py-5 border-t border-gray-100/80 bg-gray-50/50 flex justify-end">
+            <button id="closeFinishedEventsReportModalBtn" class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-xs shadow-sm hover:shadow transition duration-200 cursor-pointer">
                 Tutup
             </button>
         </div>

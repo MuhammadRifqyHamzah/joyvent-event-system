@@ -194,8 +194,8 @@ class EventController extends Controller
         $ticketsSold = $event->registrations->count();
         $remainingSeats = $ticketsSold === 0 ? $capacity : max(0, $capacity - $ticketsSold);
 
-        // Sum price of sold tickets
-        $totalRevenue = $event->registrations->sum(function ($registration) {
+        // Sum price of confirmed sold tickets only
+        $totalRevenue = $event->registrations->where('status', 'confirmed')->sum(function ($registration) {
             return $registration->ticketCategory->price ?? 0;
         });
 
@@ -754,7 +754,7 @@ class EventController extends Controller
             ]);
         }
 
-        if ($event->has_seat_layout) {
+        if ($event->has_seat_layout && $request->has('use_legacy_layout')) {
             $validationRules = array_merge($validationRules, [
                 'seat_layout' => 'required|array',
                 'seat_layout.*' => 'required|string',
@@ -819,8 +819,10 @@ class EventController extends Controller
             }
         }
 
-        // 2. Seat Layout Config
-        if ($event->has_seat_layout) {
+        $isLegacyUsed = $event->has_seat_layout && $request->has('use_legacy_layout');
+
+        // 2. Seat Layout Config (Legacy Fallback)
+        if ($isLegacyUsed) {
             $layouts = $request->input('seat_layout', []);
             $event->seat_layout = json_encode($layouts);
 
@@ -859,6 +861,14 @@ class EventController extends Controller
             $event->prize_name = $request->prize_name;
             $event->prize_description = $request->prize_description;
             $event->winner_count = $request->winner_count;
+        }
+
+        // Direct to Visual Builder if using visual flow
+        if ($event->has_seat_layout && !$request->has('use_legacy_layout')) {
+            $event->save();
+            return redirect()
+                ->route('admin.seats.builder', $event->id)
+                ->with('info', 'Lanjutkan konfigurasi tata letak kursi secara visual. 🪑');
         }
 
         $event->is_configured = true;

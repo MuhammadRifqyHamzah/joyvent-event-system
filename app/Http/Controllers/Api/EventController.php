@@ -11,9 +11,15 @@ class EventController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $events = Event::with('ticketCategories')->where('is_configured', 1)->latest()->get();
+        $query = Event::with('ticketCategories')->where('is_configured', 1);
+
+        if (!$request->boolean('include_finished')) {
+            $query->active();
+        }
+
+        $events = $query->latest()->get();
 
         return response()->json([
             'message' => 'List Event',

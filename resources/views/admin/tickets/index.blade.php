@@ -22,6 +22,9 @@
     <!-- Progress Steps Indicator -->
     @php
         $hasFeatures = $event->has_certificate || $event->has_seat_layout || $event->has_lucky_draw;
+        $eventCapacityLimit = (int) ($event->getAttributes()['capacity'] ?? 0);
+        $currentTotalQuota = $tickets->sum('quota');
+        $remainingQuotaLimit = max(0, $eventCapacityLimit - $currentTotalQuota);
     @endphp
     <div class="bg-white rounded-2xl p-6 border border-gray-100/80 shadow-sm flex items-center justify-between max-w-4xl mx-auto w-full">
         <!-- Step 1: Create Event -->
@@ -275,6 +278,22 @@
             </button>
         </div>
  
+        <!-- Quota Information Panel -->
+        <div class="mt-5 bg-blue-50/50 rounded-2xl p-4.5 border border-blue-100/50 grid grid-cols-3 gap-4 text-center">
+            <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Kapasitas Event</p>
+                <p class="text-lg font-extrabold text-gray-700 mt-1" id="uiCapacityVal">{{ number_format($eventCapacityLimit) }}</p>
+            </div>
+            <div class="border-x border-blue-100/30">
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Kuota Terpakai</p>
+                <p class="text-lg font-extrabold text-blue-600 mt-1" id="uiUsedQuotaVal">{{ number_format($currentTotalQuota) }}</p>
+            </div>
+            <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Sisa Kuota</p>
+                <p class="text-lg font-extrabold text-emerald-600 mt-1" id="uiRemainingQuotaVal">{{ number_format($remainingQuotaLimit) }}</p>
+            </div>
+        </div>
+
         <!-- Modal Form Input Fields -->
         <form id="addTicketForm" action="{{ route('admin.tickets.store', $event->id) }}" method="POST" onsubmit="submitTicketForm(event)" class="mt-6 space-y-6">
             @csrf
@@ -302,8 +321,12 @@
                     <label class="block text-sm font-bold text-gray-700 mb-2.5">
                         Kuota Tiket
                     </label>
-                    <input type="number" name="quota" required placeholder="Contoh: 100" 
+                    <input type="number" name="quota" id="ticketQuotaInput" required placeholder="Contoh: 100" 
                         class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-700 placeholder-gray-300">
+                    <p class="text-xs text-gray-400 font-semibold mt-1.5" id="quotaMaxLimitHint">
+                        Maksimal kuota yang dapat ditambahkan: {{ number_format($remainingQuotaLimit) }}
+                    </p>
+                    <p id="quotaFrontendError" class="text-red-500 text-xs font-semibold mt-1 hidden"></p>
                 </div>
             </div>
  
@@ -351,10 +374,33 @@
     let keepModalOpen = false;
     const csrfToken = "{{ csrf_token() }}";
     const destroyRouteUrlTemplate = "{{ route('admin.tickets.destroy', 'TICKET_ID') }}";
+    let eventCapacity = {{ $eventCapacityLimit }};
+    let usedQuota = {{ $currentTotalQuota }};
 
     function openAddTicketModal() {
         const modal = document.getElementById('addTicketModal');
         if (modal) {
+            // Reset form
+            const form = document.getElementById('addTicketForm');
+            if (form) {
+                form.reset();
+                form.querySelectorAll('.error-message').forEach(el => el.remove());
+                const quotaInput = document.getElementById('ticketQuotaInput');
+                if (quotaInput) {
+                    quotaInput.classList.remove('border-red-500');
+                    quotaInput.classList.add('border-gray-200');
+                }
+                const errorEl = document.getElementById('quotaFrontendError');
+                if (errorEl) {
+                    errorEl.classList.add('hidden');
+                }
+                const submitButtons = form.querySelectorAll('button[type="submit"]');
+                submitButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                });
+            }
+
             modal.classList.remove('hidden');
             setTimeout(() => {
                 const card = modal.querySelector('.relative');
@@ -519,6 +565,16 @@
         event.preventDefault();
         
         const form = event.target;
+        const quotaInput = form.querySelector('[name="quota"]');
+        if (quotaInput) {
+            const remaining = Math.max(0, eventCapacity - usedQuota);
+            const value = parseInt(quotaInput.value) || 0;
+            if (value > remaining) {
+                validateQuotaInput();
+                return;
+            }
+        }
+
         const formData = new FormData(form);
         
         const submitButtons = form.querySelectorAll('button[type="submit"]');
@@ -563,6 +619,11 @@
             }
             
             if (data.success) {
+                // Update used quota and UI
+                const addedQuota = parseInt(data.ticket.quota) || 0;
+                usedQuota += addedQuota;
+                updateQuotaInfoUI();
+
                 const tableBody = document.getElementById('ticketTableBody');
                 if (tableBody) {
                     const emptyRow = tableBody.querySelector('td[colspan="5"]');
@@ -578,6 +639,7 @@
                 
                 if (keepModalOpen) {
                     form.reset();
+                    updateQuotaInfoUI();
                     const firstInput = form.querySelector('input[name="name"]');
                     if (firstInput) firstInput.focus();
                 } else {
@@ -594,6 +656,79 @@
             alert(error.message || 'Gagal menyimpan ticket category.');
         });
     }
+
+    function updateQuotaInfoUI() {
+        const capacityEl = document.getElementById('uiCapacityVal');
+        const usedQuotaEl = document.getElementById('uiUsedQuotaVal');
+        const remainingQuotaEl = document.getElementById('uiRemainingQuotaVal');
+        const limitHintEl = document.getElementById('quotaMaxLimitHint');
+        const quotaInput = document.getElementById('ticketQuotaInput');
+
+        const remaining = Math.max(0, eventCapacity - usedQuota);
+
+        if (capacityEl) capacityEl.innerText = formatNumber(eventCapacity);
+        if (usedQuotaEl) usedQuotaEl.innerText = formatNumber(usedQuota);
+        
+        if (remainingQuotaEl) {
+            remainingQuotaEl.innerText = formatNumber(remaining);
+            if (remaining <= 0) {
+                remainingQuotaEl.className = "text-lg font-extrabold text-red-650 mt-1";
+            } else {
+                remainingQuotaEl.className = "text-lg font-extrabold text-emerald-600 mt-1";
+            }
+        }
+        
+        if (limitHintEl) {
+            limitHintEl.innerText = `Maksimal kuota yang dapat ditambahkan: ${formatNumber(remaining)}`;
+        }
+        
+        // Trigger verification on the input to toggle errors immediately
+        if (quotaInput) {
+            validateQuotaInput();
+        }
+    }
+
+    function validateQuotaInput() {
+        const quotaInput = document.getElementById('ticketQuotaInput');
+        const errorEl = document.getElementById('quotaFrontendError');
+        const submitButtons = document.querySelectorAll('#addTicketForm button[type="submit"]');
+        
+        if (!quotaInput || !errorEl) return;
+        
+        const remaining = Math.max(0, eventCapacity - usedQuota);
+        const value = parseInt(quotaInput.value) || 0;
+        
+        if (value > remaining) {
+            errorEl.innerText = `Total kuota tiket tidak boleh melebihi kapasitas event (${formatNumber(eventCapacity)} peserta). Sisa kuota tersedia: ${formatNumber(remaining)}.`;
+            errorEl.classList.remove('hidden');
+            quotaInput.classList.add('border-red-500');
+            quotaInput.classList.remove('border-gray-200');
+            
+            // Disable submit buttons and add visual disabled classes
+            submitButtons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+        } else {
+            errorEl.classList.add('hidden');
+            quotaInput.classList.remove('border-red-500');
+            quotaInput.classList.add('border-gray-200');
+            
+            // Enable submit buttons and remove visual disabled classes
+            submitButtons.forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const quotaInput = document.getElementById('ticketQuotaInput');
+        if (quotaInput) {
+            quotaInput.addEventListener('input', validateQuotaInput);
+            quotaInput.addEventListener('change', validateQuotaInput);
+        }
+    });
 </script>
  
 @endsection

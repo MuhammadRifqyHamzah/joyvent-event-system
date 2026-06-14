@@ -42,6 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // REGISTRATION CRUD
     Route::apiResource('registrations', RegistrationController::class);
+    Route::post('/registrations/{registration}/refund', [RegistrationController::class, 'requestRefund']);
 
     // QR CHECK-IN
     Route::post('/check-in', [CheckInController::class, 'checkIn']);

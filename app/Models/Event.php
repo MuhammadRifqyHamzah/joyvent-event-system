@@ -81,6 +81,16 @@ class Event extends Model
         return (int) ($this->ticketCategories()->sum('quota') ?? 0);
     }
 
+    /**
+     * Get the original capacity limit defined in the database.
+     *
+     * @return int
+     */
+    public function getEventCapacityLimit()
+    {
+        return (int) ($this->attributes['capacity'] ?? $this->getRawOriginal('capacity') ?? 0);
+    }
+
     public function getBannerImageAttribute()
     {
         $bannerDir = public_path('storage/banners');
@@ -95,6 +105,18 @@ class Event extends Model
         return null;
     }
 
+
+    public function scopeActive($query)
+    {
+        $nowString = now()->toDateTimeString();
+        return $query->whereRaw("CONCAT(end_date, ' ', end_time) >= ?", [$nowString]);
+    }
+
+    public function scopeFinished($query)
+    {
+        $nowString = now()->toDateTimeString();
+        return $query->whereRaw("CONCAT(end_date, ' ', end_time) < ?", [$nowString]);
+    }
 
     /*
     |--------------------------------------------------------------------------

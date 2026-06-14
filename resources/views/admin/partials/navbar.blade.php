@@ -119,23 +119,29 @@
  
         <!-- Profile info -->
         <div class="flex items-center gap-4">
- 
-            <div class="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center font-bold text-xl shadow-sm transition">
-                A
-            </div>
- 
+
+            @if(auth()->user() && auth()->user()->profile_photo)
+                <div class="w-12 h-12 rounded-full overflow-hidden shadow-sm transition flex-shrink-0 bg-slate-100 flex items-center justify-center">
+                    <img src="{{ asset('storage/' . auth()->user()->profile_photo) }}" alt="Avatar" class="w-full h-full object-cover">
+                </div>
+            @else
+                <div class="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center font-bold text-xl shadow-sm transition">
+                    {{ auth()->user() ? strtoupper(substr(auth()->user()->name, 0, 1)) : 'A' }}
+                </div>
+            @endif
+
             <div class="leading-tight">
- 
+
                 <h3 class="font-extrabold text-gray-800 text-base">
-                    Admin
+                    {{ auth()->user()->name ?? 'Admin' }}
                 </h3>
- 
+
                 <p class="text-gray-400 text-xs font-semibold uppercase tracking-wider">
                     Event Organizer
                 </p>
- 
+
             </div>
- 
+
         </div>
  
     </div>

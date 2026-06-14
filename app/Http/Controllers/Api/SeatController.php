@@ -12,9 +12,22 @@ class SeatController extends Controller
     // GET LIST SEATS
     public function index($eventId)
     {
-        $seats = Seat::where('event_id', $eventId)
+        $seats = Seat::with('ticketCategory')
+            ->where('event_id', $eventId)
             ->orderBy('seat_number')
-            ->get();
+            ->get()
+            ->map(function ($seat) {
+                return [
+                    'id' => $seat->id,
+                    'seat_number' => $seat->seat_number,
+                    'ticket_category_id' => $seat->ticket_category_id,
+                    'category' => $seat->ticketCategory ? $seat->ticketCategory->name : null,
+                    'status' => $seat->status,
+                    'x' => $seat->x,
+                    'y' => $seat->y,
+                    'rotation' => $seat->rotation,
+                ];
+            });
 
         return response()->json([
             'message' => 'List Seats',

@@ -165,32 +165,44 @@
                         </div>
                         <div>
                             <h2 class="text-xl font-extrabold text-gray-800 tracking-tight">Seat Management Setup</h2>
-                            <p class="text-xs text-gray-400 font-semibold">Konfigurasikan layout baris kursi per kategori tiket.</p>
+                            <p class="text-xs text-gray-400 font-semibold">Konfigurasikan layout kursi secara visual.</p>
                         </div>
                     </div>
 
                     <div class="space-y-6">
-                        <div class="bg-blue-50 border border-blue-100 text-blue-700 rounded-2xl p-5 text-xs font-semibold leading-relaxed">
-                            💡 <strong>Format Layout Kursi:</strong> Gunakan rentang baris dan kolom yang dipisahkan koma. 
-                            Contoh: <code class="bg-white/60 px-1.5 py-0.5 rounded font-bold">A1-A20, B1-B20</code> akan men-generate kursi dari baris A nomor 1 sampai 20, dan baris B nomor 1 sampai 20.
+                        <div class="bg-blue-50 border border-blue-100 text-blue-700 rounded-2xl p-6 text-sm font-semibold leading-relaxed">
+                            ✨ <strong>Visual Seating Layout:</strong> Tata letak kursi untuk event ini akan dikonfigurasi secara visual menggunakan <strong>Seat Management Builder</strong> pada langkah berikutnya. 
+                            Anda dapat langsung melanjutkan tanpa mengisi form ini.
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            @forelse($tickets as $ticket)
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2.5">
-                                        Layout Kursi untuk: <span class="text-blue-600 font-extrabold">{{ $ticket->name }}</span> <span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="text" name="seat_layout[{{ $ticket->id }}]" required 
-                                        value="{{ old('seat_layout.' . $ticket->id, $seatLayouts[$ticket->id] ?? '') }}" 
-                                        placeholder="Contoh: A1-A20, B1-B20" 
-                                        class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-700">
-                                </div>
-                            @empty
-                                <div class="col-span-2 text-center py-6 text-gray-400 font-bold text-sm bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                                    Belum ada kategori tiket terdaftar. Harap <a href="{{ route('admin.tickets.index', $event->id) }}" class="text-blue-600 underline">tambahkan tiket</a> terlebih dahulu.
-                                </div>
-                            @endforelse
+                        <!-- Legacy Fallback Toggle -->
+                        <div class="flex items-center gap-3 select-none">
+                            <input type="checkbox" name="use_legacy_layout" id="use_legacy_layout" onchange="toggleLegacyLayout()" class="w-5 h-5 rounded border-gray-300 text-blue-650 focus:ring-blue-500">
+                            <label for="use_legacy_layout" class="text-sm font-bold text-gray-500 cursor-pointer">Gunakan Input Teks Manual (Legacy Fallback)</label>
+                        </div>
+
+                        <div id="legacy-layout-section" class="hidden space-y-6 pt-4 border-t border-gray-100">
+                            <div class="bg-amber-50 border border-amber-200 text-amber-700 rounded-2xl p-5 text-xs font-semibold leading-relaxed">
+                                ⚠️ <strong>Perhatian:</strong> Menggunakan input teks manual akan mem-bypass Seat Management Builder visual. Gunakan format range (contoh: <code class="bg-white/60 px-1.5 py-0.5 rounded font-bold">A1-A10, B1-B10</code>).
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                @forelse($tickets as $ticket)
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2.5">
+                                            Layout Kursi untuk: <span class="text-blue-600 font-extrabold">{{ $ticket->name }}</span>
+                                        </label>
+                                        <input type="text" name="seat_layout[{{ $ticket->id }}]" id="seat_layout_{{ $ticket->id }}" 
+                                            value="{{ old('seat_layout.' . $ticket->id, $seatLayouts[$ticket->id] ?? '') }}" 
+                                            placeholder="Contoh: A1-A20, B1-B20" 
+                                            class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-700">
+                                    </div>
+                                @empty
+                                    <div class="col-span-2 text-center py-6 text-gray-400 font-bold text-sm bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                        Belum ada kategori tiket terdaftar. Harap <a href="{{ route('admin.tickets.index', $event->id) }}" class="text-blue-600 underline">tambahkan tiket</a> terlebih dahulu.
+                                    </div>
+                                @endforelse
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -259,4 +271,24 @@
         </form>
     </div>
 
+<script>
+    function toggleLegacyLayout() {
+        const legacySec = document.getElementById('legacy-layout-section');
+        const legacyCheckbox = document.getElementById('use_legacy_layout');
+        const legacyInputs = document.querySelectorAll('[id^="seat_layout_"]');
+
+        if (legacyCheckbox.checked) {
+            legacySec.classList.remove('hidden');
+            legacyInputs.forEach(input => {
+                input.required = true;
+            });
+        } else {
+            legacySec.classList.add('hidden');
+            legacyInputs.forEach(input => {
+                input.required = false;
+                input.value = '';
+            });
+        }
+    }
+</script>
 @endsection
