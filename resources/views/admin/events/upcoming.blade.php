@@ -30,7 +30,7 @@
     }
 @endphp
 
-<div class="space-y-8">
+<div class="space-y-3 md:space-y-8">
 
     {{-- Success Alert Notification --}}
     @if(session('success'))
@@ -42,28 +42,27 @@
         </div>
     @endif
 
-    <!-- Top Action Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4">
         <div>
-            <h1 class="text-4xl font-extrabold text-gray-800 tracking-tight">Event Overview (Upcoming)</h1>
-            <p class="text-gray-400 text-sm mt-1.5 font-semibold">Kelola dan monitor persiapan event JoyVent Anda.</p>
+            <h1 class="text-xl md:text-4xl font-extrabold text-gray-800 tracking-tight">Event Overview (Upcoming)</h1>
+            <p class="text-gray-400 text-[11px] md:text-sm mt-0.5 md:mt-1.5 font-semibold">Kelola dan monitor persiapan event JoyVent Anda.</p>
         </div>
-        <div class="flex items-center gap-3 flex-wrap">
+        <div class="flex items-center gap-2 md:gap-3 flex-wrap">
             <a href="{{ route('admin.events.edit', $event->id) }}" 
-                class="bg-white border border-gray-250 hover:bg-gray-50 text-gray-700 px-5 py-3 rounded-2xl font-bold text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                class="bg-white border border-gray-250 hover:bg-gray-50 text-gray-700 px-3.5 py-1.5 md:px-5 md:py-3 rounded-xl md:rounded-2xl font-bold text-[11px] md:text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
                 <span>Edit Event</span>
             </a>
             <a href="{{ route('admin.tickets.index', $event->id) }}" 
-                class="bg-blue-650 hover:bg-blue-700 text-white px-5 py-3 rounded-2xl font-bold text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                class="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 px-3.5 py-1.5 md:px-5 md:py-3 rounded-xl md:rounded-2xl font-bold text-[11px] md:text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
                 <span>Manage Tickets</span>
             </a>
             <a href="{{ route('admin.events.features', $event->id) }}" 
-                class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-2xl font-bold text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 md:px-5 md:py-3 rounded-xl md:rounded-2xl font-bold text-[11px] md:text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
                 <span>Setup Features</span>
             </a>
             <a href="{{ route('admin.events') }}" 
-                class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-5 py-3 rounded-2xl font-bold text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5 text-gray-550">
+                class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-3.5 py-1.5 md:px-5 md:py-3 rounded-xl md:rounded-2xl font-bold text-[11px] md:text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5 text-gray-555">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                 </svg>
                 <span>Kembali</span>
@@ -121,7 +120,7 @@
     @include('admin.events.partials.header')
 
     <!-- Tab 1 Panel: Overview -->
-    <div id="tab-panel-overview" class="tab-panel space-y-8 mt-6">
+    <div id="tab-panel-overview" class="tab-panel space-y-4 md:space-y-8 mt-2 md:mt-6">
         <!-- Countdown to Event Day -->
         <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[32px] p-8 text-white shadow-lg flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="space-y-2 text-center md:text-left">
@@ -319,7 +318,7 @@
     </div>
 
     <!-- Tab 2 Panel: Participants -->
-    <div id="tab-panel-participants" class="tab-panel hidden space-y-8 mt-6">
+    <div id="tab-panel-participants" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
         <!-- Registered Participants List -->
         <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-10 overflow-hidden">
             <div class="pb-6 border-b border-gray-100 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -347,51 +346,239 @@
                         Belum ada pembelian tiket.
                     </div>
                 @else
-                    <table class="w-full">
-                        <thead class="text-gray-400 uppercase text-xs font-bold tracking-wider border-b border-gray-100 pb-4">
-                            <tr>
-                                <th class="text-left pb-4">Peserta</th>
-                                <th class="text-left pb-4 pl-4">Email</th>
-                                <th class="text-left pb-4 pl-4">Kelas Tiket</th>
-                                <th class="text-left pb-4">Tanggal Pembelian</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50" id="participantTableBody">
-                            @foreach($event->registrations as $reg)
-                                <tr class="hover:bg-gray-50/30 transition duration-150 participant-row"
-                                    data-name="{{ strtolower($reg->user->name ?? '') }}"
-                                    data-email="{{ strtolower($reg->user->email ?? '') }}">
-                                    <td class="py-4 pr-4">
-                                        <div class="flex items-center gap-3.5">
-                                            <div class="w-9 h-9 rounded-2xl bg-blue-50/50 text-blue-600 flex items-center justify-center font-black text-sm border border-blue-100/30">
-                                                {{ strtoupper(substr($reg->user->name ?? 'G', 0, 1)) }}
+                    <!-- Desktop View Table -->
+                    <div class="hidden md:block">
+                        <table class="w-full">
+                            <thead class="text-gray-400 uppercase text-xs font-bold tracking-wider border-b border-gray-100 pb-4">
+                                <tr>
+                                    <th class="text-left pb-4">Peserta</th>
+                                    <th class="text-left pb-4 pl-4">Email</th>
+                                    <th class="text-left pb-4 pl-4">Kelas Tiket</th>
+                                    <th class="text-left pb-4 pl-4">Payment</th>
+                                    <th class="text-left pb-4">Tanggal Pembelian</th>
+                                    <th class="text-right pb-4 pr-2">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50" id="participantTableBody">
+                                @foreach($event->registrations as $reg)
+                                    <tr class="hover:bg-gray-50/30 transition duration-150 participant-row"
+                                         data-name="{{ strtolower($reg->user->name ?? '') }}"
+                                         data-email="{{ strtolower($reg->user->email ?? '') }}">
+                                        <td class="py-4 pr-4">
+                                            <div class="flex items-center gap-3.5">
+                                                <div class="w-9 h-9 rounded-2xl bg-blue-50/50 text-blue-600 flex items-center justify-center font-black text-sm border border-blue-100/30">
+                                                    {{ strtoupper(substr($reg->user->name ?? 'G', 0, 1)) }}
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <span class="font-bold text-gray-800 text-sm block truncate max-w-[200px]">
+                                                        {{ $reg->user->name ?? 'Guest' }}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div class="min-w-0">
-                                                <span class="font-bold text-gray-800 text-sm block truncate max-w-[200px]">
-                                                    {{ $reg->user->name ?? 'Guest' }}
-                                                </span>
+                                        </td>
+                                        <td class="py-4 pl-4 pr-4">
+                                            <span class="text-gray-655 font-bold text-xs">
+                                                {{ $reg->user->email ?? '-' }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 pl-4 pr-4">
+                                            <span class="bg-indigo-50 text-indigo-600 border border-indigo-100/30 px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap">
+                                                {{ $reg->ticketCategory->name ?? '-' }}
+                                            </span>
+                                        </td>
+                                        <!-- Payment Status -->
+                                        <td class="py-4 pl-4 pr-4">
+                                            <div class="space-y-1">
+                                                @if($reg->payment_status === 'paid')
+                                                    <span class="bg-green-50 text-green-600 border border-green-100/50 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide whitespace-nowrap inline-block">
+                                                        PAID
+                                                    </span>
+                                                    @if($reg->verifiedBy)
+                                                        <span class="block text-[10px] text-gray-400 font-semibold leading-tight">
+                                                            Verified by: {{ $reg->verifiedBy->name }}<br>
+                                                            {{ $reg->payment_verified_at ? $reg->payment_verified_at->format('d M, H:i') : '' }}
+                                                        </span>
+                                                    @endif
+                                                @elseif($reg->payment_status === 'waiting_verification')
+                                                    <span class="bg-purple-50 text-purple-600 border border-purple-100/50 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide whitespace-nowrap inline-block animate-pulse">
+                                                        WAITING VERIFICATION
+                                                    </span>
+                                                @elseif($reg->payment_status === 'rejected')
+                                                    <span class="bg-red-50 text-red-655 border border-red-100/50 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide whitespace-nowrap inline-block">
+                                                         REJECTED
+                                                    </span>
+                                                    @if($reg->payment_rejection_reason)
+                                                        <span class="block text-[10px] text-red-500 font-semibold leading-tight max-w-[155px] truncate" title="{{ $reg->payment_rejection_reason }}">
+                                                             Reason: {{ $reg->payment_rejection_reason }}
+                                                        </span>
+                                                    @endif
+                                                    @if($reg->rejectedBy)
+                                                        <span class="block text-[10px] text-gray-400 font-semibold leading-tight mt-1">
+                                                            Rejected by: {{ $reg->rejectedBy->name }}<br>
+                                                            {{ $reg->payment_rejected_at ? $reg->payment_rejected_at->format('d M, H:i') : '' }}
+                                                        </span>
+                                                    @endif
+                                                @elseif($reg->payment_status === 'expired')
+                                                    <span class="bg-gray-100 text-gray-500 border border-gray-200 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide whitespace-nowrap inline-block">
+                                                        EXPIRED
+                                                    </span>
+                                                @else
+                                                    <span class="bg-amber-50 text-amber-600 border border-amber-100/50 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide whitespace-nowrap inline-block">
+                                                        {{ strtoupper($reg->payment_status ?? 'PENDING') }}
+                                                    </span>
+                                                @endif
                                             </div>
+                                        </td>
+                                        <td class="py-4">
+                                            <span class="text-gray-400 font-bold text-xs">
+                                                {{ $reg->created_at->format('d M Y, H:i') }}
+                                            </span>
+                                        </td>
+                                        <!-- Action / Confirm Payment Button -->
+                                        <td class="py-4 text-right pr-2">
+                                            <div class="flex items-center justify-end gap-2">
+                                                @if($reg->payment_status === 'waiting_verification' && $reg->payment_proof)
+                                                     <button type="button" 
+                                                             onclick="openProofModal('{{ asset('storage/' . $reg->payment_proof) }}', '{{ number_format($reg->payment_proof_size / 1024, 2) }} KB', '{{ $reg->payment_proof_uploaded_at ? $reg->payment_proof_uploaded_at->format('d M Y, H:i') : '-' }}')"
+                                                             class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-150 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer select-none flex items-center gap-1">
+                                                         <span>👁️</span> Proof
+                                                     </button>
+
+                                                     <form action="{{ route('admin.participants.confirm_payment', $reg->id) }}" method="POST" class="inline">
+                                                         @csrf
+                                                         <button type="submit" class="bg-green-50 hover:bg-green-100 text-green-600 border border-green-150 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer select-none">
+                                                             Approve
+                                                         </button>
+                                                     </form>
+                                                     
+                                                     <button type="button" 
+                                                             onclick="openRejectModal('{{ route('admin.participants.reject_payment', $reg->id) }}')"
+                                                             class="bg-red-50 hover:bg-red-100 text-red-655 border border-red-150 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer select-none">
+                                                         Reject
+                                                     </button>
+                                                 @elseif($reg->payment_status === 'pending')
+                                                     <span class="bg-amber-50 text-amber-600 border border-amber-100/50 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap inline-block">
+                                                         Menunggu Bukti Pembayaran
+                                                     </span>
+                                                 @elseif($reg->payment_status === 'paid')
+                                                     <span class="bg-gray-100 text-gray-550 border border-gray-200/50 px-2.5 py-1 rounded-lg text-[10px] font-bold inline-block">
+                                                         Confirmed
+                                                     </span>
+                                                 @else
+                                                     <span class="bg-gray-100 text-gray-550 border border-gray-200/50 px-2.5 py-1 rounded-lg text-[10px] font-bold inline-block">
+                                                         No Action
+                                                     </span>
+                                                 @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile View Cards -->
+                    <div class="block md:hidden space-y-4">
+                        @foreach($event->registrations as $reg)
+                            <div class="bg-slate-50/50 border border-slate-100 rounded-3xl p-5 hover:border-blue-100 hover:bg-white hover:shadow-md transition duration-300 participant-row"
+                                 data-name="{{ strtolower($reg->user->name ?? '') }}"
+                                 data-email="{{ strtolower($reg->user->email ?? '') }}">
+                                <div class="flex items-center justify-between gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-2xl bg-blue-50/50 text-blue-600 flex items-center justify-center font-black text-sm border border-blue-100/30 flex-shrink-0">
+                                            {{ strtoupper(substr($reg->user->name ?? 'G', 0, 1)) }}
                                         </div>
-                                    </td>
-                                    <td class="py-4 pl-4 pr-4">
-                                        <span class="text-gray-655 font-bold text-xs">
-                                            {{ $reg->user->email ?? '-' }}
-                                        </span>
-                                    </td>
-                                    <td class="py-4 pl-4 pr-4">
+                                        <div class="min-w-0">
+                                            <span class="font-bold text-gray-800 text-sm block truncate max-w-[170px]">
+                                                {{ $reg->user->name ?? 'Guest' }}
+                                            </span>
+                                            <span class="text-gray-455 font-semibold text-[10px] block mt-0.5 truncate max-w-[170px]">
+                                                {{ $reg->user->email ?? '-' }}
+                                            </span>
+                                        </div>
+                                                                      <div class="flex flex-col items-end gap-1.5">
                                         <span class="bg-indigo-50 text-indigo-600 border border-indigo-100/30 px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap">
                                             {{ $reg->ticketCategory->name ?? '-' }}
                                         </span>
-                                    </td>
-                                    <td class="py-4">
-                                        <span class="text-gray-400 font-bold text-xs">
-                                            {{ $reg->created_at->format('d M Y, H:i') }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                        @if($reg->payment_status === 'paid')
+                                            <span class="bg-green-50 text-green-600 border border-green-100/50 px-2 py-0.5 rounded-lg text-[10px] font-bold">
+                                                PAID
+                                            </span>
+                                        @elseif($reg->payment_status === 'waiting_verification')
+                                            <span class="bg-purple-50 text-purple-600 border border-purple-100/50 px-2 py-0.5 rounded-lg text-[10px] font-bold animate-pulse">
+                                                WAITING VERIF
+                                            </span>
+                                        @elseif($reg->payment_status === 'rejected')
+                                            <span class="bg-red-50 text-red-655 border border-red-100/50 px-2 py-0.5 rounded-lg text-[10px] font-bold">
+                                                REJECTED
+                                            </span>
+                                        @elseif($reg->payment_status === 'expired')
+                                            <span class="bg-gray-100 text-gray-500 border border-gray-200 px-2 py-0.5 rounded-lg text-[10px] font-bold">
+                                                EXPIRED
+                                            </span>
+                                        @else
+                                            <span class="bg-amber-50 text-amber-600 border border-amber-100/50 px-2 py-0.5 rounded-lg text-[10px] font-bold">
+                                                PENDING
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                @if($reg->payment_status === 'rejected' && $reg->payment_rejection_reason)
+                                    <div class="mt-2 text-[10px] text-red-500 font-semibold bg-red-50/50 p-2 rounded-xl border border-red-100/30">
+                                        Alasan Penolakan: {{ $reg->payment_rejection_reason }}
+                                        @if($reg->rejectedBy)
+                                            <br><span class="text-gray-400 font-bold">Oleh: {{ $reg->rejectedBy->name }} ({{ $reg->payment_rejected_at ? $reg->payment_rejected_at->format('d M, H:i') : '' }})</span>
+                                        @endif
+                                    </div>
+                                @endif
+                                <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                                    <span class="text-gray-400 font-semibold">Tanggal Pembelian</span>
+                                    <span class="text-gray-700 font-bold">
+                                        {{ $reg->created_at->format('d M Y, H:i') }}
+                                    </span>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-dashed border-slate-100 flex flex-wrap gap-2 justify-end">
+                                    @if($reg->payment_status === 'waiting_verification' && $reg->payment_proof)
+                                         <button type="button" 
+                                                 onclick="openProofModal('{{ asset('storage/' . $reg->payment_proof) }}', '{{ number_format($reg->payment_proof_size / 1024, 2) }} KB', '{{ $reg->payment_proof_uploaded_at ? $reg->payment_proof_uploaded_at->format('d M Y, H:i') : '-' }}')"
+                                                 class="bg-indigo-50 text-indigo-650 border border-indigo-150 px-3 py-2 rounded-xl text-[10px] font-extrabold flex-1 text-center cursor-pointer">
+                                             👁️ Bukti
+                                         </button>
+
+                                         <form action="{{ route('admin.participants.confirm_payment', $reg->id) }}" method="POST" class="inline flex-1">
+                                             @csrf
+                                             <button type="submit" class="w-full bg-green-50 text-green-600 border border-green-150 py-2 rounded-xl text-[10px] font-extrabold text-center cursor-pointer">
+                                                 Approve
+                                             </button>
+                                         </form>
+                                         
+                                         <button type="button" 
+                                                 onclick="openRejectModal('{{ route('admin.participants.reject_payment', $reg->id) }}')"
+                                                 class="bg-red-50 text-red-655 border border-red-150 px-3 py-2 rounded-xl text-[10px] font-extrabold flex-1 text-center cursor-pointer">
+                                             Reject
+                                         </button>
+                                     @elseif($reg->payment_status === 'pending')
+                                         <span class="w-full bg-amber-50 text-amber-600 border border-amber-100/50 py-2 px-3 rounded-xl text-[10px] font-bold text-center">
+                                             Menunggu Bukti Pembayaran
+                                         </span>
+                                     @elseif($reg->payment_status === 'paid')
+                                         <span class="bg-gray-100 text-gray-550 border border-gray-200/50 px-3 py-2 rounded-xl text-[10px] font-bold text-center">
+                                             Payment Confirmed
+                                         </span>
+                                     @else
+                                         <span class="bg-gray-100 text-gray-550 border border-gray-200/50 px-3 py-2 rounded-xl text-[10px] font-bold text-center">
+                                             No Action
+                                         </span>
+                                     @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <!-- Search Empty State -->
+                    <div id="searchEmptyState" class="hidden text-center py-16 bg-slate-50 border border-dashed border-slate-200 rounded-3xl text-gray-400 font-bold text-sm mt-4">
+                        Peserta yang Anda cari tidak ditemukan 😕
+                    </div>
                 @endif
             </div>
         </div>
@@ -414,7 +601,7 @@
             $occupancyRate = $totalSeatsCount > 0 ? round(($bookedSeatsCount / $totalSeatsCount) * 100, 1) : 0;
         @endphp
 
-        <div id="tab-panel-seats" class="tab-panel hidden space-y-8 mt-6">
+        <div id="tab-panel-seats" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
             <!-- Seating Occupancy Statistics Cards -->
             <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
                 <div class="bg-white border border-gray-100 shadow-sm rounded-3xl p-6 text-center">
@@ -441,78 +628,19 @@
 
             <!-- Seat Layout Grid Box -->
             <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-10 space-y-8">
-                <div class="text-center max-w-md mx-auto space-y-2">
-                    <div class="w-full h-2.5 bg-gray-100 rounded-full shadow-inner relative overflow-hidden">
-                        <div class="absolute inset-0 bg-blue-500 transition-all duration-500" style="width: 100%"></div>
-                    </div>
-                    <span class="text-[10px] text-gray-400 font-extrabold tracking-widest uppercase block">Panggung Utama / Screen</span>
-                </div>
-
-                <div class="overflow-x-auto py-4">
-                    <div class="min-w-[650px] flex flex-col gap-3">
-                        @foreach($groupedSeats as $rowLetter => $rowSeats)
-                            <div class="flex items-center gap-4">
-                                <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center font-extrabold text-gray-400 text-xs shadow-xs">
-                                    {{ $rowLetter }}
-                                </div>
-                                <div class="flex-1 flex gap-2 justify-between">
-                                    @foreach($rowSeats as $seat)
-                                        @php
-                                            $booking = $seatBookings[$seat->seat_number] ?? null;
-                                            
-                                            $seatColor = 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200';
-                                            if ($seat->status === 'booked') {
-                                                $seatColor = 'bg-blue-600 text-white border-blue-600';
-                                            } elseif ($seat->status === 'blocked') {
-                                                $seatColor = 'bg-red-500 text-white border-red-500';
-                                            }
-                                        @endphp
-                                        <div 
-                                            class="w-10 h-10 rounded-xl border flex flex-col items-center justify-center font-bold text-[10px] transition duration-200 relative group cursor-pointer shadow-xs select-none {{ $seatColor }}"
-                                            title="Kursi {{ $seat->seat_number }}"
-                                        >
-                                            <span>{{ $seat->column }}</span>
-                                            
-                                            @if($booking)
-                                                <div class="absolute bottom-full mb-2 hidden group-hover:block bg-slate-900 text-white text-[9px] font-bold py-2 px-3.5 rounded-xl shadow-lg z-50 whitespace-nowrap leading-relaxed pointer-events-none">
-                                                    <span class="block">Kursi: {{ $seat->seat_number }}</span>
-                                                    <span class="block font-black text-[10px] mt-0.5 text-blue-300">{{ $booking->user->name ?? 'Guest' }}</span>
-                                                    <span class="block text-[8px] text-gray-400 font-semibold mt-0.5">{{ $booking->ticketCategory->name ?? '-' }}</span>
-                                                </div>
-                                            @elseif($seat->status === 'blocked')
-                                                <div class="absolute bottom-full mb-2 hidden group-hover:block bg-red-900 text-white text-[9px] font-bold py-2 px-3.5 rounded-xl shadow-lg z-50 whitespace-nowrap leading-relaxed pointer-events-none">
-                                                    <span>Kursi Dihalang / Diblok</span>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-
-                <div class="border-t border-gray-50 pt-6 flex flex-wrap justify-center gap-6 text-[10px] font-bold uppercase tracking-wider text-gray-500">
-                    <div class="flex items-center gap-2">
-                        <span class="w-4 h-4 rounded-md bg-slate-50 border border-slate-200 block"></span>
-                        <span>Tersedia</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-4 h-4 rounded-md bg-blue-600 block"></span>
-                        <span>Terisi</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-4 h-4 rounded-md bg-red-500 block"></span>
-                        <span>Diblok</span>
-                    </div>
-                </div>
+                @include('admin.partials.seat-layout-visualizer', [
+                    'event' => $event,
+                    'seats' => $flatSeats,
+                    'seatBookings' => $seatBookings,
+                    'interactive' => false
+                ])
             </div>
         </div>
     @endif
 
     <!-- Tab 4 Panel: Lucky Draw -->
     @if($event->has_lucky_draw)
-        <div id="tab-panel-lucky_draw" class="tab-panel hidden space-y-8 mt-6">
+        <div id="tab-panel-lucky_draw" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
             <!-- Lucky Draw Placeholder for Upcoming Event -->
             <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-10 text-center space-y-6">
                 <div class="w-20 h-20 bg-indigo-50 border border-indigo-100 text-indigo-500 rounded-full flex items-center justify-center text-3xl mx-auto shadow-sm">
@@ -533,7 +661,7 @@
 
     <!-- Tab 5 Panel: Certificates -->
     @if($event->has_certificate)
-        <div id="tab-panel-certificates" class="tab-panel hidden space-y-8 mt-6">
+        <div id="tab-panel-certificates" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
             <!-- Certificate Preview & Generation section -->
             <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 space-y-6">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-gray-100">
@@ -541,10 +669,15 @@
                         <h3 class="text-2xl font-extrabold text-gray-800 tracking-tight">Auto Certificate Dispatch</h3>
                         <p class="text-xs text-gray-400 font-semibold mt-1">Terbitkan sertifikat keikutsertakaan secara massal bagi seluruh peserta yang hadir di lokasi.</p>
                     </div>
-                    <button disabled
-                        class="px-5 py-3 bg-slate-100 text-slate-400 rounded-2xl font-bold text-xs shadow-sm cursor-not-allowed select-none flex items-center gap-2">
-                        <span>Mass Issue Certificates 🚀</span>
-                    </button>
+                    <form action="{{ route('admin.certificates.generate') }}" method="POST" class="flex items-center gap-3">
+                        @csrf
+                        <input type="hidden" name="event_id" value="{{ $event->id }}">
+                        
+                        <button type="submit" @if($certCandidates->isEmpty()) disabled @endif
+                            class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs shadow-sm transition disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed select-none flex items-center gap-2">
+                            <span>Mass Issue Certificates 🚀</span>
+                        </button>
+                    </form>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -568,12 +701,12 @@
                             <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wide">Certificate Statistics</h4>
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 text-center">
-                                    <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">Certificates Issued</span>
-                                    <span class="text-2xl font-black text-gray-800 block mt-1">0</span>
+                                    <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider font-semibold">Certificates Issued</span>
+                                    <span class="text-2xl font-black text-gray-800 block mt-1">{{ $certificates->count() }}</span>
                                 </div>
                                 <div class="bg-amber-50/40 border border-amber-100/30 rounded-2xl p-4 text-center">
-                                    <span class="text-[10px] text-amber-500 font-extrabold uppercase tracking-wider font-semibold">Pending Generation</span>
-                                    <span class="text-2xl font-black text-amber-600 block mt-1">0</span>
+                                    <span class="text-[10px] text-amber-500 font-extrabold uppercase tracking-wider">Pending Generation</span>
+                                    <span id="certificate-pending" class="text-2xl font-black text-amber-600 block mt-1">{{ $certCandidates->count() }}</span>
                                 </div>
                             </div>
                         </div>
@@ -589,10 +722,70 @@
     @endif
 
     <!-- Tab 6 Panel: Refunds -->
-    <div id="tab-panel-refunds" class="tab-panel hidden space-y-8 mt-6">
+    <div id="tab-panel-refunds" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
         @include('admin.events.partials.refunds')
     </div>
 
+</div>
+
+<!-- Proof Preview Modal -->
+<div id="proofModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-150 transform transition duration-300 scale-95 opacity-0" id="proofModalContent">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-slate-50">
+            <div>
+                <h3 class="font-extrabold text-gray-800 text-lg leading-snug">Bukti Pembayaran</h3>
+                <p class="text-[10px] text-gray-400 font-bold uppercase mt-0.5 tracking-wider" id="proofModalMeta">Upload info...</p>
+            </div>
+            <button type="button" onclick="closeProofModal()" class="text-gray-400 hover:text-gray-600 transition p-1.5 hover:bg-slate-100 rounded-xl cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="p-6 bg-white flex items-center justify-center min-h-[300px]">
+            <img id="proofModalImage" src="" alt="Bukti Transfer" class="max-h-[450px] w-auto object-contain rounded-2xl shadow-sm border border-slate-100">
+        </div>
+        <div class="p-6 border-t border-gray-100 bg-slate-50/50 flex justify-end gap-3">
+            <a id="proofModalDownload" href="" download class="px-5 py-2.5 bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer">
+                Download Asli
+            </a>
+            <button type="button" onclick="closeProofModal()" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-xs transition cursor-pointer">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Rejection Reason Modal -->
+<div id="rejectModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-150 transform transition duration-300 scale-95 opacity-0" id="rejectModalContent">
+        <form id="rejectModalForm" method="POST" action="">
+            @csrf
+            <div class="p-6 border-b border-gray-100 bg-slate-50 flex justify-between items-center">
+                <h3 class="font-extrabold text-gray-800 text-lg leading-snug">Tolak Pembayaran</h3>
+                <button type="button" onclick="closeRejectModal()" class="text-gray-400 hover:text-gray-600 transition p-1.5 hover:bg-slate-100 rounded-xl cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 bg-white space-y-4">
+                <div class="space-y-1.5">
+                    <label for="payment_rejection_reason" class="text-xs font-bold text-gray-500 uppercase tracking-wider block">Alasan Penolakan</label>
+                    <textarea name="payment_rejection_reason" id="payment_rejection_reason" rows="3" required placeholder="Tulis alasan mengapa pembayaran ditolak..."
+                              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 font-semibold text-sm text-gray-700 bg-white"></textarea>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-100 bg-slate-50/50 flex justify-end gap-3">
+                <button type="button" onclick="closeRejectModal()" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-xs transition cursor-pointer">
+                    Batal
+                </button>
+                <button type="submit" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer">
+                    Tolak & Kirim
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
@@ -677,22 +870,88 @@
         // Search logic
         const searchInput = document.getElementById('participantSearch');
         const rows = document.querySelectorAll('.participant-row');
+        const emptyState = document.getElementById('searchEmptyState');
 
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase().trim();
+                let visibleCount = 0;
                 rows.forEach(row => {
-                    const name = row.getAttribute('data-name');
-                    const email = row.getAttribute('data-email');
+                    const name = row.getAttribute('data-name') || '';
+                    const email = row.getAttribute('data-email') || '';
                     if (name.includes(query) || email.includes(query)) {
                         row.style.display = '';
+                        visibleCount++;
                     } else {
                         row.style.display = 'none';
                     }
                 });
+
+                if (emptyState) {
+                    if (visibleCount === 0 && query !== '') {
+                        emptyState.classList.remove('hidden');
+                    } else {
+                        emptyState.classList.add('hidden');
+                    }
+                }
             });
         }
     });
+
+    function openProofModal(imgUrl, sizeStr, dateStr) {
+        const modal = document.getElementById('proofModal');
+        const content = document.getElementById('proofModalContent');
+        const img = document.getElementById('proofModalImage');
+        const meta = document.getElementById('proofModalMeta');
+        const downloadLink = document.getElementById('proofModalDownload');
+
+        img.src = imgUrl;
+        meta.textContent = `Upload: ${dateStr} • Size: ${sizeStr}`;
+        downloadLink.href = imgUrl;
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeProofModal() {
+        const modal = document.getElementById('proofModal');
+        const content = document.getElementById('proofModalContent');
+
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    function openRejectModal(actionUrl) {
+        const modal = document.getElementById('rejectModal');
+        const content = document.getElementById('rejectModalContent');
+        const form = document.getElementById('rejectModalForm');
+
+        form.action = actionUrl;
+        document.getElementById('payment_rejection_reason').value = '';
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeRejectModal() {
+        const modal = document.getElementById('rejectModal');
+        const content = document.getElementById('rejectModalContent');
+
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
 </script>
 
 @endsection

@@ -228,6 +228,80 @@
                 </form>
             </div>
 
+            <!-- SECTION 5 : MANUAL PAYMENT SETTINGS CARD -->
+            <div class="bg-white rounded-[32px] border border-gray-100/80 shadow-sm p-8 transition duration-300">
+                <h2 class="text-2xl font-bold text-gray-800 tracking-tight mb-6 flex items-center gap-2">
+                    <span>💳</span> Payment Settings
+                </h2>
+
+                <form action="{{ route('admin.settings.payment') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+                    @csrf
+                    
+                    <!-- QRIS Image upload with preview -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider block">QRIS Code Global</label>
+                        <div class="flex items-start gap-4">
+                            <div class="w-24 h-24 border border-gray-200 rounded-xl overflow-hidden bg-slate-50 flex items-center justify-center relative flex-shrink-0">
+                                <img id="qris-preview" 
+                                     src="{{ $paymentQrisImage ? asset('storage/' . $paymentQrisImage) : '' }}" 
+                                     alt="QRIS Preview" 
+                                     class="w-full h-full object-contain {{ !$paymentQrisImage ? 'hidden' : '' }}">
+                                <div id="qris-placeholder" class="text-gray-300 flex flex-col items-center justify-center text-center p-2 {{ $paymentQrisImage ? 'hidden' : '' }}">
+                                    <span class="text-xs font-semibold text-gray-400">No Image</span>
+                                </div>
+                            </div>
+                            <div class="flex-1 space-y-2">
+                                <input type="file" name="payment_qris_image" id="payment_qris_image" accept="image/*" onchange="previewQris(event)" 
+                                       class="text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 cursor-pointer w-full">
+                                <p class="text-[10px] text-gray-400 font-medium">JPEG, PNG, JPG (Maks. 2MB)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bank Name -->
+                    <div class="space-y-1.5">
+                        <label for="payment_bank_name" class="text-xs font-bold text-gray-500 uppercase tracking-wider block">Nama Bank</label>
+                        <input type="text" name="payment_bank_name" id="payment_bank_name" value="{{ old('payment_bank_name', $paymentBankName) }}" required
+                               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-semibold text-sm text-gray-700 bg-white">
+                    </div>
+
+                    <!-- Bank Account Number -->
+                    <div class="space-y-1.5">
+                        <label for="payment_bank_account_number" class="text-xs font-bold text-gray-500 uppercase tracking-wider block">Nomor Rekening</label>
+                        <input type="text" name="payment_bank_account_number" id="payment_bank_account_number" value="{{ old('payment_bank_account_number', $paymentBankAccountNumber) }}" required
+                               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-semibold text-sm text-gray-700 bg-white">
+                    </div>
+
+                    <!-- Bank Account Name -->
+                    <div class="space-y-1.5">
+                        <label for="payment_bank_account_name" class="text-xs font-bold text-gray-500 uppercase tracking-wider block">Nama Pemilik Rekening</label>
+                        <input type="text" name="payment_bank_account_name" id="payment_bank_account_name" value="{{ old('payment_bank_account_name', $paymentBankAccountName) }}" required
+                               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-semibold text-sm text-gray-700 bg-white">
+                    </div>
+
+                    <!-- Payment Instruction -->
+                    <div class="space-y-1.5">
+                        <label for="payment_instruction" class="text-xs font-bold text-gray-500 uppercase tracking-wider block">Instruksi Pembayaran</label>
+                        <textarea name="payment_instruction" id="payment_instruction" rows="3" required
+                                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-semibold text-sm text-gray-700 bg-white">{{ old('payment_instruction', $paymentInstruction) }}</textarea>
+                    </div>
+
+                    <!-- Payment Contact Support -->
+                    <div class="space-y-1.5">
+                        <label for="payment_contact" class="text-xs font-bold text-gray-500 uppercase tracking-wider block">Kontak Bantuan Pembayaran</label>
+                        <input type="text" name="payment_contact" id="payment_contact" value="{{ old('payment_contact', $paymentContact) }}" required placeholder="WhatsApp Admin / Email Support"
+                               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-semibold text-sm text-gray-700 bg-white">
+                        <p class="text-[10px] text-gray-400 font-medium">Contoh: Nomor WhatsApp Admin atau Email Support</p>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="submit" class="w-full sm:w-auto px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs shadow-md hover:shadow-lg transition cursor-pointer select-none">
+                            Save Payment Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             <!-- SECTION 4 : ABOUT SYSTEM CARD -->
             <div class="bg-white rounded-[32px] border border-gray-100/80 shadow-sm p-8 transition duration-300">
                 <h2 class="text-2xl font-bold text-gray-800 tracking-tight mb-6 flex items-center gap-2">
@@ -304,6 +378,22 @@
         reader.onload = function() {
             const preview = document.getElementById('avatar-preview');
             const placeholder = document.getElementById('avatar-placeholder');
+            
+            preview.src = reader.result;
+            preview.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    /**
+     * Shows a real-time preview of the selected QRIS image.
+     */
+    function previewQris(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const preview = document.getElementById('qris-preview');
+            const placeholder = document.getElementById('qris-placeholder');
             
             preview.src = reader.result;
             preview.classList.remove('hidden');

@@ -22,6 +22,11 @@ class EventSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->environment('production')) {
+            $this->command?->warn('Seeder blocked in production environment.');
+            return;
+        }
+
         // 1. Truncate existing data to prevent integrity constraints
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         LuckyDrawWinner::truncate();
@@ -59,6 +64,7 @@ class EventSeeder extends Seeder
                 'name' => 'Tech Innovation Summit 2026',
                 'category' => 'Business',
                 'location' => 'Jakarta Convention Center (JCC)',
+                'google_maps_url' => 'https://maps.app.goo.gl/yJ6W6PuxwT7dZk2o7',
                 'start_date' => '2026-05-28',
                 'end_date' => '2026-06-03',
                 'start_time' => '08:00:00',
@@ -83,6 +89,7 @@ class EventSeeder extends Seeder
                 'name' => 'Digital Marketing Bootcamp',
                 'category' => 'Education',
                 'location' => 'WeWork Coworking Space, Kuningan',
+                'google_maps_url' => 'https://maps.app.goo.gl/N4eR4K1NskL91sE98',
                 'start_date' => '2026-05-29',
                 'end_date' => '2026-06-02',
                 'start_time' => '09:00:00',
@@ -102,6 +109,7 @@ class EventSeeder extends Seeder
                 'name' => 'AI & Machine Learning Conference',
                 'category' => 'Education',
                 'location' => 'Auditorium Universitas Indonesia',
+                'google_maps_url' => 'https://maps.app.goo.gl/gQ9r7K2NskL81sE97',
                 'start_date' => '2026-05-28',
                 'end_date' => '2026-06-01',
                 'start_time' => '08:30:00',
@@ -264,27 +272,28 @@ class EventSeeder extends Seeder
             // Calculate capacity dynamically
             $capacity = collect($eventInfo['tickets'])->sum('quota');
 
-            // Create Event
-            $event = Event::create([
-                'name' => $eventInfo['name'],
-                'category' => $eventInfo['category'],
-                'location' => $eventInfo['location'],
-                'start_date' => $eventInfo['start_date'],
-                'end_date' => $eventInfo['end_date'],
-                'start_time' => $eventInfo['start_time'],
-                'end_time' => $eventInfo['end_time'],
-                'status' => $eventInfo['status'],
-                'capacity' => $capacity,
-                'has_certificate' => $eventInfo['has_certificate'],
-                'has_lucky_draw' => $eventInfo['has_lucky_draw'],
-                'has_seat_layout' => $eventInfo['has_seat_layout'],
-                'prize_name' => $eventInfo['prize_name'] ?? null,
-                'prize_description' => $eventInfo['prize_description'] ?? null,
-                'winner_count' => $eventInfo['winner_count'] ?? null,
-                'organizer_name' => $eventInfo['organizer_name'] ?? null,
-                'certificate_title' => $eventInfo['certificate_title'] ?? null,
-                'is_configured' => $eventInfo['is_configured'],
-            ]);
+             // Create Event
+             $event = Event::create([
+                 'name' => $eventInfo['name'],
+                 'category' => $eventInfo['category'],
+                 'location' => $eventInfo['location'],
+                 'google_maps_url' => $eventInfo['google_maps_url'] ?? null,
+                 'start_date' => $eventInfo['start_date'],
+                 'end_date' => $eventInfo['end_date'],
+                 'start_time' => $eventInfo['start_time'],
+                 'end_time' => $eventInfo['end_time'],
+                 'status' => $eventInfo['status'],
+                 'capacity' => $capacity,
+                 'has_certificate' => $eventInfo['has_certificate'],
+                 'has_lucky_draw' => $eventInfo['has_lucky_draw'],
+                 'has_seat_layout' => $eventInfo['has_seat_layout'],
+                 'prize_name' => $eventInfo['prize_name'] ?? null,
+                 'prize_description' => $eventInfo['prize_description'] ?? null,
+                 'winner_count' => $eventInfo['winner_count'] ?? null,
+                 'organizer_name' => $eventInfo['organizer_name'] ?? null,
+                 'certificate_title' => $eventInfo['certificate_title'] ?? null,
+                 'is_configured' => $eventInfo['is_configured'],
+             ]);
 
             // Create Ticket Categories
             $ticketCategories = [];
@@ -406,23 +415,79 @@ class EventSeeder extends Seeder
 
             // Generate Lucky Draw Winners if lucky draw is enabled
             if ($event->has_lucky_draw) {
+                // 1. Create EventPrizes first
+                $prizes = [
+                    [
+                        'name' => $eventInfo['prize_name'] ?? 'MacBook Pro M3',
+                        'description' => $eventInfo['prize_description'] ?? 'Grand Prize untuk pemenang Lucky Draw utama',
+                        'winner_count' => $eventInfo['winner_count'] ?? 2,
+                        'draw_order' => 2,
+                    ],
+                    [
+                        'name' => 'AirPods Pro',
+                        'description' => 'Second Prize untuk pemenang kedua',
+                        'winner_count' => 3,
+                        'draw_order' => 1,
+                    ],
+                    [
+                        'name' => 'Voucher JoyVent',
+                        'description' => 'Door Prize menarik untuk peserta hadir',
+                        'winner_count' => 10,
+                        'draw_order' => 0,
+                    ]
+                ];
+
+                $createdPrizes = [];
+                foreach ($prizes as $prizeData) {
+                    $createdPrizes[] = \App\Models\EventPrize::create([
+                        'event_id' => $event->id,
+                        'name' => $prizeData['name'],
+                        'description' => $prizeData['description'],
+                        'winner_count' => $prizeData['winner_count'],
+                        'drawn_count' => 0,
+                        'status' => 'waiting',
+                        'draw_order' => $prizeData['draw_order'],
+                    ]);
+                }
+
                 // Get checked-in registrations
                 $checkedInRegistrations = Registration::where('event_id', $event->id)
                     ->where('is_checked_in', true)
                     ->get();
 
                 if ($checkedInRegistrations->isNotEmpty()) {
-                    $maxWinners = $event->winner_count ?? 1;
-                    $winnerCount = min($maxWinners, $checkedInRegistrations->count());
-                    $winners = $checkedInRegistrations->random($winnerCount);
+                    // Let's seed some winners
+                    // We draw 2 winners for MacBook Pro (first prize), and 1 for AirPods Pro (second prize)
+                    $winnersToDraw = [
+                        ['prize' => $createdPrizes[0], 'count' => 2],
+                        ['prize' => $createdPrizes[1], 'count' => 1],
+                    ];
 
-                    foreach ($winners as $w) {
-                        LuckyDrawWinner::create([
-                            'event_id' => $event->id,
-                            'registration_id' => $w->id,
-                            'prize_name' => $event->prize_name ?? 'Mystery Gift',
-                            'won_at' => Carbon::parse($event->start_date . ' ' . $event->start_time)->addHours(2),
-                        ]);
+                    $winnerRegistrationIds = [];
+                    foreach ($winnersToDraw as $drawInfo) {
+                        $prize = $drawInfo['prize'];
+                        $count = min($drawInfo['count'], $checkedInRegistrations->whereNotIn('id', $winnerRegistrationIds)->count());
+                        
+                        if ($count > 0) {
+                            $drawWinners = $checkedInRegistrations->whereNotIn('id', $winnerRegistrationIds)->random($count);
+                            foreach ($drawWinners as $w) {
+                                $winnerRegistrationIds[] = $w->id;
+                                $prize->drawn_count += 1;
+                                if ($prize->drawn_count >= $prize->winner_count) {
+                                    $prize->status = 'completed';
+                                }
+                                $prize->save();
+
+                                LuckyDrawWinner::create([
+                                    'event_id' => $event->id,
+                                    'registration_id' => $w->id,
+                                    'event_prize_id' => $prize->id,
+                                    'prize_name' => $prize->name,
+                                    'draw_number' => $prize->drawn_count,
+                                    'won_at' => Carbon::parse($event->start_date . ' ' . $event->start_time)->addHours(2),
+                                ]);
+                            }
+                        }
                     }
                 }
             }

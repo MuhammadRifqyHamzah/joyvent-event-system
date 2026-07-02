@@ -12,7 +12,9 @@ class LuckyDrawWinner extends Model
     protected $fillable = [
         'event_id',
         'registration_id',
+        'event_prize_id',
         'prize_name',
+        'draw_number',
         'won_at'
     ];
 
@@ -24,5 +26,10 @@ class LuckyDrawWinner extends Model
     public function registration()
     {
         return $this->belongsTo(Registration::class);
+    }
+
+    public function eventPrize()
+    {
+        return $this->belongsTo(EventPrize::class, 'event_prize_id');
     }
 }

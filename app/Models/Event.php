@@ -16,6 +16,7 @@ class Event extends Model
         'description',
         'category',
         'location',
+        'google_maps_url',
 
         'start_date',
         'end_date',
@@ -132,5 +133,10 @@ class Event extends Model
     public function registrations()
     {
         return $this->hasMany(Registration::class);
+    }
+
+    public function eventPrizes()
+    {
+        return $this->hasMany(EventPrize::class)->orderBy('draw_order', 'asc');
     }
 }

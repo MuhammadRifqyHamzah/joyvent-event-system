@@ -11,7 +11,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(\Google_Client::class, function ($app) {
+            return new \Google_Client([
+                'client_id' => config('services.google.client_id')
+            ]);
+        });
     }
 
     /**

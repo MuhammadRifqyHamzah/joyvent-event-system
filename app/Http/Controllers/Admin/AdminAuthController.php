@@ -35,6 +35,18 @@ class AdminAuthController extends Controller
 
         // Cek login
         if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            // Verifikasi role admin
+            if (!$user || $user->role !== 'admin') {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'Akses ditolak. Hanya admin yang diizinkan masuk.'
+                ])->onlyInput('email');
+            }
 
             // Regenerate session
             $request->session()->regenerate();

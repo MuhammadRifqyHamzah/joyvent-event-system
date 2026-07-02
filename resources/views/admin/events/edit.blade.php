@@ -94,6 +94,19 @@
                                 placeholder="Contoh: Bekasi Convention Center"
                                 class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-700">
                         </div>
+
+                        <!-- Google Maps URL -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider text-xs">
+                                Google Maps Link
+                            </label>
+                            <input type="url" name="google_maps_url" value="{{ old('google_maps_url', $event->google_maps_url) }}"
+                                placeholder="https://maps.app.goo.gl/xxxxx"
+                                class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-700">
+                            <p class="text-xs text-gray-400 mt-2 font-semibold">
+                                Buka Google Maps → Share → Copy Link → Tempel di sini
+                            </p>
+                        </div>
  
                     </div>
  

@@ -35,6 +35,17 @@ class EventController extends Controller
         $request->validate([
             'name' => 'required',
             'location' => 'required',
+            'google_maps_url' => [
+                'nullable',
+                'url',
+                'max:2048',
+                function ($attribute, $value, $fail) {
+                    $pattern = '/^(https?:\/\/)?(www\.)?(maps\.google\.com|google\.com\/maps|maps\.app\.goo\.gl)/i';
+                    if (!preg_match($pattern, $value)) {
+                        $fail('Format URL harus berupa tautan resmi Google Maps.');
+                    }
+                }
+            ],
             'start_date' => 'required',
             'end_date' => 'required',
             'capacity' => 'required|integer'
@@ -44,6 +55,7 @@ class EventController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'location' => $request->location,
+            'google_maps_url' => $request->google_maps_url,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'capacity' => $request->capacity,
@@ -80,6 +92,20 @@ class EventController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $request->validate([
+            'google_maps_url' => [
+                'nullable',
+                'url',
+                'max:2048',
+                function ($attribute, $value, $fail) {
+                    $pattern = '/^(https?:\/\/)?(www\.)?(maps\.google\.com|google\.com\/maps|maps\.app\.goo\.gl)/i';
+                    if (!preg_match($pattern, $value)) {
+                        $fail('Format URL harus berupa tautan resmi Google Maps.');
+                    }
+                }
+            ]
+        ]);
+
         $event = Event::findOrFail($id);
 
         $event->update($request->all());

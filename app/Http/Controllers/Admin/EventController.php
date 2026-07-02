@@ -77,6 +77,17 @@ class EventController extends Controller
             'category' => 'required|in:Entertainment,Education,Sports,Business,Community',
 
             'location' => 'required',
+            'google_maps_url' => [
+                'nullable',
+                'url',
+                'max:2048',
+                function ($attribute, $value, $fail) {
+                    $pattern = '/^(https?:\/\/)?(www\.)?(maps\.google\.com|google\.com\/maps|maps\.app\.goo\.gl)/i';
+                    if (!preg_match($pattern, $value)) {
+                        $fail('Format URL harus berupa tautan resmi Google Maps.');
+                    }
+                }
+            ],
 
             'start_date' => 'required|date',
             'end_date' => 'required|date',
@@ -102,6 +113,7 @@ class EventController extends Controller
             'category' => $request->category,
 
             'location' => $request->location,
+            'google_maps_url' => $request->google_maps_url,
 
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
@@ -185,7 +197,7 @@ class EventController extends Controller
         $event->load([
             'ticketCategories',
             'registrations' => function ($q) {
-                $q->with(['user', 'ticketCategory'])->latest();
+                $q->with(['user', 'ticketCategory', 'verifiedBy', 'rejectedBy'])->latest();
             }
         ]);
 
@@ -257,18 +269,33 @@ class EventController extends Controller
         // Lucky Draw (if active)
         $winners = collect();
         $candidates = collect();
+        $eventPrizes = collect();
         if ($event->has_lucky_draw) {
-            $winners = \App\Models\LuckyDrawWinner::with('registration.user')
+            $winners = \App\Models\LuckyDrawWinner::with(['registration.user', 'eventPrize'])
                 ->where('event_id', $event->id)
                 ->orderBy('won_at', 'desc')
                 ->get();
 
             $winnerRegistrationIds = $winners->pluck('registration_id');
+            $winnerUserIds = $winners->pluck('registration.user_id')->filter()->toArray();
+
             $candidates = \App\Models\Registration::with('user')
                 ->where('event_id', $event->id)
                 ->where('is_checked_in', 1)
+                ->where('registration_status', 'active')
+                ->where('payment_status', 'paid')
+                ->where('status', '!=', 'cancelled')
                 ->whereNotIn('id', $winnerRegistrationIds)
+                ->whereNotIn('user_id', $winnerUserIds)
+                ->where(function ($q) {
+                    $q->whereDoesntHave('refund')
+                        ->orWhereHas('refund', function ($qr) {
+                            $qr->whereNotIn('status', ['pending', 'approved']);
+                        });
+                })
                 ->get();
+
+            $eventPrizes = $event->eventPrizes;
         }
 
         // Certificate (if active)
@@ -283,12 +310,21 @@ class EventController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            $issuedRegistrationIds = \App\Models\Certificate::pluck('registration_id');
+            $issuedRegistrationIds = \App\Models\Certificate::whereNotNull('registration_id')->pluck('registration_id');
             $certCandidates = \App\Models\Registration::with('user')
                 ->where('event_id', $event->id)
                 ->where('is_checked_in', 1)
                 ->whereNotIn('id', $issuedRegistrationIds)
                 ->get();
+
+            // Temporary debug to audit the candidates query and variables
+            \Illuminate\Support\Facades\Log::debug('Certificate Generation Audit:', [
+                'event_id' => $event->id,
+                'has_certificate' => $event->has_certificate,
+                'issuedRegistrationIds' => $issuedRegistrationIds->toArray(),
+                'certCandidates_count' => $certCandidates->count(),
+                'certCandidates_ids' => $certCandidates->pluck('id')->toArray(),
+            ]);
 
             $templateDirectory = public_path('storage/certificates/templates');
             if (\Illuminate\Support\Facades\File::exists($templateDirectory)) {
@@ -324,6 +360,7 @@ class EventController extends Controller
             'seatBookings',
             'winners',
             'candidates',
+            'eventPrizes',
             'certificates',
             'certCandidates',
             'templateUrl',
@@ -434,6 +471,7 @@ class EventController extends Controller
                 return [
                     'id' => $w->id,
                     'name' => $w->registration->user->name ?? 'Guest',
+                    'user_id' => $w->registration->user_id ?? null,
                     'prize_name' => $w->prize_name,
                     'destroy_url' => route('admin.lucky_draw.destroy', $w->id)
                 ];
@@ -513,7 +551,8 @@ class EventController extends Controller
             'qr_code' => 'required|string',
         ]);
 
-        $registration = \App\Models\Registration::where('event_id', $event->id)
+        $registration = \App\Models\Registration::with('refund')
+            ->where('event_id', $event->id)
             ->where('qr_code', $request->qr_code)
             ->first();
 
@@ -522,6 +561,38 @@ class EventController extends Controller
                 'success' => false,
                 'message' => 'QR Code tidak terdaftar untuk event ini.'
             ], 404);
+        }
+
+        // Production Hardening Validation
+        if ($registration->payment_status !== 'paid') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Check-in gagal: tiket belum dibayar.'
+            ], 400);
+        }
+
+        if ($registration->registration_status !== 'active') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Check-in gagal: tiket sudah tidak aktif.'
+            ], 400);
+        }
+
+        if ($registration->status === 'cancelled') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Check-in gagal: tiket telah dibatalkan.'
+            ], 400);
+        }
+
+        if (
+            $registration->refund &&
+            $registration->refund->status === 'pending'
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Check-in gagal: tiket sedang dalam proses refund.'
+            ], 400);
         }
 
         if ($registration->is_checked_in) {
@@ -642,6 +713,17 @@ class EventController extends Controller
             'description' => 'required',
             'category' => 'required|in:Entertainment,Education,Sports,Business,Community',
             'location' => 'required',
+            'google_maps_url' => [
+                'nullable',
+                'url',
+                'max:2048',
+                function ($attribute, $value, $fail) {
+                    $pattern = '/^(https?:\/\/)?(www\.)?(maps\.google\.com|google\.com\/maps|maps\.app\.goo\.gl)/i';
+                    if (!preg_match($pattern, $value)) {
+                        $fail('Format URL harus berupa tautan resmi Google Maps.');
+                    }
+                }
+            ],
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'start_time' => 'required',
@@ -655,6 +737,7 @@ class EventController extends Controller
             'description' => $request->description,
             'category' => $request->category,
             'location' => $request->location,
+            'google_maps_url' => $request->google_maps_url,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'start_time' => $request->start_time,
@@ -763,9 +846,12 @@ class EventController extends Controller
 
         if ($event->has_lucky_draw) {
             $validationRules = array_merge($validationRules, [
-                'prize_name' => 'required|max:255',
-                'prize_description' => 'required',
-                'winner_count' => 'required|integer|min:1',
+                'prizes' => 'required|array|min:1',
+                'prizes.*.id' => 'nullable|integer',
+                'prizes.*.name' => 'required|string|max:255',
+                'prizes.*.description' => 'nullable|string',
+                'prizes.*.winner_count' => 'required|integer|min:1',
+                'prizes.*.draw_order' => 'required|integer|min:0',
             ]);
         }
 
@@ -858,9 +944,43 @@ class EventController extends Controller
 
         // 3. Lucky Draw Config
         if ($event->has_lucky_draw) {
-            $event->prize_name = $request->prize_name;
-            $event->prize_description = $request->prize_description;
-            $event->winner_count = $request->winner_count;
+            $prizesData = $request->input('prizes', []);
+            if (!empty($prizesData)) {
+                $event->prize_name = $prizesData[0]['name'];
+                $event->prize_description = $prizesData[0]['description'] ?? '';
+                $event->winner_count = $prizesData[0]['winner_count'];
+            }
+
+            // Sync prizes: delete those not in request, update/create others
+            $keepPrizeIds = collect($prizesData)->pluck('id')->filter()->toArray();
+            
+            // Delete removed prizes
+            $event->eventPrizes()->whereNotIn('id', $keepPrizeIds)->delete();
+
+            // Create/Update prizes
+            foreach ($prizesData as $prizeItem) {
+                if (isset($prizeItem['id']) && $prizeItem['id']) {
+                    $prize = $event->eventPrizes()->find($prizeItem['id']);
+                    if ($prize) {
+                        $prize->update([
+                            'name' => $prizeItem['name'],
+                            'description' => $prizeItem['description'] ?? null,
+                            'winner_count' => $prizeItem['winner_count'],
+                            'draw_order' => $prizeItem['draw_order'] ?? 0,
+                            'status' => ($prize->drawn_count >= $prizeItem['winner_count']) ? 'completed' : ($prizeItem['status'] ?? $prize->status),
+                        ]);
+                    }
+                } else {
+                    $event->eventPrizes()->create([
+                        'name' => $prizeItem['name'],
+                        'description' => $prizeItem['description'] ?? null,
+                        'winner_count' => $prizeItem['winner_count'],
+                        'drawn_count' => 0,
+                        'status' => $prizeItem['status'] ?? 'waiting',
+                        'draw_order' => $prizeItem['draw_order'] ?? 0,
+                    ]);
+                }
+            }
         }
 
         // Direct to Visual Builder if using visual flow

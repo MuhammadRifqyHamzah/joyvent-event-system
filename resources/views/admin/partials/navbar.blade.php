@@ -1,23 +1,23 @@
-<div class="bg-white border-b px-10 py-6 flex justify-between items-center relative">
+<div class="bg-white border-b px-3.5 py-2 md:px-10 md:py-6 flex justify-between items-center relative">
  
     <!-- Left: Hamburger Toggle & Title -->
-    <div class="flex items-center gap-5">
+    <div class="flex items-center gap-3 md:gap-5">
  
         <!-- Circular Hamburger Button -->
-        <button id="toggleSidebar" class="w-12 h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full flex items-center justify-center transition focus:outline-none shadow-sm cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+        <button id="toggleSidebar" class="w-10 h-10 md:w-12 md:h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full flex items-center justify-center transition focus:outline-none shadow-sm cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 md:w-6 md:h-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
             </svg>
         </button>
  
-        <h1 class="text-4xl font-extrabold text-gray-800 tracking-tight">
+        <h1 class="text-xl md:text-4xl font-extrabold text-gray-800 tracking-tight truncate max-w-[140px] xs:max-w-[180px] sm:max-w-none">
             {{ $title ?? 'Dashboard' }}
         </h1>
  
     </div>
  
     <!-- Right: Notification & Profile -->
-    <div class="flex items-center gap-6">
+    <div class="flex items-center gap-3 md:gap-6">
  
         <!-- Styled Notification Bell Wrapper -->
         @php
@@ -35,22 +35,22 @@
         @endphp
         <div class="relative">
  
-            <button id="notificationBell" class="w-12 h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full flex items-center justify-center transition focus:outline-none relative shadow-sm cursor-pointer">
+            <button id="notificationBell" class="w-10 h-10 md:w-12 md:h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full flex items-center justify-center transition focus:outline-none relative shadow-sm cursor-pointer">
                 <!-- Bell SVG -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-6 h-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-5 h-5 md:w-6 md:h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
                 </svg>
  
                 <!-- Red Notification Badge -->
                 @if($unreadCount > 0)
-                <span class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-white shadow-sm">
+                <span class="absolute -top-1 -right-1 md:-top-1.5 md:-right-1.5 bg-red-500 text-white text-[9px] md:text-[10px] font-bold w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded-full border-2 border-white shadow-sm">
                     {{ $unreadCount }}
                 </span>
                 @endif
             </button>
  
             <!-- Notification Dropdown Overlay -->
-            <div id="notificationDropdown" class="hidden absolute right-0 mt-4 w-96 bg-white border border-gray-100 rounded-3xl shadow-xl z-50 p-6 space-y-4 transition-all duration-300">
+            <div id="notificationDropdown" class="hidden absolute right-0 mt-4 w-80 sm:w-96 bg-white border border-gray-100 rounded-3xl shadow-xl z-50 p-4 md:p-6 space-y-4 transition-all duration-300">
                 
                 <!-- Dropdown Header -->
                 <div class="flex justify-between items-center pb-3 border-b border-gray-50">
@@ -118,19 +118,19 @@
         </div>
  
         <!-- Profile info -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 md:gap-4">
 
             @if(auth()->user() && auth()->user()->profile_photo)
-                <div class="w-12 h-12 rounded-full overflow-hidden shadow-sm transition flex-shrink-0 bg-slate-100 flex items-center justify-center">
+                <div class="w-9 h-9 md:w-12 md:h-12 rounded-full overflow-hidden shadow-sm transition flex-shrink-0 bg-slate-100 flex items-center justify-center">
                     <img src="{{ asset('storage/' . auth()->user()->profile_photo) }}" alt="Avatar" class="w-full h-full object-cover">
                 </div>
             @else
-                <div class="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center font-bold text-xl shadow-sm transition">
+                <div class="w-9 h-9 md:w-12 md:h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center font-bold text-sm md:text-xl shadow-sm transition">
                     {{ auth()->user() ? strtoupper(substr(auth()->user()->name, 0, 1)) : 'A' }}
                 </div>
             @endif
 
-            <div class="leading-tight">
+            <div class="leading-tight hidden md:block">
 
                 <h3 class="font-extrabold text-gray-800 text-base">
                     {{ auth()->user()->name ?? 'Admin' }}

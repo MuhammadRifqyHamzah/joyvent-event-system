@@ -15,6 +15,11 @@ class RefundSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->environment('production')) {
+            $this->command?->warn('Seeder blocked in production environment.');
+            return;
+        }
+
         // Truncate existing refunds
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         Refund::truncate();

@@ -42,7 +42,7 @@ Route::middleware('guest')->group(function () {
 | ADMIN PANEL (PROTECTED)
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'admin.role'])->group(function () {
 
     // Logout
     Route::post('/admin/logout', [AdminAuthController::class, 'logout'])
@@ -135,6 +135,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/events/{event}/participants', [ParticipantController::class, 'index'])
         ->name('admin.participants.index');
      
+    Route::post('/admin/participants/{registration}/confirm-payment', [ParticipantController::class, 'confirmPayment'])
+        ->name('admin.participants.confirm_payment');
+    Route::post('/admin/participants/{registration}/reject-payment', [ParticipantController::class, 'rejectPayment'])
+        ->name('admin.participants.reject_payment');
+
     Route::post('/admin/participants/{registration}/check-in', [ParticipantController::class, 'toggleCheckIn'])
         ->name('admin.participants.check_in');
      
@@ -248,13 +253,35 @@ Route::middleware('auth')->group(function () {
         ->name('admin.settings.password');
     Route::post('/admin/settings/organizer', [SettingsController::class, 'updateOrganizer'])
         ->name('admin.settings.organizer');
+    Route::post('/admin/settings/payment', [SettingsController::class, 'updatePaymentSettings'])
+        ->name('admin.settings.payment');
 
-    /*
-    |--------------------------------------------------------------------------
-    | SEAT LAYOUT BUILDER PROTOTYPE V4.1 (ACTIVE)
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/admin/seat-layout-prototype-v41', function () {
-        return view('admin.seats.prototype_v41');
-    })->name('admin.seats.prototype_v41');
+    // API Tester (Mini Postman)
+    Route::get('/admin/api-tester', [\App\Http\Controllers\Admin\ApiTesterController::class, 'index'])
+        ->name('admin.api_tester');
+
+});
+
+// Deployment helper routes for cPanel/Shared Hosting environments
+Route::get('/deploy/storage-link', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+        return 'Storage link created successfully.';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
+Route::get('/deploy/migrate', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return 'Migrations executed successfully.';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
+// Serve the interactive API Tester interface
+Route::get('/api-tester', function () {
+    return view('api-tester');
 });

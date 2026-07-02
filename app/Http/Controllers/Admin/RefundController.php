@@ -32,7 +32,9 @@ class RefundController extends Controller
             // Update Registration status to 'cancelled'
             $registration = $refund->registration;
             $registration->update([
-                'status' => 'cancelled'
+                'status' => 'cancelled',
+                'registration_status' => 'cancelled',
+                'payment_status' => 'failed',
             ]);
 
             // Release Seat if event uses seats and seat_number exists

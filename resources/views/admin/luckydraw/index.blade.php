@@ -72,33 +72,96 @@
                         </div>
                     </div>
  
-                    <!-- Controls Form -->
-                    <div class="z-10 max-w-md mx-auto w-full space-y-4">
-                        <div class="flex gap-4">
-                            <input 
-                                type="text" 
-                                id="prizeInput" 
-                                value="Merchandise Eksklusif" 
-                                placeholder="Masukkan Nama Hadiah..." 
-                                class="w-full bg-slate-900 border border-slate-800 rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm font-bold text-white placeholder-slate-600"
-                            >
-                        </div>
- 
-                        @if($eventStatus === 'upcoming')
-                            <button disabled class="w-full bg-slate-805 text-slate-500 font-extrabold py-4 px-6 rounded-2xl text-xs tracking-widest uppercase cursor-not-allowed select-none shadow-md">
-                                Undian Belum Bisa Dimulai (Event Belum Mulai) 🔒
-                            </button>
-                        @elseif($candidates->isEmpty())
-                            <button disabled class="w-full bg-slate-800 text-slate-500 font-extrabold py-4 px-6 rounded-2xl text-xs tracking-widest uppercase cursor-not-allowed select-none shadow-md">
-                                Tidak Ada Kandidat (Harus Check-In) 💡
-                            </button>
-                        @else
-                            <button id="drawBtn" onclick="startLuckyDraw()" class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:scale-[1.02] hover:shadow-indigo-500/20 hover:shadow-lg text-white font-extrabold py-4 px-6 rounded-2xl text-xs tracking-widest uppercase transition duration-300 cursor-pointer shadow-md">
-                                PUTAR UNDIAN 🎰
-                            </button>
-                        @endif
+                    <!-- Info Text -->
+                    <div class="z-10 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                        Pilih salah satu hadiah dari dashboard di bawah untuk memulai undian.
                     </div>
  
+                </div>
+
+                <!-- Prizes Dashboard Card -->
+                <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 space-y-6">
+                    <div>
+                        <h3 class="text-xl font-extrabold text-gray-800 tracking-tight flex items-center gap-2">
+                            <span>🎰 Prizes Dashboard</span>
+                        </h3>
+                        <p class="text-gray-400 text-xs mt-1.5 font-semibold leading-relaxed">
+                            Pilih hadiah di bawah ini untuk memulai undian.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        @foreach($eventPrizes as $prize)
+                            @php
+                                $isCompleted = $prize->status === 'completed' || $prize->remaining_count === 0;
+                                $isDraft = $prize->status === 'draft';
+                                $isDrawing = $prize->status === 'drawing';
+                            @endphp
+                            <div class="border {{ $isCompleted ? 'border-gray-150 bg-gray-50/50' : 'border-slate-100 bg-white' }} rounded-2xl p-5 flex flex-col justify-between space-y-4 transition shadow-sm hover:shadow-md">
+                                <div>
+                                    <div class="flex justify-between items-start">
+                                        <h4 class="font-extrabold text-sm text-gray-800 truncate max-w-[70%]" title="{{ $prize->name }}">
+                                            {{ $prize->name }}
+                                        </h4>
+                                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider
+                                            {{ $isCompleted ? 'bg-green-50 text-green-500 border border-green-100' : '' }}
+                                            {{ $isDraft ? 'bg-gray-100 text-gray-500 border border-gray-200' : '' }}
+                                            {{ $isDrawing ? 'bg-pink-50 text-pink-500 border border-pink-100 animate-pulse' : '' }}
+                                            {{ $prize->status === 'waiting' ? 'bg-indigo-50 text-indigo-500 border border-indigo-100' : '' }}
+                                        ">
+                                            {{ $prize->status }}
+                                        </span>
+                                    </div>
+                                    @if($prize->description)
+                                        <p class="text-gray-400 text-[10px] mt-1 line-clamp-1 font-medium">{{ $prize->description }}</p>
+                                    @endif
+                                    
+                                    <div class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-50/50 text-center">
+                                        <div>
+                                            <span class="block text-[9px] font-bold text-gray-400 uppercase">Target</span>
+                                            <span class="text-xs font-black text-gray-700">{{ $prize->winner_count }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="block text-[9px] font-bold text-gray-400 uppercase">Terundi</span>
+                                            <span class="text-xs font-black text-gray-700">{{ $prize->drawn_count }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="block text-[9px] font-bold text-gray-400 uppercase">Sisa</span>
+                                            <span class="text-xs font-black text-indigo-600">{{ $prize->remaining_count }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    @if($eventStatus === 'upcoming')
+                                        <button disabled class="w-full bg-gray-100 text-gray-400 font-extrabold py-2.5 px-4 rounded-xl text-[10px] tracking-wider uppercase cursor-not-allowed select-none">
+                                            Event Belum Mulai 🔒
+                                        </button>
+                                    @elseif($candidates->isEmpty())
+                                        <button disabled class="w-full bg-gray-100 text-gray-400 font-extrabold py-2.5 px-4 rounded-xl text-[10px] tracking-wider uppercase cursor-not-allowed select-none">
+                                            Check-In Kosong 💡
+                                        </button>
+                                    @elseif($isCompleted)
+                                        <button disabled class="w-full bg-gray-150 text-gray-400 font-extrabold py-2.5 px-4 rounded-xl text-[10px] tracking-wider uppercase cursor-not-allowed select-none">
+                                            Selesai Diundi 🔒
+                                        </button>
+                                    @elseif($isDraft)
+                                        <button disabled class="w-full bg-gray-100 text-gray-400 font-extrabold py-2.5 px-4 rounded-xl text-[10px] tracking-wider uppercase cursor-not-allowed select-none">
+                                            Draft Mode 🔒
+                                        </button>
+                                    @else
+                                        <button 
+                                            type="button" 
+                                            onclick="startLuckyDraw({{ $prize->id }}, '{{ $prize->name }}')" 
+                                            class="draw-action-btn w-full bg-slate-900 hover:bg-indigo-600 text-white font-extrabold py-2.5 px-4 rounded-xl text-[10px] tracking-widest uppercase transition duration-300 cursor-pointer hover:scale-[1.02] shadow-sm hover:shadow"
+                                        >
+                                            Mulai Undian 🎰
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
             @endif
@@ -203,60 +266,25 @@
     let isDrawing = false;
     let shuffleInterval = null;
     let confettiInterval = null;
- 
-    function startLuckyDraw() {
+
+    function startLuckyDraw(prizeId, prizeName) {
         if (isDrawing || candidates.length === 0) return;
- 
-        const prizeName = document.getElementById('prizeInput').value.trim();
-        if (!prizeName) {
-            alert('Silakan masukkan nama hadiah terlebih dahulu!');
-            return;
-        }
- 
+
         isDrawing = true;
-        const drawBtn = document.getElementById('drawBtn');
-        drawBtn.disabled = true;
-        drawBtn.innerText = 'MENGUNDI...';
- 
+        
+        // Disable all drawing buttons in the dashboard
+        document.querySelectorAll('.draw-action-btn').forEach(btn => {
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+        });
+
         const display = document.getElementById('slotDisplay');
         const subDisplay = document.getElementById('slotSubDisplay');
         
-        let counter = 0;
-        let speed = 50; // Milliseconds per shuffle
-        
-        subDisplay.innerText = 'Mengacak nama kandidat...';
- 
-        // Run slot machine interval shuffler
-        function shuffle() {
-            const randomIndex = Math.floor(Math.random() * candidates.length);
-            const candidate = candidates[randomIndex];
-            
-            display.innerText = candidate.name;
-            
-            counter++;
-            if (counter < 25) {
-                // Keep fast speed
-                shuffleInterval = setTimeout(shuffle, speed);
-            } else if (counter < 35) {
-                // Slower speed
-                shuffleInterval = setTimeout(shuffle, speed + 100);
-            } else if (counter < 40) {
-                // Very slow speed
-                shuffleInterval = setTimeout(shuffle, speed + 300);
-            } else {
-                // Final selection lock
-                const finalWinner = candidates[randomIndex];
-                saveWinner(finalWinner, prizeName);
-            }
-        }
-        
-        shuffle();
-    }
- 
-    function saveWinner(winner, prizeName) {
-        const eventId = "{{ $eventId }}";
-        
-        // POST request to record victory in database
+        display.innerText = "MENGUNDI...";
+        subDisplay.innerText = "Menghubungi server untuk mengunci pemenang...";
+
+        // 1. Fetch real winner from server first (locking DB transaction)
         fetch("{{ route('admin.lucky_draw.draw') }}", {
             method: "POST",
             headers: {
@@ -265,57 +293,91 @@
                 "X-CSRF-TOKEN": "{{ csrf_token() }}"
             },
             body: JSON.stringify({
-                event_id: eventId,
-                registration_id: winner.registration_id,
-                prize_name: prizeName
+                event_prize_id: prizeId
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (response.status === 409) {
+                throw new Error("PROSES_LOCK");
+            }
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.message || "Gagal mengundi."); });
+            }
+            return response.json();
+        })
         .then(res => {
-            if (res.success) {
-                // Visual modal updates
-                document.getElementById('modalWinnerName').innerText = winner.name;
-                document.getElementById('modalWinnerEmail').innerText = winner.email;
-                document.getElementById('modalPrizeName').innerText = prizeName.toUpperCase();
+            if (res.success && res.data) {
+                const winnerData = res.data;
+                const winnerName = winnerData.registration.user.name;
+                const winnerEmail = winnerData.registration.user.email;
+                const drawNumber = winnerData.draw_number;
                 
-                // Show modal overlay
-                const modal = document.getElementById('winnerModal');
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                
-                // Trigger celebratory canvas confetti effects
-                startConfettiEffect();
+                // 2. Start the visual slot machine animation
+                subDisplay.innerText = "Mengacak nama kandidat...";
+                let counter = 0;
+                let speed = 50;
+
+                function shuffle() {
+                    const randomIndex = Math.floor(Math.random() * candidates.length);
+                    display.innerText = candidates[randomIndex].name;
+
+                    counter++;
+                    if (counter < 25) {
+                        shuffleInterval = setTimeout(shuffle, speed);
+                    } else if (counter < 35) {
+                        shuffleInterval = setTimeout(shuffle, speed + 100);
+                    } else if (counter < 40) {
+                        shuffleInterval = setTimeout(shuffle, speed + 200);
+                    } else {
+                        // Final selection lock: show the actual server-selected winner
+                        display.innerText = winnerName;
+                        subDisplay.innerText = `Pemenang Ke-${drawNumber} Terkunci! 🎉`;
+
+                        // Update Celebration Modal
+                        document.getElementById('modalWinnerName').innerText = winnerName;
+                        document.getElementById('modalWinnerEmail').innerText = winnerEmail;
+                        document.getElementById('modalPrizeName').innerText = `${prizeName.toUpperCase()} (WINNER #${drawNumber})`;
+
+                        // Show modal
+                        const modal = document.getElementById('winnerModal');
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+
+                        startConfettiEffect();
+                    }
+                }
+                shuffle();
             } else {
-                alert('Gagal mencatat pemenang undian!');
-                resetDrawBtn();
+                throw new Error("Gagal memperoleh data pemenang.");
             }
         })
         .catch(err => {
             console.error(err);
-            alert('Terjadi kesalahan jaringan!');
-            resetDrawBtn();
+            let errMsg = err.message || "Terjadi kesalahan jaringan!";
+            if (errMsg === "PROSES_LOCK") {
+                errMsg = "Proses undian untuk hadiah ini sedang berlangsung di server.";
+            }
+            alert(errMsg);
+            display.innerText = "SIAP DIUNDI 🎰";
+            subDisplay.innerText = "Pilih salah satu hadiah dari dashboard di bawah untuk memulai undian.";
+            resetDrawButtons();
         });
     }
- 
-    function resetDrawBtn() {
+
+    function resetDrawButtons() {
         isDrawing = false;
-        const drawBtn = document.getElementById('drawBtn');
-        if (drawBtn) {
-            drawBtn.disabled = false;
-            drawBtn.innerText = 'PUTAR UNDIAN 🎰';
-        }
+        document.querySelectorAll('.draw-action-btn').forEach(btn => {
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        });
     }
- 
+
     function closeWinnerModal() {
-        // Hide modal
         const modal = document.getElementById('winnerModal');
         modal.classList.remove('flex');
         modal.classList.add('hidden');
         
-        // Stop confetti
         stopConfettiEffect();
-        
-        // Reload page to naturally sync states and candidate logs cleanly
         window.location.reload();
     }
  

@@ -221,13 +221,27 @@
                                                 $status = $seat->status;
                                                 $booking = $registrations->get($seat->seat_number);
                                                 
-                                                // Map colors
+                                                $categoryName = $seat->ticketCategory->name ?? '';
+                                                $slugCat = strtolower($categoryName);
+
+                                                // Determine base color classes based on category (for available seats)
+                                                if (str_contains($slugCat, 'vip') || str_contains($slugCat, 'vvip')) {
+                                                    $categoryColor = 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100/70 hover:border-amber-300';
+                                                } elseif (str_contains($slugCat, 'platinum') || str_contains($slugCat, 'silver')) {
+                                                    $categoryColor = 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100/70 hover:border-purple-300';
+                                                } elseif (str_contains($slugCat, 'regular') || str_contains($slugCat, 'reguler')) {
+                                                    $categoryColor = 'bg-blue-50 border-blue-200 text-blue-650 hover:bg-blue-100/70 hover:border-blue-300';
+                                                } else {
+                                                    $categoryColor = 'bg-green-50 border-green-200 text-green-600 hover:bg-green-100/70 hover:border-green-300';
+                                                }
+
+                                                // If booked or blocked, override
                                                 if ($status === 'booked') {
-                                                    $btnColor = 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100/70 hover:border-blue-300';
+                                                    $btnColor = 'bg-slate-100 border-slate-250 text-slate-400 opacity-60';
                                                 } elseif ($status === 'blocked') {
                                                     $btnColor = 'bg-red-50 border-red-200 text-red-650 hover:bg-red-100/70 hover:border-red-300';
                                                 } else {
-                                                    $btnColor = 'bg-green-50 border-green-200 text-green-600 hover:bg-green-100/70 hover:border-green-300';
+                                                    $btnColor = $categoryColor;
                                                 }
                                             @endphp
                                             
@@ -305,18 +319,38 @@
                         </div>
  
                         <!-- Legenda Status Grid -->
-                        <div class="flex items-center justify-center gap-8 pt-4 border-t border-gray-50 flex-wrap">
-                            <div class="flex items-center gap-2">
-                                <div class="w-4 h-4 rounded-md bg-green-50 border border-green-200"></div>
-                                <span class="text-xs font-bold text-gray-500">🟢 Tersedia (Available)</span>
+                        <div class="pt-6 border-t border-gray-100 flex flex-col items-center gap-3.5 w-full text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                            <!-- Ticket Categories Row -->
+                            <div class="flex items-center justify-center gap-6 flex-wrap">
+                                <span class="text-[9px] text-gray-400">Kelas Tiket:</span>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-4 h-4 rounded-md bg-amber-50 border border-amber-200"></div>
+                                    <span>VIP/VVIP</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-4 h-4 rounded-md bg-purple-50 border border-purple-200"></div>
+                                    <span>Silver/Platinum</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-4 h-4 rounded-md bg-blue-50 border border-blue-200"></div>
+                                    <span>Regular</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-4 h-4 rounded-md bg-green-50 border border-green-200"></div>
+                                    <span>Lainnya</span>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-4 h-4 rounded-md bg-blue-50 border border-blue-200"></div>
-                                <span class="text-xs font-bold text-gray-500">🔵 Terisi (Booked / Occupied)</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-4 h-4 rounded-md bg-red-50 border border-red-200"></div>
-                                <span class="text-xs font-bold text-gray-500">🔴 Diblokir (Blocked)</span>
+                            <!-- Occupancy Status Row -->
+                            <div class="flex items-center justify-center gap-6 flex-wrap">
+                                <span class="text-[9px] text-gray-400">Status Kursi:</span>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-4 h-4 rounded-md bg-slate-100 border border-slate-250 opacity-60"></div>
+                                    <span>Terisi (Booked)</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-4 h-4 rounded-md bg-red-50 border border-red-200"></div>
+                                    <span>Diblokir (Blocked)</span>
+                                </div>
                             </div>
                         </div>
                     @endif

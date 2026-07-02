@@ -37,13 +37,13 @@
 
         <!-- Canvas Area (Left 3 Columns) -->
         <div id="canvas-column" class="lg:col-span-3 flex flex-col space-y-4">
-            <div id="canvas-container" class="bg-slate-900 border-2 border-slate-800 rounded-3xl relative overflow-hidden h-[630px] shadow-2xl flex flex-col">
+            <div id="canvas-container" class="bg-slate-50 border border-slate-200 rounded-3xl relative overflow-hidden h-[630px] shadow-inner flex flex-col">
                 <!-- Grid background pattern -->
-                <div class="absolute inset-0 pointer-events-none opacity-[0.03]" style="background-image: radial-gradient(circle, white 2px, transparent 2px); background-size: 20px 20px;"></div>
+                <div class="absolute inset-0 pointer-events-none opacity-[0.4]" style="background-image: radial-gradient(circle, #cbd5e1 1.5px, transparent 1.5px); background-size: 20px 20px;"></div>
 
                 <!-- Stage Indicator (Theater / Concert / Classroom) -->
-                <div id="stage-banner" class="w-full flex justify-center py-4 bg-slate-950/40 border-b border-slate-800/60 relative z-10 select-none">
-                    <div class="w-1/2 bg-slate-800/80 text-slate-400 font-extrabold text-xs py-2 px-6 rounded-full border border-slate-700 text-center tracking-[4px] uppercase select-none">
+                <div id="stage-banner" class="w-full flex justify-center py-4 bg-slate-200/50 border-b border-slate-200/80 relative z-10 select-none">
+                    <div class="w-1/2 bg-white text-slate-500 font-extrabold text-xs py-2 px-6 rounded-full border border-slate-200 text-center tracking-[4px] uppercase select-none shadow-sm">
                         STAGE / SCREEN
                     </div>
                 </div>
@@ -193,40 +193,40 @@
     
     /* Dynamic styling matches category colors */
     .seat-vip, .seat-vvip {
-        background-color: rgba(245, 158, 11, 0.15);
-        border-color: rgba(245, 158, 11, 0.6);
-        color: rgb(251, 191, 36);
+        background-color: rgba(245, 158, 11, 0.08);
+        border-color: rgba(245, 158, 11, 0.45);
+        color: rgb(180, 83, 9);
     }
     .seat-vip:hover, .seat-vvip:hover {
-        border-color: rgb(245, 158, 11);
-        box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+        border-color: rgb(217, 119, 6);
+        box-shadow: 0 0 8px rgba(245, 158, 11, 0.25);
     }
     
     .seat-platinum, .seat-silver {
-        background-color: rgba(168, 85, 247, 0.15);
-        border-color: rgba(168, 85, 247, 0.6);
-        color: rgb(192, 132, 252);
+        background-color: rgba(168, 85, 247, 0.08);
+        border-color: rgba(168, 85, 247, 0.45);
+        color: rgb(109, 40, 217);
     }
     .seat-platinum:hover, .seat-silver:hover {
-        border-color: rgb(168, 85, 247);
-        box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+        border-color: rgb(139, 92, 246);
+        box-shadow: 0 0 8px rgba(168, 85, 247, 0.25);
     }
 
     .seat-regular, .seat-reguler {
-        background-color: rgba(59, 130, 246, 0.15);
-        border-color: rgba(59, 130, 246, 0.6);
-        color: rgb(147, 197, 253);
+        background-color: rgba(59, 130, 246, 0.08);
+        border-color: rgba(59, 130, 246, 0.45);
+        color: rgb(29, 78, 216);
     }
     .seat-regular:hover, .seat-reguler:hover {
-        border-color: rgb(59, 130, 246);
-        box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+        border-color: rgb(37, 99, 235);
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.25);
     }
 
     /* Fallback generic style for custom categories */
     .seat-element:not(.seat-vip):not(.seat-vvip):not(.seat-platinum):not(.seat-silver):not(.seat-regular):not(.seat-reguler) {
-        background-color: rgba(16, 185, 129, 0.15);
-        border-color: rgba(16, 185, 129, 0.6);
-        color: rgb(52, 211, 153);
+        background-color: rgba(16, 185, 129, 0.08);
+        border-color: rgba(16, 185, 129, 0.45);
+        color: rgb(4, 120, 87);
     }
 
     .classroom-desk {
@@ -236,7 +236,7 @@
         border-radius: 4px;
         pointer-events: none;
         z-index: 10;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .audience-mode .seat-element {
@@ -814,10 +814,10 @@
 
         // Total capacity block
         const totalBlock = document.createElement('div');
-        totalBlock.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-4 text-center col-span-2';
+        totalBlock.className = 'bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-center col-span-2';
         totalBlock.innerHTML = `
-            <span class="text-[10px] text-slate-400 font-extrabold block uppercase tracking-wider">Total Seating Capacity</span>
-            <span class="text-3xl font-black text-emerald-400 block mt-1">${total}</span>
+            <span class="text-[10px] text-emerald-650 font-extrabold block uppercase tracking-wider">Total Seating Capacity</span>
+            <span class="text-3xl font-black text-emerald-600 block mt-1">${total}</span>
         `;
         statsContainer.appendChild(totalBlock);
 
@@ -826,10 +826,10 @@
         categories.forEach(catName => {
             const count = seats.filter(s => s.category === catName).length;
             const catBlock = document.createElement('div');
-            catBlock.className = 'bg-slate-800 border border-slate-700/50 rounded-2xl p-3 text-center';
+            catBlock.className = 'bg-slate-50 border border-slate-200/60 rounded-2xl p-3 text-center';
             catBlock.innerHTML = `
-                <span class="text-[9px] text-slate-350 font-extrabold block uppercase tracking-wider">${catName}</span>
-                <span class="text-lg font-black text-slate-200 block mt-0.5">${count}</span>
+                <span class="text-[9px] text-slate-400 font-extrabold block uppercase tracking-wider">${catName}</span>
+                <span class="text-lg font-black text-slate-700 block mt-0.5">${count}</span>
             `;
             statsContainer.appendChild(catBlock);
         });

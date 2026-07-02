@@ -35,31 +35,4 @@ class SeatController extends Controller
         ]);
     }
 
-    // BOOK SEAT
-    public function bookSeat(Request $request)
-    {
-        $request->validate([
-            'seat_id' => 'required|exists:seats,id'
-        ]);
-
-        $seat = Seat::findOrFail($request->seat_id);
-
-        // cek seat sudah dibooking atau belum
-        if ($seat->status == 'booked') {
-
-            return response()->json([
-                'message' => 'Seat sudah dibooking'
-            ], 400);
-        }
-
-        // update status seat
-        $seat->update([
-            'status' => 'booked'
-        ]);
-
-        return response()->json([
-            'message' => 'Seat berhasil dibooking',
-            'data' => $seat
-        ]);
-    }
 }

@@ -30,10 +30,10 @@
     }
 @endphp
 
-<div class="space-y-8 relative">
+<div class="space-y-3 md:space-y-8 relative">
     
     <!-- Toast Notification for real-time check-ins -->
-    <div id="checkInToast" class="fixed top-6 right-6 z-55 max-w-sm bg-slate-900/95 backdrop-blur text-white px-6 py-4 rounded-2xl shadow-2xl border border-slate-700/50 flex items-center gap-3 transition-all duration-300 transform translate-y-[-100px] opacity-0 pointer-events-none">
+    <div id="checkInToast" class="fixed top-6 right-6 z-[99999] max-w-sm bg-slate-900/95 backdrop-blur text-white px-6 py-4 rounded-2xl shadow-2xl border border-slate-700/50 flex items-center gap-3 transition-all duration-300 transform translate-y-[-100px] opacity-0 pointer-events-none" style="z-index: 99999;">
         <span class="text-2xl animate-bounce">⚡</span>
         <div>
             <h5 class="font-extrabold text-sm text-green-400">New Check-In!</h5>
@@ -52,30 +52,30 @@
     @endif
 
     <!-- Top Action Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4">
         <div>
-            <div class="flex items-center gap-3">
-                <h1 class="text-4xl font-extrabold text-gray-800 tracking-tight">Live Monitoring</h1>
+            <div class="flex items-center gap-2 md:gap-3">
+                <h1 class="text-xl md:text-4xl font-extrabold text-gray-800 tracking-tight">Live Monitoring</h1>
                 <span class="relative flex h-3.5 w-3.5">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500"></span>
                 </span>
                 <span id="syncPulse" class="flex items-center gap-1 text-[10px] font-extrabold text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-150/40 uppercase tracking-wider animate-pulse">
-                    LIVE SYNC ACTIVE
+                    LIVE SYNC
                 </span>
             </div>
-            <p class="text-gray-400 text-sm mt-1.5 font-semibold">Pusat monitoring realtime kehadiran, tempat duduk, dan undian peserta.</p>
+            <p class="text-gray-400 text-[11px] md:text-sm mt-0.5 md:mt-1.5 font-semibold">Pusat monitoring realtime kehadiran, tempat duduk, dan undian peserta.</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 md:gap-3">
             <button id="manualSyncBtn" onclick="pollRealtimeStats(true)" 
-                class="bg-white border border-gray-250 hover:bg-gray-50 text-gray-700 px-5 py-3 rounded-2xl font-bold text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                class="bg-white border border-gray-250 hover:bg-gray-50 text-gray-700 px-3.5 py-1.5 md:px-5 md:py-3 rounded-xl md:rounded-2xl font-bold text-[11px] md:text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
                 <svg id="syncIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-gray-500">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                 </svg>
                 <span>Sync Now</span>
             </button>
             <a href="{{ route('admin.events') }}" 
-                class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-5 py-3.5 rounded-2xl font-bold text-sm shadow-sm transition flex items-center gap-2 cursor-pointer">
+                class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-3.5 py-1.5 md:px-5 md:py-3.5 rounded-xl md:rounded-2xl font-bold text-[11px] md:text-sm shadow-sm transition flex items-center gap-2 cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-gray-550">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                 </svg>
@@ -87,7 +87,7 @@
     @include('admin.events.partials.header')
 
     <!-- Tab 1 Panel: Overview -->
-    <div id="tab-panel-overview" class="tab-panel space-y-8">
+    <div id="tab-panel-overview" class="tab-panel space-y-4 md:space-y-8 mt-2 md:mt-0">
         <!-- Quick Stats Cards Section -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- Card 1: Registered -->
@@ -194,7 +194,7 @@
                         <input type="hidden" name="event_id" value="{{ $event->id }}">
                         
                         <button type="submit" @if($certCandidates->isEmpty()) disabled @endif
-                            class="px-5 py-3 bg-blue-650 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs shadow-sm transition disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed select-none flex items-center gap-2">
+                            class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs shadow-sm transition disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed select-none flex items-center gap-2">
                             <span>Mass Issue Certificates 🚀</span>
                         </button>
                     </form>
@@ -228,14 +228,14 @@
                                     <span class="text-[10px] text-amber-500 font-extrabold uppercase tracking-wider">Pending Generation</span>
                                     <span id="certificate-pending" class="text-2xl font-black text-amber-600 block mt-1">{{ $certCandidates->count() }}</span>
                                 </div>
-                            </div>
                         </div>
-
+                        <div class="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between text-xs text-gray-400">
                             <span>Title: <strong>{{ $event->certificate_title ?? '-' }}</strong></span>
                             <span>Organizer: <strong>{{ $event->organizer_name ?? '-' }}</strong></span>
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
         @endif
 
@@ -326,7 +326,7 @@
     </div>
 
     <!-- Tab 2 Panel: Participants -->
-    <div id="tab-panel-participants" class="tab-panel hidden space-y-8">
+    <div id="tab-panel-participants" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
         <!-- Quick Actions Panel -->
         @if(auth()->user()->role === 'admin')
             <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 space-y-6">
@@ -404,77 +404,198 @@
                         No registrations for this event yet.
                     </div>
                 @else
-                    <table class="w-full">
-                        <thead class="text-gray-400 uppercase text-xs font-bold tracking-wider border-b border-gray-105 pb-3">
-                            <tr>
-                                <th class="text-left pb-3">Peserta</th>
-                                <th class="text-left pb-3 pl-4">Kelas Tiket</th>
-                                <th class="text-left pb-3 pl-4">Status</th>
-                                <th class="text-right pb-3 pr-2">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50" id="participantTableBody">
-                            @foreach($event->registrations as $reg)
-                                <tr class="hover:bg-gray-50/30 transition duration-150 participant-row"
-                                    data-id="{{ $reg->id }}"
-                                    data-name="{{ strtolower($reg->user->name ?? '') }}"
-                                    data-email="{{ strtolower($reg->user->email ?? '') }}">
-                                    
-                                    <td class="py-4 pr-4">
-                                        <div class="flex items-center gap-3.5">
-                                            <div class="w-9 h-9 rounded-2xl bg-blue-50/50 text-blue-600 flex items-center justify-center font-black text-xs border border-blue-100/30 flex-shrink-0">
-                                                {{ strtoupper(substr($reg->user->name ?? 'G', 0, 1)) }}
-                                            </div>
-                                            <div class="min-w-0">
-                                                <span class="font-bold text-gray-800 text-sm block truncate max-w-[180px]">
-                                                    {{ $reg->user->name ?? 'Guest' }}
-                                                </span>
-                                                <span class="text-[10px] text-gray-400 font-medium block truncate max-w-[180px] mt-0.5">
-                                                    {{ $reg->user->email ?? '-' }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="py-4 pl-4 pr-4">
-                                        <span class="bg-indigo-50 text-indigo-600 border border-indigo-100/30 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap">
-                                            {{ $reg->ticketCategory->name ?? '-' }}
-                                        </span>
-                                    </td>
-
-                                    <td class="py-4 pl-4 pr-4 checkin-status-cell">
-                                        @if($reg->is_checked_in)
-                                            <span class="bg-green-50 text-green-600 border border-green-150 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap block text-center max-w-[110px]">
-                                                Hadir 🟢
-                                            </span>
-                                            <span class="text-[9px] text-gray-400 block font-semibold text-center max-w-[110px] mt-1">
-                                                {{ \Carbon\Carbon::parse($reg->checked_in_at)->format('H:i') }}
-                                            </span>
-                                        @else
-                                            <span class="bg-slate-50 text-slate-400 border border-slate-200 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap block text-center max-w-[110px]">
-                                                Absent ⏳
-                                            </span>
-                                        @endif
-                                    </td>
-
-                                    <td class="py-4 text-right pr-2 checkin-action-cell">
-                                        <form action="{{ route('admin.participants.check_in', $reg->id) }}" method="POST" class="inline">
-                                            @csrf
-                                            @if($reg->is_checked_in)
-                                                <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-650 border border-red-100 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer select-none">
-                                                    Cancel
-                                                </button>
-                                            @else
-                                                <button type="submit" class="bg-green-50 hover:bg-green-100 text-green-600 border border-green-150 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer select-none">
-                                                    Check-In
-                                                </button>
-                                            @endif
-                                        </form>
-                                    </td>
+                    <!-- Desktop View Table -->
+                    <div class="hidden md:block">
+                        <table class="w-full">
+                            <thead class="text-gray-400 uppercase text-xs font-bold tracking-wider border-b border-gray-105 pb-3">
+                                <tr>
+                                    <th class="text-left pb-3">Peserta</th>
+                                    <th class="text-left pb-3 pl-4">Kelas Tiket</th>
+                                    <th class="text-left pb-3 pl-4">Payment</th>
+                                    <th class="text-left pb-3 pl-4">Status</th>
+                                    <th class="text-right pb-3 pr-2">Action</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50" id="participantTableBody">
+                                @foreach($event->registrations as $reg)
+                                    <tr class="hover:bg-gray-50/30 transition duration-150 participant-row"
+                                         data-id="{{ $reg->id }}"
+                                         data-name="{{ strtolower($reg->user->name ?? '') }}"
+                                         data-email="{{ strtolower($reg->user->email ?? '') }}">
+                                        
+                                        <td class="py-4 pr-4">
+                                            <div class="flex items-center gap-3.5">
+                                                <div class="w-9 h-9 rounded-2xl bg-blue-50/50 text-blue-600 flex items-center justify-center font-black text-xs border border-blue-100/30 flex-shrink-0">
+                                                    {{ strtoupper(substr($reg->user->name ?? 'G', 0, 1)) }}
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <span class="font-bold text-gray-800 text-sm block truncate max-w-[180px]">
+                                                        {{ $reg->user->name ?? 'Guest' }}
+                                                    </span>
+                                                    <span class="text-[10px] text-gray-400 font-medium block truncate max-w-[180px] mt-0.5">
+                                                        {{ $reg->user->email ?? '-' }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td class="py-4 pl-4 pr-4">
+                                            <span class="bg-indigo-50 text-indigo-600 border border-indigo-100/30 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap">
+                                                {{ $reg->ticketCategory->name ?? '-' }}
+                                            </span>
+                                        </td>
+
+                                        <!-- Payment Status -->
+                                        <td class="py-4 pl-4 pr-4">
+                                            @if($reg->payment_status === 'paid')
+                                                <span class="bg-green-50 text-green-600 border border-green-100/50 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide whitespace-nowrap block text-center max-w-[110px]">
+                                                    PAID
+                                                </span>
+                                            @elseif($reg->payment_status === 'pending')
+                                                <span class="bg-amber-50 text-amber-600 border border-amber-100/50 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide whitespace-nowrap block text-center max-w-[110px]">
+                                                    PENDING
+                                                </span>
+                                            @elseif($reg->payment_status === 'failed')
+                                                <span class="bg-red-50 text-red-600 border border-red-100/50 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide whitespace-nowrap block text-center max-w-[110px]">
+                                                    FAILED
+                                                </span>
+                                            @else
+                                                <span class="bg-gray-50 text-gray-400 border border-gray-150 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide whitespace-nowrap block text-center max-w-[110px]">
+                                                    {{ strtoupper($reg->payment_status ?? 'PENDING') }}
+                                                </span>
+                                            @endif
+                                        </td>
+
+                                        <td class="py-4 pl-4 pr-4 checkin-status-cell">
+                                            @if($reg->is_checked_in)
+                                                <span class="bg-green-50 text-green-600 border border-green-150 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap block text-center max-w-[110px]">
+                                                    Hadir 🟢
+                                                </span>
+                                                <span class="text-[9px] text-gray-400 block font-semibold text-center max-w-[110px] mt-1">
+                                                    {{ \Carbon\Carbon::parse($reg->checked_in_at)->format('H:i') }}
+                                                </span>
+                                            @else
+                                                <span class="bg-slate-50 text-slate-400 border border-slate-200 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap block text-center max-w-[110px]">
+                                                    Absent ⏳
+                                                </span>
+                                            @endif
+                                        </td>
+
+                                        <td class="py-4 text-right pr-2 checkin-action-cell">
+                                            <form action="{{ route('admin.participants.check_in', $reg->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                @if($reg->is_checked_in)
+                                                    <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-650 border border-red-100 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer select-none">
+                                                        Cancel
+                                                    </button>
+                                                @else
+                                                    <button type="submit" class="bg-green-50 hover:bg-green-100 text-green-600 border border-green-150 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer select-none">
+                                                        Check-In
+                                                    </button>
+                                                @endif
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile View Cards -->
+                    <div id="participantCardContainer" class="block md:hidden space-y-4">
+                        @foreach($event->registrations as $reg)
+                            <div class="bg-slate-50/50 border border-slate-100 rounded-3xl p-5 hover:border-blue-100 hover:bg-white hover:shadow-md transition duration-300 participant-card participant-row"
+                                 data-id="{{ $reg->id }}"
+                                 data-name="{{ strtolower($reg->user->name ?? '') }}"
+                                 data-email="{{ strtolower($reg->user->email ?? '') }}">
+                                
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-2xl bg-blue-50/50 text-blue-600 flex items-center justify-center font-black text-sm border border-blue-100/30 flex-shrink-0">
+                                            {{ strtoupper(substr($reg->user->name ?? 'G', 0, 1)) }}
+                                        </div>
+                                        <div class="min-w-0">
+                                            <span class="font-bold text-gray-800 text-sm block truncate max-w-[150px]">
+                                                {{ $reg->user->name ?? 'Guest' }}
+                                            </span>
+                                            <span class="text-gray-455 font-semibold text-[10px] block mt-0.5 truncate max-w-[150px]">
+                                                {{ $reg->user->email ?? '-' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <span class="bg-indigo-50 text-indigo-600 border border-indigo-100/30 px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap">
+                                        {{ $reg->ticketCategory->name ?? '-' }}
+                                    </span>
+                                </div>
+
+                                <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 gap-4 text-xs">
+                                    <div>
+                                        <span class="text-gray-400 font-semibold block mb-1">Status Kehadiran</span>
+                                        <div class="checkin-status-cell">
+                                            @if($reg->is_checked_in)
+                                                <span class="bg-green-50 text-green-600 border border-green-150 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap block text-center max-w-[110px]">
+                                                    Hadir 🟢
+                                                </span>
+                                                <span class="text-[9px] text-gray-400 block font-semibold text-center max-w-[110px] mt-1">
+                                                    {{ \Carbon\Carbon::parse($reg->checked_in_at)->format('H:i') }}
+                                                </span>
+                                            @else
+                                                <span class="bg-slate-50 text-slate-400 border border-slate-200 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap block text-center max-w-[110px]">
+                                                    Absent ⏳
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400 font-semibold block mb-1">Status Pembayaran</span>
+                                        <div class="payment-status-cell">
+                                            @if($reg->payment_status === 'paid')
+                                                <span class="bg-green-50 text-green-600 border border-green-100/50 px-2 py-0.5 rounded-lg text-[10px] font-bold block text-center max-w-[90px]">
+                                                    PAID
+                                                </span>
+                                            @elseif($reg->payment_status === 'pending')
+                                                <span class="bg-amber-50 text-amber-600 border border-amber-100/50 px-2 py-0.5 rounded-lg text-[10px] font-bold block text-center max-w-[90px]">
+                                                    PENDING
+                                                </span>
+                                            @else
+                                                <span class="bg-red-50 text-red-600 border border-red-100/50 px-2 py-0.5 rounded-lg text-[10px] font-bold block text-center max-w-[90px]">
+                                                    FAILED
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @if($event->has_seat_layout)
+                                        <div class="col-span-2">
+                                            <span class="text-gray-400 font-semibold block mb-1">Nomor Kursi</span>
+                                            <span class="text-gray-800 font-extrabold text-sm block mt-1.5">
+                                                {{ $reg->seat_number ?? '-' }}
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="mt-5 pt-4 border-t border-slate-100 checkin-action-cell">
+                                    <form action="{{ route('admin.participants.check_in', $reg->id) }}" method="POST" class="w-full block">
+                                        @csrf
+                                        @if($reg->is_checked_in)
+                                            <button type="submit" class="w-full text-center bg-red-50 hover:bg-red-100 text-red-650 border border-red-100 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer select-none">
+                                                Cancel
+                                            </button>
+                                        @else
+                                            <button type="submit" class="w-full text-center bg-green-50 hover:bg-green-100 text-green-600 border border-green-150 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer select-none">
+                                                Check-In
+                                            </button>
+                                        @endif
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <!-- Search Empty State -->
+                    <div id="searchEmptyState" class="hidden text-center py-16 bg-slate-50 border border-dashed border-slate-200 rounded-3xl text-gray-400 font-bold text-sm mt-4">
+                        Peserta yang Anda cari tidak ditemukan 😕
+                    </div>
                 @endif
             </div>
         </div>
@@ -482,7 +603,7 @@
 
     <!-- Tab 5 Panel: Certificates -->
     @if($event->has_certificate)
-    <div id="tab-panel-certificates" class="tab-panel hidden space-y-8">
+    <div id="tab-panel-certificates" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
         <!-- Certificates Generated section -->
         <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 space-y-6">
             <div class="pb-5 border-b border-gray-100">
@@ -519,7 +640,7 @@
     @endif
 
     <!-- Tab 6 Panel: Refunds -->
-    <div id="tab-panel-refunds" class="tab-panel hidden space-y-8">
+    <div id="tab-panel-refunds" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
         @include('admin.events.partials.refunds')
     </div>
 
@@ -540,7 +661,7 @@
             $occupancyRate = $totalSeatsCount > 0 ? round(($bookedSeatsCount / $totalSeatsCount) * 100, 1) : 0;
         @endphp
 
-        <div id="tab-panel-seats" class="tab-panel hidden space-y-8">
+        <div id="tab-panel-seats" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
             <!-- Seating Occupancy Statistics Cards -->
             <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
                 <div class="bg-white border border-gray-100 shadow-sm rounded-3xl p-6 text-center">
@@ -557,7 +678,7 @@
                 </div>
                 <div class="bg-red-50/60 border border-red-100/40 rounded-3xl p-6 text-center">
                     <span class="text-[10px] text-red-500 font-extrabold block uppercase tracking-wider font-semibold">Kursi Diblokir</span>
-                    <span class="text-2xl font-black text-red-655 block mt-1" id="seat-stat-blocked">{{ $blockedSeatsCount }}</span>
+                    <span class="text-2xl font-black text-red-650 block mt-1" id="seat-stat-blocked">{{ $blockedSeatsCount }}</span>
                 </div>
                 <div class="bg-indigo-50/60 border border-indigo-100/40 rounded-3xl p-6 text-center col-span-2 md:col-span-1">
                     <span class="text-[10px] text-indigo-500 font-extrabold block uppercase tracking-wider">Okupansi Rate</span>
@@ -574,88 +695,22 @@
                     </p>
                 </div>
 
-                <div class="flex flex-col gap-4 items-center justify-center p-8 bg-slate-50 border border-slate-100 rounded-[32px] overflow-auto select-none min-h-[300px]" id="seatMapContainer">
-                    <!-- Panggung -->
-                    <div class="w-full max-w-sm bg-slate-205 bg-slate-200 border border-slate-300/40 text-slate-500 text-[10px] font-bold py-2 rounded-lg text-center tracking-[4px] uppercase mb-12 shadow-sm">
-                        STAGE / PANGGUNG UTAMA
-                    </div>
-
-                    <!-- Row Seats mapping -->
-                    @foreach($groupedSeats as $rowLabel => $seats)
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 text-right font-extrabold text-xs text-slate-450 uppercase select-none mr-2">
-                                {{ $rowLabel }}
-                            </span>
-                            
-                            <div class="flex items-center gap-2">
-                                @foreach($seats as $seat)
-                                    @php
-                                        $status = $seat->status;
-                                        $booking = $seatBookings->get($seat->seat_number);
-                                        if ($status === 'booked') {
-                                            $btnColor = 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100/70 hover:border-blue-300';
-                                        } elseif ($status === 'blocked') {
-                                            $btnColor = 'bg-red-50 border-red-200 text-red-655 hover:bg-red-100/70 hover:border-red-300';
-                                        } else {
-                                            $btnColor = 'bg-green-50 border-green-200 text-green-600 hover:bg-green-100/70 hover:border-green-300';
-                                        }
-                                    @endphp
-                                    <div class="relative group">
-                                        <form action="{{ route('admin.seats.toggle_status', $seat->id) }}" method="POST" class="inline">
-                                            @csrf
-                                            <button type="submit" 
-                                                {{ $status === 'booked' ? 'disabled' : '' }}
-                                                class="w-9 h-9 rounded-xl border flex items-center justify-center font-bold text-xs tracking-tight transition shadow-sm cursor-pointer disabled:cursor-not-allowed select-none {{ $btnColor }}">
-                                                {{ $seat->column }}
-                                            </button>
-                                        </form>
-                                        
-                                        @if($status === 'booked' && $booking && $booking->user)
-                                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 hidden group-hover:block z-30 w-52 bg-slate-900/95 backdrop-blur text-white p-3 rounded-2xl shadow-xl border border-slate-700/50 text-center">
-                                                <div class="font-extrabold text-xs truncate leading-snug">{{ $booking->user->name }}</div>
-                                                <div class="text-[9px] text-slate-400 mt-1 truncate">{{ $booking->user->email }}</div>
-                                                <div class="inline-block mt-2 bg-blue-500/20 text-blue-400 border border-blue-400/30 text-[8px] px-2.5 py-0.5 rounded-full font-bold uppercase">
-                                                    {{ $booking->ticketCategory->name ?? 'Ticket' }}
-                                                </div>
-                                                <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-slate-900/95"></div>
-                                            </div>
-                                        @endif
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endforeach
-
-                    <!-- Pintu masuk -->
-                    <div class="text-[9px] text-slate-400 font-extrabold uppercase tracking-[2px] mt-8">
-                        🚪 ENTRANCE
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-center gap-8 pt-4 border-t border-gray-50 flex-wrap">
-                    <div class="flex items-center gap-2">
-                        <div class="w-4 h-4 rounded-md bg-green-50 border border-green-200"></div>
-                        <span class="text-xs font-bold text-gray-500">Kosong</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="w-4 h-4 rounded-md bg-blue-50 border border-blue-200"></div>
-                        <span class="text-xs font-bold text-gray-500">Terisi</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="w-4 h-4 rounded-md bg-red-50 border border-red-200"></div>
-                        <span class="text-xs font-bold text-gray-500">Diblokir</span>
-                    </div>
-                </div>
+                @include('admin.partials.seat-layout-visualizer', [
+                    'event' => $event,
+                    'seats' => $flatSeats,
+                    'seatBookings' => $seatBookings,
+                    'interactive' => true
+                ])
             </div>
         </div>
     @endif
 
     <!-- Tab 3 Panel: Undian Berhadiah -->
     @if($event->has_lucky_draw)
-        <div id="tab-panel-lucky_draw" class="tab-panel hidden space-y-8">
+        <div id="tab-panel-lucky_draw" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
             <!-- Cyberpunk Neon Lucky Draw Slot Machine Section -->
             <div class="bg-slate-950 rounded-[32px] border border-slate-800 shadow-2xl p-10 text-center relative overflow-hidden min-h-[420px] flex flex-col justify-between" id="luckyDrawSection">
-                <canvas id="confettiCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-50 rounded-[32px]"></canvas>
+                <canvas id="confettiCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-0 rounded-[32px]"></canvas>
                 <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none"></div>
                 <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-pink-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
@@ -666,15 +721,23 @@
                     <h3 class="text-2xl font-extrabold text-white tracking-tight mt-2">Undian Hadiah Kehadiran</h3>
                 </div>
 
-                <div class="my-6 z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="my-6 relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Left Slot display -->
                     <div class="lg:col-span-2 bg-slate-900 border-2 border-indigo-500/30 rounded-[32px] p-8 shadow-2xl shadow-indigo-500/5 relative flex flex-col justify-center min-h-[220px]">
                         <div class="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent rounded-[32px] pointer-events-none"></div>
                         <div id="slotDisplay" class="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 tracking-wide uppercase select-none min-h-[60px] flex items-center justify-center">
-                            READY TO DRAW 🎰
+                            @if($winners->isNotEmpty())
+                                {{ $winners->first()->registration->user->name }}
+                            @else
+                                READY TO DRAW 🎰
+                            @endif
                         </div>
                         <div id="slotSubDisplay" class="text-slate-400 text-xs mt-3 font-semibold min-h-[16px]">
-                            Masukkan hadiah, lalu putar undian
+                            @if($winners->isNotEmpty())
+                                🏆 Pemenang Terakhir: <span class='text-indigo-400 font-extrabold'>{{ $winners->first()->registration->user->name }}</span>
+                            @else
+                                Masukkan hadiah, lalu putar undian
+                            @endif
                         </div>
                     </div>
 
@@ -693,7 +756,7 @@
                                                 🎁 {{ $win->prize_name }}
                                             </div>
                                         </div>
-                                        <form action="{{ route('admin.lucky_draw.destroy', $win->id) }}" method="POST" class="opacity-0 group-hover:opacity-100 transition flex-shrink-0">
+                                        <form action="{{ route('admin.lucky_draw.destroy', $win->id) }}" data-user-id="{{ $win->registration->user_id }}" method="POST" class="opacity-0 group-hover:opacity-100 transition flex-shrink-0">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="p-1 hover:bg-red-950 hover:text-red-400 text-slate-500 rounded cursor-pointer transition">
@@ -719,15 +782,24 @@
                     </div>
                 </div>
 
-                <div class="z-10 max-w-md mx-auto w-full space-y-4">
+                <div class="relative z-10 max-w-md mx-auto w-full space-y-4">
                     <div class="flex gap-4">
-                        <input 
-                            type="text" 
-                            id="prizeInput" 
-                            value="{{ $event->prize_name ?? 'Merchandise Eksklusif' }}" 
-                            placeholder="Hadiah Undian..." 
-                            class="w-full bg-slate-900 border border-slate-800 rounded-xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm font-bold text-white placeholder-slate-600"
+                        <select 
+                            id="prizeSelect" 
+                            class="w-full bg-slate-900 border border-slate-800 rounded-xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm font-bold text-white cursor-pointer transition duration-300"
                         >
+                            @forelse($eventPrizes as $prize)
+                                @php
+                                    $isPrizeCompleted = $prize->status === 'completed' || $prize->remaining_count === 0;
+                                    $isPrizeDraft = $prize->status === 'draft';
+                                @endphp
+                                <option value="{{ $prize->id }}" data-name="{{ $prize->name }}" {{ $isPrizeCompleted || $isPrizeDraft ? 'disabled' : '' }}>
+                                    {{ $prize->name }} (Sisa: {{ $prize->remaining_count }}) @if($isPrizeCompleted) [SELESAI] @elseif($isPrizeDraft) [DRAFT] @endif
+                                </option>
+                            @empty
+                                <option value="" disabled selected>Belum ada data hadiah</option>
+                            @endforelse
+                        </select>
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-3">
@@ -736,7 +808,7 @@
                                 Tidak Ada Kandidat (Harus Hadir) 💡
                             </button>
                         @else
-                            <button id="drawBtn" onclick="startLuckyDraw()" class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:scale-[1.01] hover:shadow-indigo-500/20 hover:shadow-lg text-white font-extrabold py-3.5 px-6 rounded-2xl text-xs tracking-widest uppercase transition duration-300 cursor-pointer shadow-md">
+                            <button id="drawBtn" onclick="const sel = document.getElementById('prizeSelect'); if (sel && sel.value) { const opt = sel.options[sel.selectedIndex]; startLuckyDraw(sel.value, opt.getAttribute('data-name')); } else { alert('Pilih hadiah yang valid terlebih dahulu!'); }" class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:scale-[1.01] hover:shadow-indigo-500/20 hover:shadow-lg text-white font-extrabold py-3.5 px-6 rounded-2xl text-xs tracking-widest uppercase transition duration-300 cursor-pointer shadow-md">
                                 Tombol Mulai Undian 🎰
                             </button>
                         @endif
@@ -748,63 +820,75 @@
                 </div>
             </div>
 
-            {{-- Winner celebration Modal --}}
-            <div id="winnerModal" class="fixed inset-0 z-55 hidden flex items-center justify-center px-4 bg-slate-950/70 backdrop-blur-sm transition">
-                <div class="bg-white rounded-[32px] p-10 max-w-md w-full border border-gray-150 text-center shadow-2xl relative overflow-hidden transform scale-95 transition-transform duration-300">
-                    <div class="w-20 h-20 bg-amber-50 border border-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <span class="text-4xl animate-pulse">👑</span>
-                    </div>
-                    <h3 class="text-2xl font-black text-gray-800 tracking-tight">Selamat Pemenang!</h3>
-                    <p class="text-gray-400 text-xs font-semibold mt-1 uppercase tracking-widest" id="modalPrizeName">HADIAH</p>
-                    
-                    <div class="my-6 bg-slate-50 border border-slate-100 rounded-2xl p-6 max-w-full overflow-hidden">
-                        <div class="text-xl sm:text-2xl font-black text-indigo-650" style="word-break: break-word; overflow-wrap: break-word;" id="modalWinnerName">Nama Pemenang</div>
-                        <div class="text-[10px] text-slate-450 mt-1.5 font-semibold" style="word-break: break-all; overflow-wrap: break-word;" id="modalWinnerEmail">email@pemenang.com</div>
-                    </div>
-
-                    <div class="flex gap-3 mt-6">
-                        <button onclick="closeWinnerModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-gray-700 font-extrabold py-3.5 px-6 rounded-2xl text-xs tracking-wider uppercase transition cursor-pointer shadow-sm">
-                            Tutup
-                        </button>
-                        <button onclick="modalRedraw()" class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-extrabold py-3.5 px-6 rounded-2xl text-xs tracking-wider uppercase transition cursor-pointer shadow-sm">
-                            Undi Ulang
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
     @endif
+</div>
 
-    <!-- QR Scanner Modal -->
-    <div id="qrScannerModal" class="fixed inset-0 z-55 hidden flex items-center justify-center px-4 bg-slate-950/70 backdrop-blur-sm transition">
-        <div class="bg-white rounded-[32px] p-8 max-w-md w-full border border-gray-150 shadow-2xl relative">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-black text-gray-800 tracking-tight flex items-center gap-2">
-                    <span>📷</span> Scan QR Code Check-In
-                </h3>
-                <button onclick="closeQrScannerModal()" class="text-gray-400 hover:text-gray-600 bg-slate-100 hover:bg-slate-200 p-1.5 rounded-full transition cursor-pointer flex items-center justify-center shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            
-            <div class="bg-slate-55 bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-center">
-                <!-- QR Scanner camera viewport -->
-                <div id="qr-reader" class="w-full rounded-xl overflow-hidden shadow-inner border border-slate-200" style="min-height: 250px;"></div>
-                <div id="qr-reader-results" class="text-xs text-gray-455 font-bold mt-4 text-center px-4 leading-relaxed">
-                    Dekatkan QR code tiket ke kamera untuk memindai check-in secara otomatis.
-                </div>
-            </div>
+@push('modals')
+{{-- Winner celebration Modal --}}
+@if($event->has_lucky_draw)
+<div id="winnerModal" class="fixed inset-0 z-[99999] hidden items-center justify-center px-4 bg-slate-950/70 backdrop-blur-sm transition" style="z-index: 99999;">
+    <div class="bg-white rounded-[32px] p-10 max-w-md w-full border border-gray-150 text-center shadow-2xl relative overflow-hidden transform scale-95 transition-transform duration-300">
+        <div class="w-20 h-20 bg-amber-50 border border-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span class="text-4xl animate-pulse">👑</span>
+        </div>
+        <h3 class="text-2xl font-black text-gray-800 tracking-tight">Selamat Pemenang!</h3>
+        <p class="text-gray-400 text-xs font-semibold mt-1 uppercase tracking-widest" id="modalPrizeName">HADIAH</p>
+        
+        <div class="my-6 bg-slate-50 border border-slate-100 rounded-2xl p-6 max-w-full overflow-hidden">
+            <div class="text-xl sm:text-2xl font-black text-indigo-650" style="word-break: break-word; overflow-wrap: break-word;" id="modalWinnerName">Nama Pemenang</div>
+            <div class="text-[10px] text-slate-450 mt-1.5 font-semibold" style="word-break: break-all; overflow-wrap: break-word;" id="modalWinnerEmail">email@pemenang.com</div>
+        </div>
 
-            <div class="mt-6 flex justify-end gap-3">
-                <button id="cancelQrBtn" class="w-full bg-slate-100 hover:bg-slate-200 text-gray-700 font-extrabold py-3.5 px-6 rounded-2xl text-xs tracking-wider uppercase transition cursor-pointer shadow-sm">
-                    Batal
-                </button>
-            </div>
+        <div class="flex gap-3 mt-6">
+            <button onclick="closeWinnerModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-gray-700 font-extrabold py-3.5 px-6 rounded-2xl text-xs tracking-wider uppercase transition cursor-pointer shadow-sm">
+                Tutup
+            </button>
+            <button onclick="modalRedraw()" class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-extrabold py-3.5 px-6 rounded-2xl text-xs tracking-wider uppercase transition cursor-pointer shadow-sm">
+                Undi Ulang
+            </button>
         </div>
     </div>
 </div>
+@endif
+
+<!-- QR Scanner Modal -->
+<div id="qrScannerModal" class="fixed inset-0 z-[99999] hidden items-center justify-center px-4 bg-slate-950/70 backdrop-blur-sm transition" style="z-index: 99999;">
+    <div class="bg-white rounded-[32px] p-8 max-w-md w-full border border-gray-150 shadow-2xl relative">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-black text-gray-800 tracking-tight flex items-center gap-2">
+                <span>📷</span> Scan QR Code Check-In
+            </h3>
+            <button onclick="closeQrScannerModal()" class="text-gray-400 hover:text-gray-600 bg-slate-100 hover:bg-slate-200 p-1.5 rounded-full transition cursor-pointer flex items-center justify-center shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-center">
+            <!-- QR Scanner camera viewport -->
+            <div id="qr-reader" class="w-full rounded-xl overflow-hidden shadow-inner border border-slate-200" style="min-height: 250px;"></div>
+            
+            <!-- Camera selection dropdown -->
+            <div id="camera-select-wrapper" class="w-full mt-3 px-2 hidden">
+                <label class="text-[10px] font-black text-gray-450 block mb-1.5 uppercase tracking-wider text-left">PILIH KAMERA</label>
+                <select id="camera-select" class="w-full bg-white border border-slate-200 text-xs font-bold rounded-xl p-2.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"></select>
+            </div>
+
+            <div id="qr-reader-results" class="text-xs text-gray-455 font-bold mt-4 text-center px-4 leading-relaxed">
+                Dekatkan QR code tiket ke kamera untuk memindai check-in secara otomatis.
+            </div>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3">
+            <button id="cancelQrBtn" class="w-full bg-slate-100 hover:bg-slate-200 text-gray-700 font-extrabold py-3.5 px-6 rounded-2xl text-xs tracking-wider uppercase transition cursor-pointer shadow-sm">
+                Batal
+            </button>
+        </div>
+    </div>
+</div>
+@endpush
 <!-- Confetti Canvas logic & shuffler, real-time polling -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
@@ -854,6 +938,12 @@
             resultsEl.innerHTML = "Dekatkan QR code tiket ke kamera untuk memindai check-in secara otomatis.";
         }
 
+        const cameraSelectWrapper = document.getElementById('camera-select-wrapper');
+        const cameraSelect = document.getElementById('camera-select');
+        if (cameraSelectWrapper) {
+            cameraSelectWrapper.classList.add('hidden');
+        }
+
         // Start scanner
         if (typeof Html5Qrcode !== 'undefined') {
             html5QrcodeScanner = new Html5Qrcode("qr-reader");
@@ -865,15 +955,67 @@
             };
             const config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
-            // Start scanning with environment/back camera preferred
-            html5QrcodeScanner.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
-                .catch(err => {
-                    console.error("Camera access error:", err);
-                    const resultsElErr = document.getElementById('qr-reader-results');
-                    if (resultsElErr) {
-                        resultsElErr.innerHTML = `<span class="text-red-500 font-bold">Kamera gagal diakses. Pastikan izin kamera aktif.</span>`;
+            const startScan = (cameraSource) => {
+                return html5QrcodeScanner.start(cameraSource, config, qrCodeSuccessCallback);
+            };
+
+            const showScannerError = () => {
+                const resultsElErr = document.getElementById('qr-reader-results');
+                if (resultsElErr) {
+                    resultsElErr.innerHTML = `<span class="text-red-500 font-bold">Kamera gagal diakses. Pastikan izin kamera aktif.</span>`;
+                }
+            };
+
+            // Detect devices
+            Html5Qrcode.getCameras().then(devices => {
+                if (devices && devices.length > 0) {
+                    if (cameraSelect && cameraSelectWrapper) {
+                        cameraSelect.innerHTML = '';
+                        devices.forEach(device => {
+                            const option = document.createElement('option');
+                            option.value = device.id;
+                            option.text = device.label || `Kamera ${cameraSelect.options.length + 1}`;
+                            cameraSelect.add(option);
+                        });
+
+                        // Show dropdown if more than 1 camera
+                        if (devices.length > 1) {
+                            cameraSelectWrapper.classList.remove('hidden');
+                        }
+
+                        // Listen for changes
+                        cameraSelect.onchange = () => {
+                            if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+                                html5QrcodeScanner.stop().then(() => {
+                                    startScan(cameraSelect.value).catch(err => {
+                                        console.error("Camera switch failed:", err);
+                                    });
+                                });
+                            }
+                        };
                     }
+
+                    // Start scanning with first detected camera
+                    startScan(devices[0].id).catch(err => {
+                        console.error("First camera start failed:", err);
+                        // Fallback to environment facingMode
+                        startScan({ facingMode: "environment" }).catch(errEnv => {
+                            showScannerError();
+                        });
+                    });
+                } else {
+                    // Fallback directly to environment facingMode
+                    startScan({ facingMode: "environment" }).catch(err => {
+                        showScannerError();
+                    });
+                }
+            }).catch(err => {
+                // Fallback to environment facingMode
+                startScan({ facingMode: "environment" }).catch(errEnv => {
+                    showScannerError();
                 });
+            });
+
         } else {
             alert("Library Scanner belum termuat. Silakan tunggu sebentar.");
         }
@@ -976,6 +1118,8 @@
 
     // Trigger redraw (undian ulang)
     function triggerRedraw() {
+        if (isRedrawing) return;
+        
         const container = document.getElementById('winnersListContainer');
         const firstWinnerForm = container ? container.querySelector('form') : null;
         
@@ -985,6 +1129,16 @@
         }
 
         if (confirm('Apakah Anda yakin ingin membatalkan pemenang terakhir dan mengundi ulang?')) {
+            isRedrawing = true;
+
+            const userId = firstWinnerForm.getAttribute('data-user-id');
+            if (userId) {
+                const uId = parseInt(userId);
+                if (!isNaN(uId) && !excludedUserIds.includes(uId)) {
+                    excludedUserIds.push(uId);
+                }
+            }
+
             const actionUrl = firstWinnerForm.getAttribute('action');
             
             fetch(actionUrl, {
@@ -995,13 +1149,23 @@
                 },
                 body: new FormData(firstWinnerForm) // contains DELETE method override & csrf
             })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw err; });
+                }
+                return res.json();
+            })
             .then(() => {
-                pollRealtimeStats(true);
+                return pollRealtimeStats(true);
+            })
+            .then(() => {
+                isRedrawing = false;
                 showCheckInToast("Pemenang dibatalkan, siap undi ulang. 🔄");
             })
             .catch(err => {
                 console.error("Redraw error:", err);
-                alert("Gagal membatalkan pemenang.");
+                alert("Gagal membatalkan pemenang: " + (err.message || err));
+                isRedrawing = false;
             });
         }
     }
@@ -1012,7 +1176,7 @@
         'email' => $c->user->email
     ]));
 
-    let luckyDrawState = 'idle'; // 'idle', 'drawing', 'completed'
+    let luckyDrawState = '{{ $winners->isNotEmpty() ? "completed" : "idle" }}'; // 'idle', 'drawing', 'completed'
     let shuffleInterval = null;
     let confettiTimer = null;
 
@@ -1020,16 +1184,27 @@
     let lastAttendedCount = {{ $attended_count }};
     const statsUrl = "{{ route('admin.events.ongoing.stats', $event->id) }}";
 
-    function startLuckyDraw() {
+    let serverWinner = null;
+    let drawError = null;
+
+    let currentPrizeId = null;
+    let currentPrizeName = null;
+    let isRedrawing = false;
+    let excludedUserIds = [];
+
+    function startLuckyDraw(prizeId, prizeName) {
         if (luckyDrawState === 'drawing' || candidatesList.length === 0) return;
 
-        const prizeName = document.getElementById('prizeInput').value.trim();
-        if (!prizeName) {
-            alert('Silakan masukkan nama hadiah terlebih dahulu!');
-            return;
+        if (currentPrizeId !== prizeId) {
+            excludedUserIds = [];
         }
 
+        currentPrizeId = prizeId;
+        currentPrizeName = prizeName;
+
         luckyDrawState = 'drawing';
+        serverWinner = null;
+        drawError = null;
         
         // Disable draw buttons & actions to prevent double clicks/conflicts
         const drawBtn = document.getElementById('drawBtn');
@@ -1055,33 +1230,7 @@
             shuffleInterval = null;
         }
 
-        function shuffle() {
-            if (candidatesList.length === 0) return;
-            const randomIndex = Math.floor(Math.random() * candidatesList.length);
-            const candidate = candidatesList[randomIndex];
-            
-            display.innerText = candidate.name;
-            
-            counter++;
-            // Deceleration rolling animation
-            if (counter < 30) {
-                shuffleInterval = setTimeout(shuffle, 50);
-            } else if (counter < 40) {
-                shuffleInterval = setTimeout(shuffle, 150);
-            } else if (counter < 45) {
-                shuffleInterval = setTimeout(shuffle, 350);
-            } else if (counter < 48) {
-                shuffleInterval = setTimeout(shuffle, 650);
-            } else {
-                const finalWinner = candidatesList[randomIndex];
-                saveWinner(finalWinner, prizeName);
-            }
-        }
-        
-        shuffle();
-    }
-
-    function saveWinner(winner, prizeName) {
+        // Trigger server-side drawing immediately
         fetch("{{ route('admin.lucky_draw.draw') }}", {
             method: "POST",
             headers: {
@@ -1090,52 +1239,108 @@
                 "X-CSRF-TOKEN": "{{ csrf_token() }}"
             },
             body: JSON.stringify({
-                event_id: "{{ $event->id }}",
-                registration_id: winner.registration_id,
-                prize_name: prizeName
+                event_prize_id: prizeId,
+                exclude_user_ids: excludedUserIds
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
         .then(res => {
             if (res.success) {
-                // Change status to completed and lock/unlock buttons appropriately
-                luckyDrawState = 'completed';
-                
-                const drawBtn = document.getElementById('drawBtn');
-                const subDisplay = document.getElementById('slotSubDisplay');
-                if (drawBtn) {
-                    drawBtn.disabled = false;
-                    drawBtn.innerText = 'SELESAI';
-                }
-                if (subDisplay) {
-                    subDisplay.innerHTML = "🏆 Pemenang Ditemukan! <span class='text-indigo-400 font-extrabold'>" + winner.name + "</span>";
-                }
-
-                document.getElementById('modalWinnerName').innerText = winner.name;
-                document.getElementById('modalWinnerEmail').innerText = winner.email;
-                document.getElementById('modalPrizeName').innerText = prizeName.toUpperCase();
-                
-                const modal = document.getElementById('winnerModal');
-                if (modal) {
-                    modal.classList.remove('hidden');
-                    modal.classList.add('flex');
-                }
-                
-                startConfettiEffect();
+                serverWinner = res.data;
             } else {
-                alert('Gagal mencatat pemenang undian!');
-                resetDrawBtn();
+                throw new Error(res.message || 'Gagal mengundi.');
             }
         })
         .catch(err => {
             console.error(err);
-            alert('Terjadi kesalahan jaringan!');
-            resetDrawBtn();
+            drawError = err.message || 'Terjadi kesalahan jaringan!';
         });
+
+        function shuffle() {
+            if (candidatesList.length === 0) return;
+            const randomIndex = Math.floor(Math.random() * candidatesList.length);
+            const candidate = candidatesList[randomIndex];
+            
+            counter++;
+            
+            // Deceleration rolling animation
+            if (counter < 30) {
+                display.innerText = candidate.name;
+                shuffleInterval = setTimeout(shuffle, 50);
+            } else if (counter < 40) {
+                display.innerText = candidate.name;
+                shuffleInterval = setTimeout(shuffle, 150);
+            } else if (counter < 45) {
+                display.innerText = candidate.name;
+                shuffleInterval = setTimeout(shuffle, 350);
+            } else {
+                // If there's an error from backend, show alert and reset
+                if (drawError) {
+                    alert(drawError);
+                    resetDrawBtn();
+                    return;
+                }
+
+                // If backend response hasn't arrived yet, keep spinning
+                if (!serverWinner) {
+                    display.innerText = candidate.name;
+                    shuffleInterval = setTimeout(shuffle, 200);
+                    return;
+                }
+
+                if (counter < 48) {
+                    display.innerText = candidate.name;
+                    shuffleInterval = setTimeout(shuffle, 650);
+                } else {
+                    // Stop exactly on server winner's name
+                    const winnerUser = serverWinner.registration.user;
+                    display.innerText = winnerUser.name;
+                    
+                    showWinnerCelebration(serverWinner, prizeName);
+                }
+            }
+        }
+        
+        shuffle();
+    }
+
+    function showWinnerCelebration(winnerData, prizeName) {
+        luckyDrawState = 'completed';
+        isRedrawing = false;
+        
+        const drawBtn = document.getElementById('drawBtn');
+        const subDisplay = document.getElementById('slotSubDisplay');
+        if (drawBtn) {
+            drawBtn.disabled = false;
+            drawBtn.innerText = 'SELESAI';
+        }
+        
+        const winnerUser = winnerData.registration.user;
+        if (subDisplay) {
+            subDisplay.innerHTML = "🏆 Pemenang Ditemukan! <span class='text-indigo-400 font-extrabold'>" + winnerUser.name + "</span>";
+        }
+
+        document.getElementById('modalWinnerName').innerText = winnerUser.name;
+        document.getElementById('modalWinnerEmail').innerText = winnerUser.email || '-';
+        document.getElementById('modalPrizeName').innerText = prizeName.toUpperCase();
+        
+        const modal = document.getElementById('winnerModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        
+        startConfettiEffect();
     }
 
     function resetDrawBtn() {
         luckyDrawState = 'idle';
+        isRedrawing = false;
         const drawBtn = document.getElementById('drawBtn');
         const redrawBtn = document.getElementById('redrawBtn');
         if (drawBtn) {
@@ -1147,7 +1352,7 @@
         }
     }
 
-    function closeWinnerModal() {
+    function closeWinnerModal(shouldPoll = true) {
         const modal = document.getElementById('winnerModal');
         if (modal) {
             modal.classList.remove('flex');
@@ -1155,43 +1360,90 @@
         }
         
         stopConfettiEffect();
-        pollRealtimeStats(true); // force poll update to reload candidates & winners cleanly
+        if (shouldPoll) {
+            pollRealtimeStats(true); // force poll update to reload candidates & winners cleanly
+        }
         resetDrawBtn();
     }
 
     // Modal redraw logic
     function modalRedraw() {
-        // Stop confetti and close winner modal first
-        closeWinnerModal();
+        if (isRedrawing) return;
+        isRedrawing = true;
 
-        const container = document.getElementById('winnersListContainer');
-        const firstWinnerForm = container ? container.querySelector('form') : null;
-        
-        if (firstWinnerForm) {
-            const actionUrl = firstWinnerForm.getAttribute('action');
-            
-            fetch(actionUrl, {
-                method: "POST",
+        // Stop confetti and close winner modal first (without triggering poll stats)
+        closeWinnerModal(false);
+
+        let actionUrl = null;
+        let fetchOptions = {};
+
+        if (serverWinner && serverWinner.id) {
+            // Push current winner's user ID to exclusions
+            if (serverWinner.registration && serverWinner.registration.user_id) {
+                const uId = serverWinner.registration.user_id;
+                if (!excludedUserIds.includes(uId)) {
+                    excludedUserIds.push(uId);
+                }
+            }
+
+            // Prefer direct DELETE API call with the known winner ID to avoid DOM sync race conditions
+            actionUrl = "{{ route('admin.lucky_draw.destroy', ':id') }}".replace(':id', serverWinner.id);
+            fetchOptions = {
+                method: "DELETE",
                 headers: {
                     "Accept": "application/json",
                     "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: new FormData(firstWinnerForm) // contains DELETE method override & csrf
+                }
+            };
+        } else {
+            // Fallback to DOM-based form if serverWinner is missing
+            const container = document.getElementById('winnersListContainer');
+            const firstWinnerForm = container ? container.querySelector('form') : null;
+            if (firstWinnerForm) {
+                const userId = firstWinnerForm.getAttribute('data-user-id');
+                if (userId) {
+                    const uId = parseInt(userId);
+                    if (!isNaN(uId) && !excludedUserIds.includes(uId)) {
+                        excludedUserIds.push(uId);
+                    }
+                }
+
+                actionUrl = firstWinnerForm.getAttribute('action');
+                fetchOptions = {
+                    method: "POST",
+                    headers: {
+                        "Accept": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: new FormData(firstWinnerForm) // contains DELETE method override & csrf
+                };
+            }
+        }
+
+        if (actionUrl) {
+            fetch(actionUrl, fetchOptions)
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw err; });
+                }
+                return res.json();
             })
             .then(() => {
-                pollRealtimeStats(true);
                 showCheckInToast("Pemenang dibatalkan. Mengundi ulang secara otomatis... 🔄");
-                
-                // Automatically trigger a redraw after state sync
-                setTimeout(() => {
-                    startLuckyDraw();
-                }, 1000);
+                return pollRealtimeStats(true);
+            })
+            .then(() => {
+                // Set redraw guard to false right before drawing so startLuckyDraw can run
+                isRedrawing = false;
+                startLuckyDraw(currentPrizeId, currentPrizeName);
             })
             .catch(err => {
                 console.error("Modal redraw error:", err);
-                alert("Gagal membatalkan pemenang.");
+                alert("Gagal membatalkan pemenang: " + (err.message || err));
+                isRedrawing = false;
             });
         } else {
+            isRedrawing = false;
             alert('Tidak ada pemenang untuk diundi ulang!');
         }
     }
@@ -1286,7 +1538,7 @@
             syncIcon.classList.add('animate-spin');
         }
 
-        fetch(statsUrl)
+        return fetch(statsUrl)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -1333,7 +1585,7 @@
                             }));
 
                         const drawBtn = document.getElementById('drawBtn');
-                        if (drawBtn && !isDrawing) {
+                        if (drawBtn && luckyDrawState !== 'drawing') {
                             if (candidatesList.length === 0) {
                                 drawBtn.disabled = true;
                                 drawBtn.className = "w-full bg-slate-800 text-slate-500 font-extrabold py-3.5 px-6 rounded-2xl text-xs tracking-widest uppercase cursor-not-allowed select-none shadow-md";
@@ -1350,8 +1602,18 @@
                     const winnersContainer = document.getElementById('winnersListContainer');
                     if (winnersContainer) {
                         if (data.winners.length === 0) {
-                            winnersContainer.innerHTML = `<div class="py-6 text-center text-slate-500 text-[10px] font-bold uppercase tracking-wide">No Winners yet</div>`;
+                            winnersContainer.innerHTML = `<div class="py-6 text-center text-slate-500 text-[10px] font-bold uppercase tracking-wide">Belum Ada Pemenang</div>`;
+                            if (luckyDrawState !== 'drawing') {
+                                luckyDrawState = 'idle';
+                                const display = document.getElementById('slotDisplay');
+                                if (display) display.innerText = 'READY TO DRAW 🎰';
+                                const subDisplay = document.getElementById('slotSubDisplay');
+                                if (subDisplay) subDisplay.innerText = 'Masukkan hadiah, lalu putar undian';
+                            }
                         } else {
+                            if (luckyDrawState !== 'drawing') {
+                                luckyDrawState = 'completed';
+                            }
                             let winnersHtml = '';
                             data.winners.forEach(w => {
                                 winnersHtml += `
@@ -1364,7 +1626,7 @@
                                                 🎁 ${escapeHtml(w.prize_name)}
                                             </div>
                                         </div>
-                                        <form action="${w.destroy_url}" method="POST" class="opacity-0 group-hover:opacity-100 transition flex-shrink-0">
+                                        <form action="${w.destroy_url}" data-user-id="${w.user_id}" method="POST" class="opacity-0 group-hover:opacity-100 transition flex-shrink-0">
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                             <input type="hidden" name="_method" value="DELETE">
                                             <button type="submit" class="p-1 hover:bg-red-950 hover:text-red-400 text-slate-500 rounded cursor-pointer transition">
@@ -1534,27 +1796,28 @@
 
     function syncParticipantTable(participants) {
         const tbody = document.getElementById('participantTableBody');
-        if (!tbody) return;
+        const cardContainer = document.getElementById('participantCardContainer');
+        if (!tbody && !cardContainer) return;
 
         participants.forEach(p => {
-            const tr = tbody.querySelector(`tr[data-id="${p.id}"]`);
-            if (tr) {
+            const elements = document.querySelectorAll(`[data-id="${p.id}"]`);
+            elements.forEach(element => {
                 // Update checkin status cell
-                const statusCell = tr.querySelector('.checkin-status-cell');
+                const statusCell = element.querySelector('.checkin-status-cell');
                 if (statusCell) {
                     if (p.is_checked_in) {
                         const cleanTime = p.checked_in_at ? p.checked_in_at.split(', ')[1] : '';
                         statusCell.innerHTML = `
-                            <span class="bg-green-50 text-green-600 border border-green-150 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap block text-center max-w-[110px]">
+                            <span class="bg-green-50 text-green-600 border border-green-150 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap block text-center max-w-[110px] mx-auto md:mx-0">
                                 Hadir 🟢
                             </span>
-                            <span class="text-[9px] text-gray-400 block font-semibold text-center max-w-[110px] mt-1">
+                            <span class="text-[9px] text-gray-400 block font-semibold text-center max-w-[110px] mt-1 mx-auto md:mx-0">
                                 ${cleanTime}
                             </span>
                         `;
                     } else {
                         statusCell.innerHTML = `
-                            <span class="bg-slate-50 text-slate-400 border border-slate-200 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap block text-center max-w-[110px]">
+                            <span class="bg-slate-50 text-slate-400 border border-slate-200 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap block text-center max-w-[110px] mx-auto md:mx-0">
                                 Absent ⏳
                             </span>
                         `;
@@ -1562,15 +1825,20 @@
                 }
 
                 // Update checkin action cell
-                const actionCell = tr.querySelector('.checkin-action-cell');
+                const actionCell = element.querySelector('.checkin-action-cell');
                 if (actionCell) {
+                    const isMobile = element.tagName.toLowerCase() === 'div';
                     const btnClass = p.is_checked_in 
-                        ? 'bg-red-50 hover:bg-red-100 text-red-650 border border-red-100 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer select-none' 
-                        : 'bg-green-50 hover:bg-green-100 text-green-600 border border-green-150 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer select-none';
+                        ? (isMobile 
+                            ? 'w-full text-center bg-red-50 hover:bg-red-100 text-red-650 border border-red-100 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer select-none'
+                            : 'bg-red-50 hover:bg-red-100 text-red-650 border border-red-100 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer select-none')
+                        : (isMobile 
+                            ? 'w-full text-center bg-green-50 hover:bg-green-100 text-green-600 border border-green-150 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer select-none'
+                            : 'bg-green-50 hover:bg-green-100 text-green-600 border border-green-150 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer select-none');
                     const btnText = p.is_checked_in ? 'Cancel' : 'Check-In';
                     
                     actionCell.innerHTML = `
-                        <form action="${p.toggle_url}" method="POST" class="inline">
+                        <form action="${p.toggle_url}" method="POST" class="${isMobile ? 'w-full block' : 'inline'}">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             <button type="submit" class="${btnClass}">
                                 ${btnText}
@@ -1578,7 +1846,7 @@
                         </form>
                     `;
                 }
-            }
+            });
         });
     }
 
@@ -1642,6 +1910,14 @@
 
     // Client-side search logic
     document.addEventListener('DOMContentLoaded', () => {
+        // Reset exclusions when selecting a different prize
+        const prizeSelect = document.getElementById('prizeSelect');
+        if (prizeSelect) {
+            prizeSelect.addEventListener('change', () => {
+                excludedUserIds = [];
+            });
+        }
+
         // Tab initialization on load
         const urlParams = new URLSearchParams(window.location.search);
         const tab = urlParams.get('tab');
@@ -1658,19 +1934,30 @@
 
         const searchInput = document.getElementById('participantSearch');
         const rows = document.querySelectorAll('.participant-row');
+        const emptyState = document.getElementById('searchEmptyState');
 
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase().trim();
+                let visibleCount = 0;
                 rows.forEach(row => {
-                    const name = row.getAttribute('data-name');
-                    const email = row.getAttribute('data-email');
+                    const name = row.getAttribute('data-name') || '';
+                    const email = row.getAttribute('data-email') || '';
                     if (name.includes(query) || email.includes(query)) {
                         row.style.display = '';
+                        visibleCount++;
                     } else {
                         row.style.display = 'none';
                     }
                 });
+
+                if (emptyState) {
+                    if (visibleCount === 0 && query !== '') {
+                        emptyState.classList.remove('hidden');
+                    } else {
+                        emptyState.classList.add('hidden');
+                    }
+                }
             });
         }
 

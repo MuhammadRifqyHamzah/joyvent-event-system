@@ -61,18 +61,15 @@ class DashboardController extends Controller
             $ticketsGrowth = $this->calculateGrowth($ticketsSoldToday, $ticketsSoldYesterday);
             $ticketsSubtext = $ticketsGrowth . ' vs kemarin';
 
-            // 4. Pendapatan (sum registrations.ticket_category_id -> ticket_categories.price for status confirmed)
+            // 4. Pendapatan (sum registrations.payment_amount for status confirmed)
             $totalRevenue = Registration::where('status', 'confirmed')
-                ->join('ticket_categories', 'registrations.ticket_category_id', '=', 'ticket_categories.id')
-                ->sum('ticket_categories.price');
+                ->sum('payment_amount');
             $revenueToday = Registration::where('status', 'confirmed')
-                ->join('ticket_categories', 'registrations.ticket_category_id', '=', 'ticket_categories.id')
-                ->whereDate('registrations.created_at', now()->toDateString())
-                ->sum('ticket_categories.price');
+                ->whereDate('created_at', now()->toDateString())
+                ->sum('payment_amount');
             $revenueYesterday = Registration::where('status', 'confirmed')
-                ->join('ticket_categories', 'registrations.ticket_category_id', '=', 'ticket_categories.id')
-                ->whereDate('registrations.created_at', now()->subDay()->toDateString())
-                ->sum('ticket_categories.price');
+                ->whereDate('created_at', now()->subDay()->toDateString())
+                ->sum('payment_amount');
             $revenueGrowth = $this->calculateGrowth($revenueToday, $revenueYesterday);
             $revenueSubtext = $revenueGrowth . ' vs kemarin';
 
@@ -205,8 +202,7 @@ class DashboardController extends Controller
                 ->map(function ($event) {
                     $event->revenue = (float) Registration::where('registrations.event_id', $event->id)
                         ->where('registrations.status', 'confirmed')
-                        ->join('ticket_categories', 'registrations.ticket_category_id', '=', 'ticket_categories.id')
-                        ->sum('ticket_categories.price');
+                        ->sum('payment_amount');
                     return $event;
                 });
 

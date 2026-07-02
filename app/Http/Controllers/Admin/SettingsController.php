@@ -33,6 +33,14 @@ class SettingsController extends Controller
         $organizerEmail = Setting::getValue('organizer_email', 'admin@joyvent.com');
         $organizerPhone = Setting::getValue('organizer_phone', '08123456789');
 
+        // Manual Payment Settings
+        $paymentQrisImage = Setting::getValue('payment_qris_image');
+        $paymentBankName = Setting::getValue('payment_bank_name', 'Bank BCA');
+        $paymentBankAccountNumber = Setting::getValue('payment_bank_account_number', '126 1234 5678 9101');
+        $paymentBankAccountName = Setting::getValue('payment_bank_account_name', 'JoyVent Organizer');
+        $paymentInstruction = Setting::getValue('payment_instruction', 'Silakan transfer sesuai nominal yang tertera. Setelah pembayaran berhasil, unggah bukti pembayaran. Verifikasi maksimal 1x24 jam.');
+        $paymentContact = Setting::getValue('payment_contact', '08123456789');
+
         return view('admin.settings.index', compact(
             'user',
             'totalEvents',
@@ -41,7 +49,13 @@ class SettingsController extends Controller
             'phpVersion',
             'organizerName',
             'organizerEmail',
-            'organizerPhone'
+            'organizerPhone',
+            'paymentQrisImage',
+            'paymentBankName',
+            'paymentBankAccountNumber',
+            'paymentBankAccountName',
+            'paymentInstruction',
+            'paymentContact'
         ));
     }
 
@@ -129,5 +143,40 @@ class SettingsController extends Controller
         return redirect()
             ->route('admin.settings')
             ->with('success', 'Informasi Organizer berhasil diperbarui! 🏢');
+    }
+
+    /**
+     * Update payment settings.
+     */
+    public function updatePaymentSettings(Request $request)
+    {
+        $request->validate([
+            'payment_bank_name' => 'required|string|max:50',
+            'payment_bank_account_number' => 'required|string|max:50',
+            'payment_bank_account_name' => 'required|string|max:100',
+            'payment_instruction' => 'required|string',
+            'payment_contact' => 'required|string|max:100',
+            'payment_qris_image' => 'nullable|image|max:2048' // max 2MB
+        ]);
+
+        Setting::setValue('payment_bank_name', $request->payment_bank_name);
+        Setting::setValue('payment_bank_account_number', $request->payment_bank_account_number);
+        Setting::setValue('payment_bank_account_name', $request->payment_bank_account_name);
+        Setting::setValue('payment_instruction', $request->payment_instruction);
+        Setting::setValue('payment_contact', $request->payment_contact);
+
+        if ($request->hasFile('payment_qris_image')) {
+            $oldQris = Setting::getValue('payment_qris_image');
+            if ($oldQris) {
+                Storage::disk('public')->delete($oldQris);
+            }
+
+            $path = $request->file('payment_qris_image')->store('settings', 'public');
+            Setting::setValue('payment_qris_image', $path);
+        }
+
+        return redirect()
+            ->route('admin.settings')
+            ->with('success', 'Pengaturan pembayaran manual berhasil diperbarui! 💳');
     }
 }

@@ -3,117 +3,227 @@
 @section('title', 'Dashboard Overview')
  
 @section('content')
+<style>
+    @media (max-width: 1023px) {
+        /* Reduce main container padding on mobile/tablet */
+        main.p-8 {
+            padding: 1.25rem !important; /* p-5 */
+        }
+        /* Reduce navbar padding on mobile/tablet */
+        div.flex-1 > div.bg-white.border-b.px-10.py-6 {
+            padding-left: 1.25rem !important;
+            padding-right: 1.25rem !important;
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+        }
+        /* Reduce navbar title font size on mobile/tablet */
+        div.flex-1 > div.bg-white.border-b.px-10.py-6 h1.text-4xl {
+            font-size: 1.875rem !important; /* text-3xl */
+        }
+        /* Reduce sidebar hamburger toggle size */
+        #toggleSidebar {
+            width: 2.5rem !important;
+            height: 2.5rem !important;
+        }
+        #toggleSidebar svg {
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+        }
+        /* Reduce notification bell button size */
+        #notificationBell {
+            width: 2.5rem !important;
+            height: 2.5rem !important;
+        }
+        #notificationBell svg {
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+        }
+        /* Reduce notification badge size */
+        #notificationBell span {
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+            font-size: 9px !important;
+            top: -0.15rem !important;
+            right: -0.15rem !important;
+        }
+        /* Reduce user profile avatar size */
+        div.flex-1 > div.bg-white.border-b.px-10.py-6 div.w-12.h-12 {
+            width: 2.5rem !important;
+            height: 2.5rem !important;
+            font-size: 1.125rem !important; /* text-lg */
+        }
+        /* Hide user text info next to avatar on mobile/tablet to prevent line wrapping */
+        div.flex-1 > div.bg-white.border-b.px-10.py-6 div.leading-tight {
+            display: none !important;
+        }
+        /* Tighter gap spacing in navbar header */
+        div.flex-1 > div.bg-white.border-b.px-10.py-6 div.flex.items-center.gap-6 {
+            gap: 1rem !important;
+        }
+        div.flex-1 > div.bg-white.border-b.px-10.py-6 div.flex.items-center.gap-5 {
+            gap: 1rem !important;
+        }
+    }
+
+    @media (max-width: 767px) {
+        /* Reduce main container padding on mobile portrait */
+        main.p-8 {
+            padding: 0.875rem !important; /* p-3.5 */
+        }
+        /* Reduce navbar padding on mobile portrait */
+        div.flex-1 > div.bg-white.border-b.px-10.py-6 {
+            padding-left: 0.875rem !important;
+            padding-right: 0.875rem !important;
+            padding-top: 0.625rem !important;
+            padding-bottom: 0.625rem !important;
+        }
+        /* Reduce navbar title font size on mobile portrait */
+        div.flex-1 > div.bg-white.border-b.px-10.py-6 h1.text-4xl {
+            font-size: 1.5rem !important; /* text-2xl */
+        }
+        /* Extra small hamburger and bell on mobile */
+        #toggleSidebar, #notificationBell {
+            width: 2.25rem !important;
+            height: 2.25rem !important;
+        }
+        #toggleSidebar svg, #notificationBell svg {
+            width: 1.125rem !important;
+            height: 1.125rem !important;
+        }
+        /* Extra small avatar on mobile */
+        div.flex-1 > div.bg-white.border-b.px-10.py-6 div.w-12.h-12 {
+            width: 2.25rem !important;
+            height: 2.25rem !important;
+            font-size: 0.95rem !important;
+        }
+        /* Extra small notification badge */
+        #notificationBell span {
+            width: 1rem !important;
+            height: 1rem !important;
+            font-size: 8px !important;
+            top: -0.1rem !important;
+            right: -0.1rem !important;
+        }
+        /* Tighter gap spacing in navbar header on mobile */
+        div.flex-1 > div.bg-white.border-b.px-10.py-6 div.flex.items-center.gap-6 {
+            gap: 0.75rem !important;
+        }
+        div.flex-1 > div.bg-white.border-b.px-10.py-6 div.flex.items-center.gap-5 {
+            gap: 0.75rem !important;
+        }
+    }
+</style>
  
-<div class="space-y-8">
+<div class="space-y-4 md:space-y-8">
  
     <!-- Statistik Cards Grid -->
-    <div class="grid grid-cols-4 gap-6">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
  
         <!-- Card 1: Event On-Going -->
-        <div id="ongoingEventsCard" class="block bg-white rounded-3xl p-8 border border-gray-100/80 shadow-sm flex items-center justify-between transition hover:shadow-md hover:border-blue-200/80 duration-300 cursor-pointer group">
-            <div>
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest group-hover:text-blue-500 transition-colors">
+        <div id="ongoingEventsCard" class="block bg-white rounded-xl md:rounded-3xl p-3 md:p-8 border border-gray-100/80 shadow-sm flex items-center justify-between transition hover:shadow-md hover:border-blue-200/80 duration-300 cursor-pointer group">
+            <div class="min-w-0 flex-1">
+                <p class="text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest group-hover:text-blue-500 transition-colors">
                     Event On-Going
                 </p>
-                <h1 class="text-5xl font-extrabold text-gray-800 mt-3 leading-none tracking-tight">
+                <h1 class="text-xl md:text-5xl font-extrabold text-gray-800 mt-1 md:mt-3 leading-none tracking-tight truncate">
                     {{ number_format($ongoingEventsCount) }}
                 </h1>
                 
                 @php
                     $eventColor = str_contains($eventSubtext, '⚡') ? 'text-blue-500' : (str_contains($eventSubtext, '↗') ? 'text-green-500' : (str_contains($eventSubtext, '↘') ? 'text-red-500' : 'text-gray-400'));
                 @endphp
-                <p class="{{ $eventColor }} font-bold mt-5 text-sm flex items-center gap-1.5 leading-none">
+                <p class="{{ $eventColor }} font-bold mt-2 md:mt-5 text-[10px] md:text-sm flex items-center gap-1 leading-none">
                     {{ $eventSubtext }}
                 </p>
             </div>
  
-            <div class="w-14 h-14 rounded-2xl bg-blue-50/50 border border-blue-100/50 flex items-center justify-center text-blue-600 shadow-sm group-hover:bg-blue-100/50 transition-colors flex-shrink-0">
+            <div class="w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-blue-50/50 border border-blue-100/50 flex items-center justify-center text-blue-600 shadow-sm group-hover:bg-blue-100/50 transition-colors flex-shrink-0 ml-2">
                 <!-- Outline Calendar Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 md:w-6 md:h-6 text-blue-600">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                 </svg>
             </div>
         </div>
-
+ 
         <!-- Card 2: Total Event -->
-        <a href="/admin/events" class="relative bg-white rounded-3xl p-8 border border-gray-100/80 shadow-sm flex items-center justify-between transition-all duration-300 hover:shadow-md hover:border-blue-200/80 hover:-translate-y-1 transform cursor-pointer group">
+        <a href="/admin/events" class="relative bg-white rounded-xl md:rounded-3xl p-3 md:p-8 border border-gray-100/80 shadow-sm flex items-center justify-between transition-all duration-300 hover:shadow-md hover:border-blue-200/80 hover:-translate-y-1 transform cursor-pointer group">
             
             <!-- Tooltip saat hover -->
             <span class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-30 shadow-md pointer-events-none">
                 Lihat semua event
             </span>
-
-            <div>
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest group-hover:text-blue-500 transition-colors">
+ 
+            <div class="min-w-0 flex-1">
+                <p class="text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest group-hover:text-blue-500 transition-colors">
                     Total Event
                 </p>
-                <h1 class="text-5xl font-extrabold text-gray-800 mt-3 leading-none tracking-tight">
+                <h1 class="text-xl md:text-5xl font-extrabold text-gray-800 mt-1 md:mt-3 leading-none tracking-tight truncate">
                     {{ number_format($totalEventsCount) }}
                 </h1>
                 
                 @php
                     $totalEventsColor = str_contains($totalEventsSubtext, '↗') ? 'text-green-500' : (str_contains($totalEventsSubtext, '↘') ? 'text-red-500' : 'text-gray-400');
                 @endphp
-                <p class="{{ $totalEventsColor }} font-bold mt-5 text-sm flex items-center gap-1.5 leading-none">
+                <p class="{{ $totalEventsColor }} font-bold mt-2 md:mt-5 text-[10px] md:text-sm flex items-center gap-1 leading-none">
                     {{ $totalEventsSubtext }}
                 </p>
             </div>
-
-            <div class="w-14 h-14 rounded-2xl bg-blue-50/50 border border-blue-100/50 flex items-center justify-center text-blue-600 shadow-sm group-hover:bg-blue-100/50 transition-colors flex-shrink-0">
+ 
+            <div class="w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-blue-50/50 border border-blue-100/50 flex items-center justify-center text-blue-600 shadow-sm group-hover:bg-blue-100/50 transition-colors flex-shrink-0 ml-2">
                 <!-- Outline User Group Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 md:w-6 md:h-6 text-blue-600">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 0 1 10.089 20.4c-2.114 0-4.082-.54-5.8-1.485a4.125 4.125 0 0 1 7.533-2.493c.501.91.786 1.957.786 3.07v-.003m-2.225-7.61c.642.457 1.412.728 2.247.728 2.21 0 4-1.79 4-4s-1.79-4-4-4c-.835 0-1.605.271-2.247.728m2.247 7.272a3.5 3.5 0 1 1-4.5 0H12.75a3.5 3.5 0 0 1-1.003-7.272M7.75 12a2.75 2.75 0 1 0 0-5.5 2.75 2.75 0 0 0 0 5.5Z" />
                 </svg>
             </div>
         </a>
  
         <!-- Card 3: Tiket Terjual -->
-        <button id="finishedEventsReportCard" class="bg-white rounded-3xl p-8 border border-gray-100/80 shadow-sm flex items-center justify-between transition-all duration-300 hover:shadow-md hover:border-blue-200/80 hover:-translate-y-1 transform cursor-pointer group text-left w-full">
-            <div>
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest group-hover:text-blue-500 transition-colors">
+        <button id="finishedEventsReportCard" class="bg-white rounded-xl md:rounded-3xl p-3 md:p-8 border border-gray-100/80 shadow-sm flex items-center justify-between transition-all duration-300 hover:shadow-md hover:border-blue-200/80 hover:-translate-y-1 transform cursor-pointer group text-left w-full">
+            <div class="min-w-0 flex-1">
+                <p class="text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest group-hover:text-blue-500 transition-colors">
                     Tiket Terjual
                 </p>
-                <h1 class="text-5xl font-extrabold text-gray-800 mt-3 leading-none tracking-tight">
+                <h1 class="text-xl md:text-5xl font-extrabold text-gray-800 mt-1 md:mt-3 leading-none tracking-tight truncate">
                     {{ number_format($ticketsSold) }}
                 </h1>
                 
                 @php
                     $ticketsColor = str_contains($ticketsSubtext, '↗') ? 'text-green-500' : (str_contains($ticketsSubtext, '↘') ? 'text-red-500' : 'text-gray-400');
                 @endphp
-                <p class="{{ $ticketsColor }} font-bold mt-5 text-sm flex items-center gap-1.5 leading-none">
+                <p class="{{ $ticketsColor }} font-bold mt-2 md:mt-5 text-[10px] md:text-sm flex items-center gap-1 leading-none">
                     {{ $ticketsSubtext }}
                 </p>
             </div>
  
-            <div class="w-14 h-14 rounded-2xl bg-blue-50/50 border border-blue-100/50 flex items-center justify-center text-blue-600 shadow-sm group-hover:bg-blue-100/50 transition-colors flex-shrink-0">
+            <div class="w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-blue-50/50 border border-blue-100/50 flex items-center justify-center text-blue-600 shadow-sm group-hover:bg-blue-100/50 transition-colors flex-shrink-0 ml-2">
                 <!-- Outline Ticket Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 md:w-6 md:h-6 text-blue-600">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M3 7.5A2.25 2.25 0 0 1 5.25 5.25h13.5A2.25 2.25 0 0 1 21 7.5v9a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 16.5v-9Z" />
                 </svg>
             </div>
         </button>
  
         <!-- Card 4: Pendapatan -->
-        <button id="finishedRevenueReportCard" class="bg-white rounded-3xl p-8 border border-gray-100/80 shadow-sm flex items-center justify-between transition-all duration-300 hover:shadow-md hover:border-blue-200/80 hover:-translate-y-1 transform cursor-pointer group text-left w-full">
-            <div>
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest group-hover:text-blue-500 transition-colors">
+        <button id="finishedRevenueReportCard" class="bg-white rounded-xl md:rounded-3xl p-3 md:p-8 border border-gray-100/80 shadow-sm flex items-center justify-between transition-all duration-300 hover:shadow-md hover:border-blue-200/80 hover:-translate-y-1 transform cursor-pointer group text-left w-full">
+            <div class="min-w-0 flex-1">
+                <p class="text-[9px] md:text-xs font-bold text-gray-400 uppercase tracking-widest group-hover:text-blue-500 transition-colors">
                     Pendapatan
                 </p>
-                <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-800 mt-3.5 leading-none tracking-tight">
+                <h1 class="text-[11px] xs:text-sm sm:text-base md:text-3xl lg:text-4xl font-extrabold text-gray-800 mt-1 md:mt-3.5 leading-none tracking-tight truncate">
                     Rp {{ number_format($totalRevenue, 0, ',', '.') }}
                 </h1>
                 
                 @php
                     $revenueColor = str_contains($revenueSubtext, '↗') ? 'text-green-500' : (str_contains($revenueSubtext, '↘') ? 'text-red-500' : 'text-gray-400');
                 @endphp
-                <p class="{{ $revenueColor }} font-bold mt-5 text-sm flex items-center gap-1.5 leading-none">
+                <p class="{{ $revenueColor }} font-bold mt-2 md:mt-5 text-[10px] md:text-sm flex items-center gap-1 leading-none">
                     {{ $revenueSubtext }}
                 </p>
             </div>
-
-            <div class="w-14 h-14 rounded-2xl bg-blue-50/50 border border-blue-100/50 flex items-center justify-center text-blue-600 shadow-sm group-hover:bg-blue-100/50 transition-colors flex-shrink-0">
+ 
+            <div class="w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-2xl bg-blue-50/50 border border-blue-100/50 flex items-center justify-center text-blue-600 shadow-sm group-hover:bg-blue-100/50 transition-colors flex-shrink-0 ml-2">
                 <!-- Outline Banknotes Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 md:w-6 md:h-6 text-blue-600">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5h16.5a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5H3.75a1.5 1.5 0 0 1-1.5-1.5V6a1.5 1.5 0 0 1 1.5-1.5Zm13.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
                 </svg>
             </div>
@@ -122,26 +232,26 @@
     </div>
  
     <!-- Chart Section -->
-    <div class="grid grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
  
         <!-- Bar Chart: Pertumbuhan Peserta -->
-        <div class="col-span-2 bg-white rounded-3xl p-8 border border-gray-100/80 shadow-sm flex flex-col justify-between">
+        <div class="lg:col-span-2 bg-white rounded-xl md:rounded-3xl p-3.5 sm:p-4 md:p-8 border border-gray-100/80 shadow-sm flex flex-col justify-between">
  
-            <div class="flex justify-between items-center mb-10">
-                <h2 class="text-3xl font-bold text-gray-800 tracking-tight">
+            <div class="flex justify-between items-center mb-4 md:mb-10">
+                <h2 class="text-base sm:text-xl md:text-3xl font-bold text-gray-800 tracking-tight">
                     Pertumbuhan Peserta
                 </h2>
  
-                <button class="border border-gray-200/80 px-5 py-2.5 rounded-xl text-gray-500 font-bold text-sm bg-white hover:bg-gray-50 transition">
+                <button class="border border-gray-200/80 px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl text-gray-500 font-bold text-xs md:text-sm bg-white hover:bg-gray-50 transition">
                     7 Hari Terakhir
                 </button>
             </div>
  
             <!-- Dynamic Chart -->
-            <div class="flex items-end gap-6 h-80">
+            <div class="flex items-end gap-2 sm:gap-4 md:gap-6 h-60 md:h-80">
  
                 @foreach($chartData as $day)
-                <div class="flex flex-col items-center gap-3 flex-1 h-full justify-end">
+                <div class="flex flex-col items-center gap-1.5 md:gap-3 flex-1 h-full justify-end">
                     <div class="w-full bg-[#528cf6] hover:bg-blue-600 transition-all duration-500 rounded-t-2xl relative group cursor-pointer" 
                          style="height: {{ $day['height'] }}%; min-height: 8px;">
                         
@@ -150,7 +260,7 @@
                             {{ number_format($day['count']) }} Peserta
                         </span>
                     </div>
-                    <span class="text-gray-400 font-bold text-xs">{{ $day['day'] }}</span>
+                    <span class="text-gray-400 font-bold text-[10px] md:text-xs">{{ $day['day'] }}</span>
                 </div>
                 @endforeach
  
@@ -159,10 +269,10 @@
         </div>
  
         <!-- Donut Chart: Statistik Check-in -->
-        <div class="bg-white rounded-3xl p-8 border border-gray-100/80 shadow-sm flex flex-col justify-between">
+        <div class="bg-white rounded-xl md:rounded-3xl p-3.5 sm:p-4 md:p-8 border border-gray-100/80 shadow-sm flex flex-col justify-between">
  
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-bold text-gray-800 tracking-tight">
+            <div class="flex justify-between items-center mb-4 md:mb-8">
+                <h2 class="text-base sm:text-xl md:text-3xl font-bold text-gray-800 tracking-tight">
                     Statistik Check-in
                 </h2>
  
@@ -171,20 +281,20 @@
                 </button>
             </div>
  
-            <div class="flex justify-center my-6">
+            <div class="flex justify-center my-4 md:my-6">
  
                 <!-- Conic Gradient Donut Chart -->
-                <div class="relative w-56 h-56 rounded-full flex items-center justify-center transition-all duration-500 hover:scale-105 shadow-[0_4px_20px_rgba(0,0,0,0.02)]" 
+                <div class="relative w-44 h-44 md:w-56 md:h-56 rounded-full flex items-center justify-center transition-all duration-500 hover:scale-105 shadow-[0_4px_20px_rgba(0,0,0,0.02)]" 
                      style="background: conic-gradient(#3b82f6 {{ $checkedInPercentage }}%, #e5e7eb {{ $checkedInPercentage }}%)">
  
                     <!-- Inner Card -->
-                    <div class="absolute w-[180px] h-[180px] rounded-full bg-white flex flex-col items-center justify-center shadow-inner">
+                    <div class="absolute w-[140px] h-[140px] md:w-[180px] md:h-[180px] rounded-full bg-white flex flex-col items-center justify-center shadow-inner">
  
-                        <h1 class="text-5xl font-extrabold text-gray-800 tracking-tight">
+                        <h1 class="text-3xl md:text-5xl font-extrabold text-gray-800 tracking-tight">
                             {{ $checkedInPercentage }}%
                         </h1>
  
-                        <p class="text-gray-400 text-xs mt-1.5 font-bold uppercase tracking-widest">
+                        <p class="text-gray-400 text-[10px] md:text-xs mt-1 md:mt-1.5 font-bold uppercase tracking-widest">
                             CHECK-IN
                         </p>
  
@@ -195,22 +305,22 @@
             </div>
  
             <!-- Legend aligned EXACTLY as screenshot -->
-            <div class="mt-8 space-y-4 border-t border-gray-100 pt-6">
+            <div class="mt-4 md:mt-8 pt-4 md:pt-6 space-y-3 md:space-y-4 border-t border-gray-100">
  
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between text-xs md:text-sm">
                     <div class="flex items-center gap-3">
                         <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
-                        <span class="font-bold text-gray-500 text-sm">Hadir</span>
+                        <span class="font-bold text-gray-500">Hadir</span>
                     </div>
-                    <span class="font-extrabold text-gray-800 text-sm">{{ number_format($checkedInCount) }} Peserta</span>
+                    <span class="font-extrabold text-gray-800">{{ number_format($checkedInCount) }} Peserta</span>
                 </div>
  
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between text-xs md:text-sm">
                     <div class="flex items-center gap-3">
                         <div class="w-4 h-4 bg-gray-200 rounded-full"></div>
-                        <span class="font-bold text-gray-500 text-sm">Belum Hadir</span>
+                        <span class="font-bold text-gray-500">Belum Hadir</span>
                     </div>
-                    <span class="font-extrabold text-gray-800 text-sm">{{ number_format($notCheckedInCount) }} Peserta</span>
+                    <span class="font-extrabold text-gray-800">{{ number_format($notCheckedInCount) }} Peserta</span>
                 </div>
  
             </div>
@@ -220,15 +330,15 @@
     </div>
  
     <!-- Bottom Section: Event Terbaru & Aktivitas Terbaru -->
-    <div class="grid grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
  
         <!-- Table: Upcoming Events -->
-        <div class="col-span-2 bg-white rounded-3xl p-8 border border-gray-100/80 shadow-sm flex flex-col justify-between">
+        <div class="lg:col-span-2 bg-white rounded-xl md:rounded-3xl p-3.5 sm:p-4 md:p-8 border border-gray-100/80 shadow-sm flex flex-col justify-between">
  
             <div>
-                <div class="flex justify-between items-start mb-8">
+                <div class="flex justify-between items-start mb-4 md:mb-8">
                     <div>
-                        <h2 class="text-3xl font-bold text-gray-800 tracking-tight">
+                        <h2 class="text-base sm:text-xl md:text-3xl font-bold text-gray-800 tracking-tight">
                             Upcoming Events
                         </h2>
                         <p class="text-gray-400 text-xs font-semibold mt-1">
@@ -242,17 +352,18 @@
  
                 </div>
  
-                <table class="w-full">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
  
-                    <thead class="text-gray-400 uppercase text-[10px] font-bold tracking-wider border-b border-gray-100 pb-4">
+                    <thead class="text-gray-400 uppercase text-[10px] font-bold tracking-wider border-b border-gray-100 pb-3 md:pb-4">
  
                         <tr>
-                            <th class="text-left pb-4">NAMA EVENT</th>
-                            <th class="text-left pb-4 pl-2">KATEGORI</th>
-                            <th class="text-left pb-4 pl-2">TANGGAL EVENT</th>
-                            <th class="text-left pb-4 pl-2">LOKASI</th>
-                            <th class="text-left pb-4 pl-2">CAPACITY</th>
-                            <th class="text-right pb-4 pr-2">COUNTDOWN</th>
+                            <th class="text-left pb-3 md:pb-4">NAMA EVENT</th>
+                            <th class="text-left pb-3 md:pb-4 pl-2">KATEGORI</th>
+                            <th class="text-left pb-3 md:pb-4 pl-2">TANGGAL EVENT</th>
+                            <th class="text-left pb-3 md:pb-4 pl-2">LOKASI</th>
+                            <th class="text-left pb-3 md:pb-4 pl-2">CAPACITY</th>
+                            <th class="text-right pb-3 md:pb-4 pr-2">COUNTDOWN</th>
                         </tr>
  
                     </thead>
@@ -262,11 +373,11 @@
                         @forelse($upcomingEvents as $event)
                         <tr class="hover:bg-slate-50/65 transition duration-155">
  
-                            <td class="py-5 font-bold text-gray-800 text-sm">
+                            <td class="py-3 md:py-5 font-bold text-gray-800 text-sm">
                                 {{ $event->name }}
                             </td>
  
-                            <td class="py-5 pl-2">
+                            <td class="py-3 md:py-5 pl-2">
                                 @php
                                     $categoryColors = [
                                         'Entertainment' => 'bg-purple-50 text-purple-600 border border-purple-100/50',
@@ -282,11 +393,11 @@
                                 </span>
                             </td>
  
-                            <td class="py-5 pl-2 text-gray-500 font-semibold text-sm whitespace-nowrap">
+                            <td class="py-3 md:py-5 pl-2 text-gray-500 font-semibold text-sm whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($event->start_date)->format('d M Y') }}
                             </td>
  
-                            <td class="py-5 pl-2 text-sm">
+                            <td class="py-3 md:py-5 pl-2 text-sm">
                                 <span class="flex items-center gap-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-gray-400 flex-shrink-0">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
@@ -296,11 +407,11 @@
                                 </span>
                             </td>
  
-                            <td class="py-5 pl-2 text-gray-800 font-extrabold text-sm whitespace-nowrap">
+                            <td class="py-3 md:py-5 pl-2 text-gray-800 font-extrabold text-sm whitespace-nowrap">
                                 {{ number_format($event->capacity) }}
                             </td>
  
-                            <td class="py-5 text-right pr-2">
+                            <td class="py-3 md:py-5 text-right pr-2">
                                 @php
                                     $startDateTime = \Carbon\Carbon::parse($event->start_date . ' ' . $event->start_time);
                                     $now = \Carbon\Carbon::now();
@@ -349,33 +460,34 @@
  
                     </tbody>
  
-                </table>
+                    </table>
+                </div>
             </div>
  
         </div>
  
         <!-- Card: Aktivitas Terbaru -->
-        <div class="bg-white rounded-3xl p-8 border border-gray-100/80 shadow-sm flex flex-col justify-between">
+        <div class="bg-white rounded-xl md:rounded-3xl p-3.5 sm:p-4 md:p-8 border border-gray-100/80 shadow-sm flex flex-col justify-between">
  
             <div>
-                <h2 class="text-3xl font-bold text-gray-800 tracking-tight mb-8">
+                <h2 class="text-base sm:text-xl md:text-3xl font-bold text-gray-800 tracking-tight mb-4 md:mb-8">
                     Aktivitas Terbaru
                 </h2>
  
-                <div class="space-y-6">
+                <div class="space-y-4 md:space-y-6">
  
                     @forelse($sortedActivities as $activity)
-                    <div class="flex gap-4 items-center">
+                    <div class="flex gap-3 md:gap-4 items-center">
  
-                        <div class="w-12 h-12 rounded-full {{ $activity['bg_color'] }} flex-shrink-0 flex items-center justify-center text-xl shadow-sm border border-gray-100/20">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full {{ $activity['bg_color'] }} flex-shrink-0 flex items-center justify-center text-base md:text-xl shadow-sm border border-gray-100/20">
                             @if(str_contains($activity['bg_color'], 'green'))
                             <!-- Green checklist SVG -->
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-green-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 md:w-5 md:h-5 text-green-600">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
                             @else
                             <!-- Blue user SVG -->
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-blue-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 md:w-5 md:h-5 text-blue-600">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                             </svg>
                             @endif
@@ -386,7 +498,7 @@
                                 {!! $activity['title'] !!}
                             </p>
  
-                            <p class="text-gray-400 text-xs mt-1.5 font-bold flex items-center gap-1">
+                            <p class="text-gray-400 text-xs mt-1 font-bold flex items-center gap-1">
                                 <!-- Outline clock icon -->
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5 text-gray-400">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -593,7 +705,7 @@
         </div>
 
         <!-- Body -->
-        <div class="flex-1 overflow-y-auto p-8 bg-slate-50/30 space-y-8">
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50/30 space-y-4 md:space-y-8">
             
             <!-- Indicator Total Global -->
             <div class="p-6 bg-blue-50/40 border border-blue-100/50 rounded-3xl flex items-center justify-between shadow-sm">

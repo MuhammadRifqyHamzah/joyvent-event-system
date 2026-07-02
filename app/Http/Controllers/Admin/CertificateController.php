@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\File;
  
 class CertificateController extends Controller
 {
+    use \App\Traits\GeneratesCertificateImage;
+
     /*
     |--------------------------------------------------------------------------
     | DISPLAY CERTIFICATES GENERATOR PANEL
@@ -60,11 +62,34 @@ class CertificateController extends Controller
             $extension = $file->getClientOriginalExtension();
             $filename = 'template_' . $eventId . '.' . $extension;
             $file->move($templateDirectory, $filename);
+ 
+            // Update event template filename mapping in database
+            $event->certificate_template = $filename;
+            $event->save();
+
+            // Regenerate existing certificates for this event
+            $existingCertificates = Certificate::whereHas('registration', function ($query) use ($eventId) {
+                $query->where('event_id', $eventId);
+            })->get();
+
+            foreach ($existingCertificates as $existingCert) {
+                try {
+                    \Illuminate\Support\Facades\DB::transaction(function () use ($existingCert) {
+                        $success = $this->generateCertificateImage($existingCert, $existingCert->registration);
+                        if (!$success) {
+                            throw new \Exception("Gagal merender ulang gambar sertifikat.");
+                        }
+                    });
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed to regenerate template for certificate ID {$existingCert->id}: " . $e->getMessage());
+                }
+            }
         }
  
-        // Get all checked-in participants without certificates
+        // Get all checked-in participants without certificates (Eager Loading to prevent N+1 query)
         $issuedRegistrationIds = Certificate::pluck('registration_id');
-        $candidates = Registration::where('event_id', $eventId)
+        $candidates = Registration::with(['user', 'event'])
+            ->where('event_id', $eventId)
             ->where('is_checked_in', 1)
             ->whereNotIn('id', $issuedRegistrationIds)
             ->get();
@@ -77,12 +102,26 @@ class CertificateController extends Controller
  
         $totalIssued = 0;
         foreach ($candidates as $candidate) {
-            Certificate::create([
-                'registration_id' => $candidate->id,
-                'certificate_code' => 'JV-' . strtoupper($eventId . substr(uniqid(), -6)),
-                'is_valid' => true,
-            ]);
-            $totalIssued++;
+            try {
+                \Illuminate\Support\Facades\DB::transaction(function () use ($candidate, $eventId, &$totalIssued) {
+                    $certificate = Certificate::create([
+                        'registration_id' => $candidate->id,
+                        'certificate_code' => 'JV-' . strtoupper($eventId . substr(uniqid(), -6)),
+                        'is_valid' => true,
+                    ]);
+
+                    // Generate real certificate PNG image using eager loaded relation
+                    $success = $this->generateCertificateImage($certificate, $candidate);
+
+                    if (!$success) {
+                        throw new \Exception("Gagal merender gambar sertifikat.");
+                    }
+
+                    $totalIssued++;
+                });
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Bulk certificate generation failed for candidate registration ID {$candidate->id}: " . $e->getMessage());
+            }
         }
  
         return redirect()

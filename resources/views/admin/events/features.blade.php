@@ -115,7 +115,7 @@
                             <input type="text" name="certificate_title" required 
                                 value="{{ old('certificate_title', $event->certificate_title ?? 'Certificate of Appreciation') }}" 
                                 placeholder="Contoh: Certificate of Appreciation" 
-                                class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-700">
+                                class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-775">
                         </div>
 
                         <div>
@@ -125,7 +125,7 @@
                             <input type="text" name="organizer_name" required 
                                 value="{{ old('organizer_name', $event->organizer_name ?? 'JoyVent Organizer') }}" 
                                 placeholder="Contoh: JoyVent Event Ltd" 
-                                class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-700">
+                                class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-770">
                         </div>
 
                         <div>
@@ -211,47 +211,68 @@
             <!-- 3. Lucky Draw Setup Card -->
             @if($event->has_lucky_draw)
                 <div class="bg-white rounded-[32px] shadow-sm border border-gray-100/80 p-8 space-y-6">
-                    <div class="flex items-center gap-3 pb-5 border-b border-gray-100">
-                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100/40">
-                            <!-- Lucky draw gift icon -->
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0-2.625V7.5m0 12.75V7.5m-9 0h18" />
-                            </svg>
+                    <div class="flex items-center justify-between pb-5 border-b border-gray-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100/40">
+                                <!-- Lucky draw gift icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0-2.625V7.5m0 12.75V7.5m-9 0h18" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-extrabold text-gray-800 tracking-tight">Lucky Draw Configuration</h2>
+                                <p class="text-xs text-gray-400 font-semibold">Tentukan hadiah-hadiah dan jumlah pemenang undian.</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 class="text-xl font-extrabold text-gray-800 tracking-tight">Lucky Draw Configuration</h2>
-                            <p class="text-xs text-gray-400 font-semibold">Tentukan hadiah utama dan jumlah pemenang undian.</p>
-                        </div>
+                        <button type="button" onclick="addPrizeRow()" class="bg-amber-500 hover:bg-amber-600 text-white font-extrabold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                            ➕ Tambah Hadiah
+                        </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2.5">
-                                Nama Hadiah / Prize Name <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="prize_name" required 
-                                value="{{ old('prize_name', $event->prize_name) }}" 
-                                placeholder="Contoh: iPad Pro M4, Exclusive T-Shirt" 
-                                class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-700">
-                        </div>
+                    <!-- Prizes List Container -->
+                    <div id="prizesContainer" class="space-y-6">
+                        @php
+                            $prizes = $event->eventPrizes->isEmpty() 
+                                ? [new \App\Models\EventPrize(['name' => '', 'winner_count' => 1, 'description' => '', 'draw_order' => 0])] 
+                                : $event->eventPrizes;
+                        @endphp
 
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2.5">
-                                Jumlah Pemenang / Winner Count <span class="text-red-500">*</span>
-                            </label>
-                            <input type="number" name="winner_count" required min="1" 
-                                value="{{ old('winner_count', $event->winner_count ?? 1) }}" 
-                                placeholder="Contoh: 3" 
-                                class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-700">
-                        </div>
+                        @foreach($prizes as $index => $prize)
+                            <div class="prize-row bg-slate-50/50 border border-slate-100 rounded-2xl p-6 relative space-y-4" data-index="{{ $index }}">
+                                <input type="hidden" name="prizes[{{ $index }}][id]" value="{{ $prize->id }}">
+                                
+                                <div class="flex justify-between items-center pb-3 border-b border-slate-100/50">
+                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest prize-label">Hadiah #{{ $index + 1 }}</span>
+                                    @if($index > 0 || !$event->eventPrizes->isEmpty())
+                                        <button type="button" onclick="removePrizeRow(this)" class="text-red-500 hover:text-red-700 text-xs font-extrabold uppercase tracking-wide cursor-pointer transition">
+                                            🗑 Hapus
+                                        </button>
+                                    @endif
+                                </div>
 
-                        <div class="col-span-1 md:col-span-2">
-                            <label class="block text-sm font-bold text-gray-700 mb-2.5">
-                                Deskripsi Hadiah / Prize Description <span class="text-red-500">*</span>
-                            </label>
-                            <textarea name="prize_description" required rows="4" placeholder="Detail spesifikasi hadiah..." 
-                                class="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-700">{{ old('prize_description', $event->prize_description) }}</textarea>
-                        </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold text-gray-700 mb-2">Nama Hadiah <span class="text-red-500">*</span></label>
+                                        <input type="text" name="prizes[{{ $index }}][name]" value="{{ old('prizes.'.$index.'.name', $prize->name) }}" required placeholder="Contoh: iPad Pro M4, Kaos Eksklusif" class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-750 text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-2">Jumlah Pemenang <span class="text-red-500">*</span></label>
+                                        <input type="number" name="prizes[{{ $index }}][winner_count]" value="{{ old('prizes.'.$index.'.winner_count', $prize->winner_count) }}" required min="1" placeholder="Kuota" class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-750 text-sm">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold text-gray-700 mb-2">Deskripsi Hadiah</label>
+                                        <input type="text" name="prizes[{{ $index }}][description]" value="{{ old('prizes.'.$index.'.description', $prize->description) }}" placeholder="Detail spesifikasi hadiah..." class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-750 text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-2">Urutan Undian (Draw Order) <span class="text-red-500">*</span></label>
+                                        <input type="number" name="prizes[{{ $index }}][draw_order]" value="{{ old('prizes.'.$index.'.draw_order', $prize->draw_order ?? 0) }}" required min="0" placeholder="0 = Pertama, 10 = Akhir" class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-750 text-sm">
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             @endif
@@ -289,6 +310,73 @@
                 input.value = '';
             });
         }
+    }
+
+    let prizeIndex = {{ isset($prizes) ? count($prizes) : 0 }};
+
+    function addPrizeRow() {
+        const container = document.getElementById('prizesContainer');
+        const row = document.createElement('div');
+        row.className = 'prize-row bg-slate-50/50 border border-slate-100 rounded-2xl p-6 relative space-y-4';
+        row.setAttribute('data-index', prizeIndex);
+        
+        row.innerHTML = `
+            <input type="hidden" name="prizes[${prizeIndex}][id]" value="">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100/50">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest prize-label">Hadiah #${prizeIndex + 1}</span>
+                <button type="button" onclick="removePrizeRow(this)" class="text-red-500 hover:text-red-700 text-xs font-extrabold uppercase tracking-wide cursor-pointer transition">
+                    🗑 Hapus
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-700 mb-2">Nama Hadiah <span class="text-red-500">*</span></label>
+                    <input type="text" name="prizes[${prizeIndex}][name]" required placeholder="Contoh: iPad Pro M4, Kaos Eksklusif" class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-750 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-2">Jumlah Pemenang <span class="text-red-500">*</span></label>
+                    <input type="number" name="prizes[${prizeIndex}][winner_count]" value="1" required min="1" placeholder="Kuota" class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-750 text-sm">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-700 mb-2">Deskripsi Hadiah</label>
+                    <input type="text" name="prizes[${prizeIndex}][description]" placeholder="Detail spesifikasi hadiah..." class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-750 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-2">Urutan Undian (Draw Order) <span class="text-red-500">*</span></label>
+                    <input type="number" name="prizes[${prizeIndex}][draw_order]" value="${prizeIndex}" required min="0" placeholder="0 = Pertama, 10 = Akhir" class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold text-gray-750 text-sm">
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(row);
+        prizeIndex++;
+        reindexPrizes();
+    }
+
+    function removePrizeRow(btn) {
+        const row = btn.closest('.prize-row');
+        row.remove();
+        reindexPrizes();
+    }
+
+    function reindexPrizes() {
+        const rows = document.querySelectorAll('.prize-row');
+        rows.forEach((row, i) => {
+            row.setAttribute('data-index', i);
+            row.querySelector('.prize-label').innerText = `Hadiah #${i + 1}`;
+            
+            // Re-index all inputs
+            row.querySelectorAll('input').forEach(input => {
+                const name = input.getAttribute('name');
+                if (name) {
+                    const newName = name.replace(/prizes\[\d+\]/, `prizes[${i}]`);
+                    input.setAttribute('name', newName);
+                }
+            });
+        });
+        prizeIndex = rows.length;
     }
 </script>
 @endsection

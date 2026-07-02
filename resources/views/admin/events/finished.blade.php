@@ -30,17 +30,17 @@
     }
 @endphp
 
-<div class="space-y-8">
+<div class="space-y-3 md:space-y-8">
 
     <!-- Top Action Header -->
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 md:gap-4">
         <div>
-            <h1 class="text-4xl font-extrabold text-gray-800 tracking-tight">Event Overview (Finished)</h1>
-            <p class="text-gray-400 text-sm mt-1.5 font-semibold">Review laporan final kehadiran dan aktivitas event JoyVent Anda.</p>
+            <h1 class="text-xl md:text-4xl font-extrabold text-gray-800 tracking-tight">Event Overview (Finished)</h1>
+            <p class="text-gray-400 text-[11px] md:text-sm mt-0.5 md:mt-1.5 font-semibold">Review laporan final kehadiran dan aktivitas event JoyVent Anda.</p>
         </div>
         <a href="{{ route('admin.events') }}" 
-            class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-5 py-3.5 rounded-2xl font-bold text-sm shadow-sm transition flex items-center gap-2 cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-gray-550">
+            class="w-full sm:w-auto bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-3.5 py-1.5 md:px-5 md:py-3 rounded-xl md:rounded-2xl font-bold text-[11px] md:text-xs md:text-sm shadow-sm transition flex items-center justify-center gap-2 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-gray-555">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
             </svg>
             <span>Kembali</span>
@@ -50,7 +50,7 @@
     @include('admin.events.partials.header')
 
     <!-- Tab 1 Panel: Overview -->
-    <div id="tab-panel-overview" class="tab-panel space-y-8 mt-6">
+    <div id="tab-panel-overview" class="tab-panel space-y-4 md:space-y-8 mt-2 md:mt-6">
         <!-- Quick Stats Cards Section -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             <!-- Card 1: Total Registrasi -->
@@ -206,7 +206,7 @@
     </div>
 
     <!-- Tab 2 Panel: Participants -->
-    <div id="tab-panel-participants" class="tab-panel hidden space-y-8 mt-6">
+    <div id="tab-panel-participants" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
         <!-- Complete Attendance List -->
         <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-10 overflow-hidden">
             <div class="pb-6 border-b border-gray-100 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -235,63 +235,160 @@
                         Belum ada peserta terdaftar.
                     </div>
                 @else
-                    <table class="w-full">
-                        <thead class="text-gray-400 uppercase text-xs font-bold tracking-wider border-b border-gray-100 pb-4">
-                            <tr>
-                                <th class="text-left pb-4">Peserta</th>
-                                <th class="text-left pb-4 pl-4">Email</th>
-                                <th class="text-left pb-4 pl-4">Kelas Tiket</th>
-                                <th class="text-left pb-4 pl-4">Status Kehadiran</th>
-                                <th class="text-left pb-4">Check-In Time</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50" id="participantTableBody">
-                            @foreach($event->registrations as $reg)
-                                <tr class="hover:bg-gray-50/30 transition duration-150 participant-row"
-                                    data-name="{{ strtolower($reg->user->name ?? '') }}"
-                                    data-email="{{ strtolower($reg->user->email ?? '') }}">
-                                    <td class="py-4 pr-4">
-                                        <div class="flex items-center gap-3.5">
-                                            <div class="w-9 h-9 rounded-2xl bg-blue-50/50 text-blue-600 flex items-center justify-center font-black text-sm border border-blue-100/30">
-                                                {{ strtoupper(substr($reg->user->name ?? 'G', 0, 1)) }}
+                    <!-- Desktop View Table -->
+                    <div class="hidden md:block">
+                        <table class="w-full">
+                            <thead class="text-gray-400 uppercase text-xs font-bold tracking-wider border-b border-gray-100 pb-4">
+                                <tr>
+                                    <th class="text-left pb-4">Peserta</th>
+                                    <th class="text-left pb-4 pl-4">Email</th>
+                                    <th class="text-left pb-4 pl-4">Kelas Tiket</th>
+                                    <th class="text-left pb-4 pl-4">Payment</th>
+                                    <th class="text-left pb-4 pl-4">Status Kehadiran</th>
+                                    <th class="text-left pb-4">Check-In Time</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50" id="participantTableBody">
+                                @foreach($event->registrations as $reg)
+                                    <tr class="hover:bg-gray-50/30 transition duration-150 participant-row"
+                                        data-name="{{ strtolower($reg->user->name ?? '') }}"
+                                        data-email="{{ strtolower($reg->user->email ?? '') }}">
+                                        <td class="py-4 pr-4">
+                                            <div class="flex items-center gap-3.5">
+                                                <div class="w-9 h-9 rounded-2xl bg-blue-50/50 text-blue-600 flex items-center justify-center font-black text-sm border border-blue-100/30">
+                                                    {{ strtoupper(substr($reg->user->name ?? 'G', 0, 1)) }}
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <span class="font-bold text-gray-800 text-sm block truncate max-w-[200px]">
+                                                        {{ $reg->user->name ?? 'Guest' }}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div class="min-w-0">
-                                                <span class="font-bold text-gray-800 text-sm block truncate max-w-[200px]">
-                                                    {{ $reg->user->name ?? 'Guest' }}
+                                        </td>
+                                        <td class="py-4 pl-4 pr-4">
+                                            <span class="text-gray-655 font-bold text-xs">
+                                                {{ $reg->user->email ?? '-' }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 pl-4 pr-4">
+                                            <span class="bg-indigo-50 text-indigo-600 border border-indigo-100/30 px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap">
+                                                {{ $reg->ticketCategory->name ?? '-' }}
+                                            </span>
+                                        </td>
+                                        <!-- Payment Status -->
+                                        <td class="py-4 pl-4 pr-4">
+                                            @if($reg->payment_status === 'paid')
+                                                <span class="bg-green-50 text-green-600 border border-green-100/50 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide whitespace-nowrap block text-center max-w-[110px]">
+                                                    PAID
                                                 </span>
-                                            </div>
+                                            @elseif($reg->payment_status === 'pending')
+                                                <span class="bg-amber-50 text-amber-600 border border-amber-100/50 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide whitespace-nowrap block text-center max-w-[110px]">
+                                                    PENDING
+                                                </span>
+                                            @elseif($reg->payment_status === 'failed')
+                                                <span class="bg-red-50 text-red-600 border border-red-100/50 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide whitespace-nowrap block text-center max-w-[110px]">
+                                                    FAILED
+                                                </span>
+                                            @else
+                                                <span class="bg-gray-50 text-gray-400 border border-gray-150 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide whitespace-nowrap block text-center max-w-[110px]">
+                                                    {{ strtoupper($reg->payment_status ?? 'PENDING') }}
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="py-4 pl-4 pr-4">
+                                            @if($reg->is_checked_in)
+                                                <span class="bg-green-50 text-green-600 border border-green-150 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap">
+                                                    Hadir
+                                                </span>
+                                            @else
+                                                <span class="bg-red-50/70 text-red-500 border border-red-100/40 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap">
+                                                    Absent
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="py-4">
+                                            <span class="text-gray-400 font-bold text-xs">
+                                                {{ $reg->checked_in_at ? \Carbon\Carbon::parse($reg->checked_in_at)->format('d M Y, H:i') : '-' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile View Cards -->
+                    <div class="block md:hidden space-y-4">
+                        @foreach($event->registrations as $reg)
+                            <div class="bg-slate-50/50 border border-slate-100 rounded-3xl p-5 hover:border-blue-100 hover:bg-white hover:shadow-md transition duration-300 participant-row"
+                                 data-name="{{ strtolower($reg->user->name ?? '') }}"
+                                 data-email="{{ strtolower($reg->user->email ?? '') }}">
+                                
+                                <div class="flex items-center justify-between gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-2xl bg-blue-50/50 text-blue-600 flex items-center justify-center font-black text-sm border border-blue-100/30 flex-shrink-0">
+                                            {{ strtoupper(substr($reg->user->name ?? 'G', 0, 1)) }}
                                         </div>
-                                    </td>
-                                    <td class="py-4 pl-4 pr-4">
-                                        <span class="text-gray-655 font-bold text-xs">
-                                            {{ $reg->user->email ?? '-' }}
-                                        </span>
-                                    </td>
-                                    <td class="py-4 pl-4 pr-4">
-                                        <span class="bg-indigo-50 text-indigo-600 border border-indigo-100/30 px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap">
-                                            {{ $reg->ticketCategory->name ?? '-' }}
-                                        </span>
-                                    </td>
-                                    <td class="py-4 pl-4 pr-4">
+                                        <div class="min-w-0">
+                                            <span class="font-bold text-gray-800 text-sm block truncate max-w-[170px]">
+                                                {{ $reg->user->name ?? 'Guest' }}
+                                            </span>
+                                            <span class="text-gray-455 font-semibold text-[10px] block mt-0.5 truncate max-w-[170px]">
+                                                {{ $reg->user->email ?? '-' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <span class="bg-indigo-50 text-indigo-600 border border-indigo-100/30 px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap">
+                                        {{ $reg->ticketCategory->name ?? '-' }}
+                                    </span>
+                                </div>
+
+                                <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 gap-4 text-xs">
+                                    <div>
+                                        <span class="text-gray-400 font-semibold block mb-1">Status Kehadiran</span>
                                         @if($reg->is_checked_in)
-                                            <span class="bg-green-50 text-green-600 border border-green-150 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap">
-                                                Hadir
+                                            <span class="bg-green-50 text-green-600 border border-green-150 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap inline-block text-center">
+                                                Hadir 🟢
                                             </span>
                                         @else
-                                            <span class="bg-red-50/70 text-red-500 border border-red-100/40 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap">
-                                                Absent
+                                            <span class="bg-red-50/70 text-red-500 border border-red-100/40 px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap inline-block text-center">
+                                                Absent ⏳
                                             </span>
                                         @endif
-                                    </td>
-                                    <td class="py-4">
-                                        <span class="text-gray-400 font-bold text-xs">
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400 font-semibold block mb-1">Status Pembayaran</span>
+                                        <div>
+                                            @if($reg->payment_status === 'paid')
+                                                <span class="bg-green-50 text-green-600 border border-green-100/50 px-2 py-0.5 rounded-lg text-[10px] font-bold block text-center max-w-[90px]">
+                                                    PAID
+                                                </span>
+                                            @elseif($reg->payment_status === 'pending')
+                                                <span class="bg-amber-50 text-amber-600 border border-amber-100/50 px-2 py-0.5 rounded-lg text-[10px] font-bold block text-center max-w-[90px]">
+                                                    PENDING
+                                                </span>
+                                            @else
+                                                <span class="bg-red-50 text-red-600 border border-red-100/50 px-2 py-0.5 rounded-lg text-[10px] font-bold block text-center max-w-[90px]">
+                                                    FAILED
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <span class="text-gray-400 font-semibold block mb-1">Waktu Check-In</span>
+                                        <span class="text-gray-700 font-bold block mt-1">
                                             {{ $reg->checked_in_at ? \Carbon\Carbon::parse($reg->checked_in_at)->format('d M Y, H:i') : '-' }}
                                         </span>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <!-- Search Empty State -->
+                    <div id="searchEmptyState" class="hidden text-center py-16 bg-slate-50 border border-dashed border-slate-200 rounded-3xl text-gray-400 font-bold text-sm mt-4">
+                        Peserta yang Anda cari tidak ditemukan 😕
+                    </div>
                 @endif
             </div>
         </div>
@@ -314,7 +411,7 @@
             $occupancyRate = $totalSeatsCount > 0 ? round(($bookedSeatsCount / $totalSeatsCount) * 100, 1) : 0;
         @endphp
 
-        <div id="tab-panel-seats" class="tab-panel hidden space-y-8 mt-6">
+        <div id="tab-panel-seats" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
             <!-- Seating Occupancy Statistics Cards -->
             <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
                 <div class="bg-white border border-gray-100 shadow-sm rounded-3xl p-6 text-center">
@@ -341,78 +438,19 @@
 
             <!-- Seat Layout Grid Box -->
             <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-10 space-y-8">
-                <div class="text-center max-w-md mx-auto space-y-2">
-                    <div class="w-full h-2.5 bg-gray-100 rounded-full shadow-inner relative overflow-hidden">
-                        <div class="absolute inset-0 bg-blue-500 transition-all duration-500" style="width: 100%"></div>
-                    </div>
-                    <span class="text-[10px] text-gray-400 font-extrabold tracking-widest uppercase block">Panggung Utama / Screen</span>
-                </div>
-
-                <div class="overflow-x-auto py-4">
-                    <div class="min-w-[650px] flex flex-col gap-3">
-                        @foreach($groupedSeats as $rowLetter => $rowSeats)
-                            <div class="flex items-center gap-4">
-                                <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center font-extrabold text-gray-400 text-xs shadow-xs">
-                                    {{ $rowLetter }}
-                                </div>
-                                <div class="flex-1 flex gap-2 justify-between">
-                                    @foreach($rowSeats as $seat)
-                                        @php
-                                            $booking = $seatBookings[$seat->seat_number] ?? null;
-                                            
-                                            $seatColor = 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200';
-                                            if ($seat->status === 'booked') {
-                                                $seatColor = 'bg-blue-600 text-white border-blue-600';
-                                            } elseif ($seat->status === 'blocked') {
-                                                $seatColor = 'bg-red-500 text-white border-red-500';
-                                            }
-                                        @endphp
-                                        <div 
-                                            class="w-10 h-10 rounded-xl border flex flex-col items-center justify-center font-bold text-[10px] transition duration-200 relative group cursor-pointer shadow-xs select-none {{ $seatColor }}"
-                                            title="Kursi {{ $seat->seat_number }}"
-                                        >
-                                            <span>{{ $seat->column }}</span>
-                                            
-                                            @if($booking)
-                                                <div class="absolute bottom-full mb-2 hidden group-hover:block bg-slate-900 text-white text-[9px] font-bold py-2 px-3.5 rounded-xl shadow-lg z-50 whitespace-nowrap leading-relaxed pointer-events-none">
-                                                    <span class="block">Kursi: {{ $seat->seat_number }}</span>
-                                                    <span class="block font-black text-[10px] mt-0.5 text-blue-300">{{ $booking->user->name ?? 'Guest' }}</span>
-                                                    <span class="block text-[8px] text-gray-400 font-semibold mt-0.5">{{ $booking->ticketCategory->name ?? '-' }}</span>
-                                                </div>
-                                            @elseif($seat->status === 'blocked')
-                                                <div class="absolute bottom-full mb-2 hidden group-hover:block bg-red-900 text-white text-[9px] font-bold py-2 px-3.5 rounded-xl shadow-lg z-50 whitespace-nowrap leading-relaxed pointer-events-none">
-                                                    <span>Kursi Dihalang / Diblok</span>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-
-                <div class="border-t border-gray-50 pt-6 flex flex-wrap justify-center gap-6 text-[10px] font-bold uppercase tracking-wider text-gray-500">
-                    <div class="flex items-center gap-2">
-                        <span class="w-4 h-4 rounded-md bg-slate-50 border border-slate-200 block"></span>
-                        <span>Tersedia</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-4 h-4 rounded-md bg-blue-600 block"></span>
-                        <span>Terisi</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-4 h-4 rounded-md bg-red-500 block"></span>
-                        <span>Diblok</span>
-                    </div>
-                </div>
+                @include('admin.partials.seat-layout-visualizer', [
+                    'event' => $event,
+                    'seats' => $flatSeats,
+                    'seatBookings' => $seatBookings,
+                    'interactive' => false
+                ])
             </div>
         </div>
     @endif
 
     <!-- Tab 4 Panel: Lucky Draw Winners -->
     @if($event->has_lucky_draw)
-        <div id="tab-panel-lucky_draw" class="tab-panel hidden space-y-8 mt-6">
+        <div id="tab-panel-lucky_draw" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
             <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 space-y-6">
                 <div class="pb-5 border-b border-gray-100">
                     <h3 class="text-2xl font-extrabold text-gray-800 tracking-tight">Lucky Draw Winners 🏆</h3>
@@ -447,7 +485,64 @@
 
     <!-- Tab 5 Panel: Issued Certificates -->
     @if($event->has_certificate)
-        <div id="tab-panel-certificates" class="tab-panel hidden space-y-8 mt-6">
+        <div id="tab-panel-certificates" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
+            
+            <!-- Certificate Generation section -->
+            <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-10 space-y-6" id="certificateSection">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-gray-100">
+                    <div>
+                        <h3 class="text-2xl font-extrabold text-gray-800 tracking-tight">Auto Certificate Dispatch</h3>
+                        <p class="text-xs text-gray-400 font-semibold mt-1">Terbitkan sertifikat keikutsertakaan secara massal bagi seluruh peserta yang hadir di lokasi.</p>
+                    </div>
+                    <form action="{{ route('admin.certificates.generate') }}" method="POST" class="flex items-center gap-3">
+                        @csrf
+                        <input type="hidden" name="event_id" value="{{ $event->id }}">
+                        
+                        <button type="submit" @if($certCandidates->isEmpty()) disabled @endif
+                            class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs shadow-sm transition disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed select-none flex items-center gap-2">
+                            <span>Mass Issue Certificates 🚀</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left template preview -->
+                    <div class="bg-slate-50 border border-slate-100 rounded-3xl p-6 flex flex-col justify-center items-center text-center">
+                        <span class="text-xs font-bold text-gray-450 block uppercase tracking-wider mb-3">Template Certificate</span>
+                        @if($templateUrl)
+                            <div class="relative max-w-[280px] rounded-xl overflow-hidden shadow border border-gray-200">
+                                <img src="{{ $templateUrl }}" alt="Template" class="w-full object-cover">
+                            </div>
+                        @else
+                            <div class="w-48 h-32 rounded-xl bg-slate-200 flex items-center justify-center text-slate-450 font-semibold text-xs border border-dashed border-slate-350">
+                                No template uploaded
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Right statistics of certificates -->
+                    <div class="lg:col-span-2 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wide">Certificate Statistics</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 text-center">
+                                    <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider font-semibold">Certificates Issued</span>
+                                    <span class="text-2xl font-black text-gray-800 block mt-1">{{ $certificates->count() }}</span>
+                                </div>
+                                <div class="bg-amber-50/40 border border-amber-100/30 rounded-2xl p-4 text-center">
+                                    <span class="text-[10px] text-amber-500 font-extrabold uppercase tracking-wider">Pending Generation</span>
+                                    <span id="certificate-pending" class="text-2xl font-black text-amber-600 block mt-1">{{ $certCandidates->count() }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between text-xs text-gray-400">
+                            <span>Title: <strong>{{ $event->certificate_title ?? '-' }}</strong></span>
+                            <span>Organizer: <strong>{{ $event->organizer_name ?? '-' }}</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 space-y-6">
                 <div class="pb-5 border-b border-gray-100">
                     <h3 class="text-2xl font-extrabold text-gray-800 tracking-tight">Issued Certificates 🏆</h3>
@@ -483,7 +578,7 @@
     @endif
 
     <!-- Tab 6 Panel: Refunds -->
-    <div id="tab-panel-refunds" class="tab-panel hidden space-y-8 mt-6">
+    <div id="tab-panel-refunds" class="tab-panel hidden space-y-4 md:space-y-8 mt-2 md:mt-6">
         @include('admin.events.partials.refunds')
     </div>
 
@@ -538,19 +633,30 @@
         // Search logic
         const searchInput = document.getElementById('participantSearch');
         const rows = document.querySelectorAll('.participant-row');
+        const emptyState = document.getElementById('searchEmptyState');
 
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase().trim();
+                let visibleCount = 0;
                 rows.forEach(row => {
-                    const name = row.getAttribute('data-name');
-                    const email = row.getAttribute('data-email');
+                    const name = row.getAttribute('data-name') || '';
+                    const email = row.getAttribute('data-email') || '';
                     if (name.includes(query) || email.includes(query)) {
                         row.style.display = '';
+                        visibleCount++;
                     } else {
                         row.style.display = 'none';
                     }
                 });
+
+                if (emptyState) {
+                    if (visibleCount === 0 && query !== '') {
+                        emptyState.classList.remove('hidden');
+                    } else {
+                        emptyState.classList.add('hidden');
+                    }
+                }
             });
         }
     });

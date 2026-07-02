@@ -43,7 +43,7 @@
             ])
  
             <!-- Content -->
-            <main class="p-8">
+            <main class="p-2.5 md:p-8">
  
                 @yield('content')
  
@@ -87,5 +87,6 @@
         });
     </script>
  
+    @stack('modals')
 </body>
 </html>

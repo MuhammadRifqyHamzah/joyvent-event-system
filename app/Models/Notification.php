@@ -182,6 +182,20 @@ class Notification extends Model
                 ]);
             }
 
+            // Payment waiting verification notification (Admin notification)
+            if ($reg->payment_status === 'waiting_verification') {
+                $keyWaitingVerif = "registration_waiting_verification_" . $reg->id;
+                self::helperFirstOrCreate($keyWaitingVerif, [
+                    'type' => 'participants',
+                    'title' => "Verifikasi Pembayaran: {$reg->user->name}",
+                    'message' => "{$reg->user->name} telah mengunggah bukti pembayaran untuk event {$reg->event->name}. Silakan lakukan verifikasi.",
+                    'is_read' => false,
+                    'event_id' => $reg->event_id,
+                    'target_tab' => 'participants',
+                    'created_at' => $reg->payment_proof_uploaded_at ?? $reg->updated_at ?? now(),
+                ]);
+            }
+
         }
 
         // Sync Refunds from database
@@ -302,7 +316,7 @@ class Notification extends Model
                 $eventId = (int)$matches[1];
             } elseif (preg_match('/^certificate_ready_(\d+)$/', $key, $matches)) {
                 $eventId = (int)$matches[1];
-            } elseif (preg_match('/^(registration_created|registration_ticket|registration_checked)_(\d+)$/', $key, $matches)) {
+            } elseif (preg_match('/^(registration_created|registration_ticket|registration_checked|registration_waiting_verification)_(\d+)$/', $key, $matches)) {
                 $regId = (int)$matches[2];
                 $reg = Registration::find($regId);
                 if ($reg) {

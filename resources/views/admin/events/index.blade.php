@@ -4,7 +4,7 @@
  
 @section('content')
  
-<div class="space-y-8">
+<div class="space-y-3 md:space-y-8">
 
     {{-- Session Success Notification --}}
     @if(session('success'))
@@ -22,46 +22,46 @@
         <!-- ========================================================================== -->
         
         <!-- Header: Title, Description, Search and Create Event -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-2">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 md:gap-6 pb-1.5 border-b border-gray-150/40 md:border-b-0 mb-1.5 md:mb-0">
             <div>
-                <h1 class="text-4xl font-extrabold text-gray-800 tracking-tight flex items-center gap-3">
+                <h1 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-gray-800 tracking-tight flex items-center gap-2 md:gap-3">
                     <span>Ongoing Events</span>
                     <!-- Pulsing Green Dot -->
-                    <span class="relative flex h-3.5 w-3.5">
+                    <span class="relative flex h-3 w-3 md:h-3.5 md:w-3.5">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 md:h-3.5 md:w-3.5 bg-green-500"></span>
                     </span>
-                    <span class="bg-green-50 text-green-600 border border-green-100/50 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide uppercase">
+                    <span class="bg-green-50 text-green-600 border border-green-100/50 px-2.5 py-1 md:px-3.5 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold tracking-wide uppercase">
                         Monitoring
                     </span>
                 </h1>
-                <p class="text-gray-400 text-sm mt-2 font-semibold">
+                <p class="text-gray-400 text-[11px] md:text-sm mt-0.5 md:mt-2 font-semibold">
                     Realtime event monitoring and attendance tracking dashboard.
                 </p>
             </div>
 
             <!-- Action Controls (Filter + Search + Create Event) -->
-            <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3.5 w-full md:w-auto">
+            <div class="flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-3.5 w-full md:w-auto mt-1 md:mt-0">
                 
                 <!-- Tab Filter Buttons -->
-                <div class="flex items-center bg-gray-100/60 p-1 rounded-full border border-gray-200/40 gap-1 self-start md:self-auto h-[42px]">
-                    <button type="button" data-filter="all" class="h-[34px] px-4 rounded-full text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn active bg-slate-900 text-white shadow-sm flex items-center justify-center whitespace-nowrap">
+                <div class="flex items-center bg-gray-100/60 p-0.5 md:p-1 rounded-full border border-gray-200/40 gap-1 self-start md:self-auto h-[36px] md:h-[42px]">
+                    <button type="button" data-filter="all" class="h-[30px] md:h-[34px] px-3 md:px-4 rounded-full text-[11px] md:text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn active bg-slate-900 text-white shadow-sm flex items-center justify-center whitespace-nowrap">
                         All Events
                     </button>
-                    <button type="button" data-filter="ongoing" class="h-[34px] px-4 rounded-full text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn text-gray-500 hover:text-gray-955 hover:bg-gray-150/50 flex items-center justify-center whitespace-nowrap">
+                    <button type="button" data-filter="ongoing" class="h-[30px] md:h-[34px] px-3 md:px-4 rounded-full text-[11px] md:text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn text-gray-500 hover:text-gray-955 hover:bg-gray-150/50 flex items-center justify-center whitespace-nowrap">
                         On-going
                     </button>
-                    <button type="button" data-filter="upcoming" class="h-[34px] px-4 rounded-full text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn text-gray-500 hover:text-gray-955 hover:bg-gray-150/50 flex items-center justify-center whitespace-nowrap">
+                    <button type="button" data-filter="upcoming" class="h-[30px] md:h-[34px] px-3 md:px-4 rounded-full text-[11px] md:text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn text-gray-500 hover:text-gray-955 hover:bg-gray-150/50 flex items-center justify-center whitespace-nowrap">
                         Upcoming
                     </button>
-                    <button type="button" data-filter="finished" class="h-[34px] px-4 rounded-full text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn text-gray-500 hover:text-gray-955 hover:bg-gray-150/50 flex items-center justify-center whitespace-nowrap">
+                    <button type="button" data-filter="finished" class="h-[30px] md:h-[34px] px-3 md:px-4 rounded-full text-[11px] md:text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn text-gray-500 hover:text-gray-955 hover:bg-gray-150/50 flex items-center justify-center whitespace-nowrap">
                         Finished
                     </button>
                 </div>
 
-                <div class="flex items-center gap-3.5 flex-1 md:flex-none">
+                <div class="flex items-center gap-2 md:gap-3.5 flex-1 md:flex-none">
                     <!-- Search Input -->
-                    <div class="relative w-60 h-[42px] flex-1 md:flex-none">
+                    <div class="relative w-60 h-[36px] md:h-[42px] flex-1 md:flex-none">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
@@ -74,7 +74,7 @@
                     </div>
 
                     <!-- Create Button -->
-                    <a href="{{ route('admin.events.create') }}" class="px-5 h-[42px] bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer">
+                    <a href="{{ route('admin.events.create') }}" class="px-4 md:px-5 h-[36px] md:h-[42px] bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-[11px] md:text-xs shadow-sm transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5 text-white">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                         </svg>
@@ -85,14 +85,14 @@
         </div>
 
         <!-- Monitoring Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-4 md:mt-8">
             @foreach($events as $event)
                 @php
                     $attendanceProgress = $event->registrations_count > 0 
                         ? round(($event->attended_count / $event->registrations_count) * 100) 
                         : 0;
                 @endphp
-                <div class="bg-white rounded-3xl p-6 border border-gray-100/80 shadow-sm flex flex-col justify-between transition hover:-translate-y-1 hover:shadow-md duration-300 relative group overflow-hidden event-card"
+                <div class="bg-white rounded-3xl p-4 md:p-6 border border-gray-100/80 shadow-sm flex flex-col justify-between transition hover:-translate-y-1 hover:shadow-md duration-300 relative group overflow-hidden event-card"
                      data-name="{{ $event->name }}"
                      data-location="{{ $event->location }}"
                      data-desc="{{ $event->description }}"
@@ -105,8 +105,8 @@
                      <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-green-400 to-emerald-500"></div>
                      
                      <div>
-                         <!-- Card Top Header -->
-                         <div class="flex justify-between items-center mb-4">
+                          <!-- Card Top Header -->
+                          <div class="flex justify-between items-center mb-3 md:mb-4">
                              <span class="live-badge flex items-center gap-1.5 bg-green-50 text-green-600 border border-green-100/50 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider">
                                  <span class="relative flex h-1.5 w-1.5">
                                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -141,7 +141,7 @@
                          </div>
                          
                          <!-- Metadata: Location, Date & Countdown -->
-                         <div class="space-y-2 mt-4 pb-4 border-b border-gray-100">
+                         <div class="space-y-1.5 md:space-y-2 mt-3.5 md:mt-4 pb-3 md:pb-4 border-b border-gray-100">
                              <div class="flex items-center gap-2 text-gray-500 font-semibold text-xs">
                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0">
                                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
@@ -167,7 +167,7 @@
                          </div>
                          
                          <!-- Attendance Rate Progress Bar -->
-                         <div class="mt-4">
+                         <div class="mt-3.5 md:mt-4">
                              <div class="flex justify-between items-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-1.5">
                                  <span>Attendance Progress</span>
                                  <span class="text-gray-700 font-extrabold text-xs">
@@ -188,7 +188,7 @@
                      </div>
                      
                      <!-- Card Action Buttons -->
-                     <div class="mt-5 pt-4 border-t border-gray-100 flex gap-2">
+                     <div class="mt-4 md:mt-5 pt-3 md:pt-4 border-t border-gray-100 flex gap-2">
                          <a href="{{ route('admin.events.ongoing', $event->id) }}" 
                             class="flex-1 text-center py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-sm hover:shadow transition duration-200 cursor-pointer select-none">
                              Monitor Event
@@ -245,42 +245,42 @@
         <!-- ========================================================================== -->
         
         <!-- White Card Container -->
-        <div class="bg-white rounded-[32px] shadow-sm border border-gray-100/80 overflow-hidden p-10">
+        <div class="bg-white rounded-2xl md:rounded-[32px] shadow-sm border border-gray-100/80 overflow-hidden p-3 sm:p-6 md:p-10">
 
             <!-- Header: Title, Description, Search and Create Event -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-8 border-b border-gray-100 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 md:gap-6 pb-2 md:pb-8 border-b border-gray-100 mb-2.5 md:mb-8">
                 
                 <div>
-                    <h2 class="text-4xl font-extrabold text-gray-800 tracking-tight">
+                    <h2 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-gray-800 tracking-tight">
                         List Events
                     </h2>
-                    <p class="text-gray-400 text-sm mt-2 font-semibold">
+                    <p class="text-gray-400 text-[11px] md:text-sm mt-0.5 md:mt-2 font-semibold">
                         Kelola semua event JoyVent dengan mudah dan cepat.
                     </p>
                 </div>
 
                  <!-- Action Controls (Search + Filter + Create Event) -->
-                 <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3.5 w-full md:w-auto">
+                 <div class="flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-3.5 w-full md:w-auto">
                      
                      <!-- Tab Filter Buttons -->
-                     <div class="flex items-center bg-gray-100/60 p-1 rounded-full border border-gray-200/40 gap-1 self-start md:self-auto h-[42px]">
-                         <button type="button" data-filter="all" class="h-[34px] px-4 rounded-full text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn active bg-slate-900 text-white shadow-sm flex items-center justify-center whitespace-nowrap">
+                     <div class="flex items-center bg-gray-100/60 p-0.5 md:p-1 rounded-full border border-gray-200/40 gap-1 self-start md:self-auto h-[36px] md:h-[42px]">
+                         <button type="button" data-filter="all" class="h-[30px] md:h-[34px] px-3 md:px-4 rounded-full text-[11px] md:text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn active bg-slate-900 text-white shadow-sm flex items-center justify-center whitespace-nowrap">
                              All Events
                          </button>
-                         <button type="button" data-filter="ongoing" class="h-[34px] px-4 rounded-full text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn text-gray-500 hover:text-gray-955 hover:bg-gray-150/50 flex items-center justify-center whitespace-nowrap">
+                         <button type="button" data-filter="ongoing" class="h-[30px] md:h-[34px] px-3 md:px-4 rounded-full text-[11px] md:text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn text-gray-500 hover:text-gray-955 hover:bg-gray-150/50 flex items-center justify-center whitespace-nowrap">
                              On-going
                          </button>
-                         <button type="button" data-filter="upcoming" class="h-[34px] px-4 rounded-full text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn text-gray-500 hover:text-gray-955 hover:bg-gray-150/50 flex items-center justify-center whitespace-nowrap">
+                         <button type="button" data-filter="upcoming" class="h-[30px] md:h-[34px] px-3 md:px-4 rounded-full text-[11px] md:text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn text-gray-500 hover:text-gray-955 hover:bg-gray-150/50 flex items-center justify-center whitespace-nowrap">
                              Upcoming
                          </button>
-                         <button type="button" data-filter="finished" class="h-[34px] px-4 rounded-full text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn text-gray-500 hover:text-gray-955 hover:bg-gray-150/50 flex items-center justify-center whitespace-nowrap">
+                         <button type="button" data-filter="finished" class="h-[30px] md:h-[34px] px-3 md:px-4 rounded-full text-[11px] md:text-xs font-semibold transition duration-200 select-none cursor-pointer filter-btn text-gray-500 hover:text-gray-955 hover:bg-gray-150/50 flex items-center justify-center whitespace-nowrap">
                              Finished
                          </button>
                      </div>
  
-                     <div class="flex items-center gap-3.5 flex-1 md:flex-none">
+                     <div class="flex items-center gap-2 md:gap-3.5 flex-1 md:flex-none">
                          <!-- Search Input -->
-                         <div class="relative w-60 h-[42px] flex-1 md:flex-none">
+                         <div class="relative w-60 h-[36px] md:h-[42px] flex-1 md:flex-none">
                              <!-- Magnifying glass outline icon -->
                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2">
                                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -294,7 +294,7 @@
                          </div>
  
                          <!-- Create Event Button -->
-                         <a href="{{ route('admin.events.create') }}" class="px-5 h-[42px] bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer">
+                         <a href="{{ route('admin.events.create') }}" class="px-4 md:px-5 h-[36px] md:h-[42px] bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-[11px] md:text-xs shadow-sm transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer">
                              <!-- Plus outline icon -->
                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5 text-white">
                                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />

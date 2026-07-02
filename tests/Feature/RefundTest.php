@@ -95,10 +95,10 @@ class RefundTest extends TestCase
 
     public function test_admin_can_access_ongoing_event_tab_refunds()
     {
-        // Change event dates so it is ongoing (today is 2026-05-31 from system info)
+        // Change event dates so it is ongoing (relative to current time)
         $this->event->update([
-            'start_date' => '2026-05-30',
-            'end_date' => '2026-06-02'
+            'start_date' => now()->subDay()->format('Y-m-d'),
+            'end_date' => now()->addDays(2)->format('Y-m-d')
         ]);
 
         // Create a refund
@@ -117,6 +117,13 @@ class RefundTest extends TestCase
 
     public function test_admin_can_approve_refund()
     {
+        // Set up the registration to be active and paid before approval
+        $this->registration->update([
+            'status' => 'confirmed',
+            'registration_status' => 'active',
+            'payment_status' => 'paid',
+        ]);
+
         $refund = Refund::create([
             'registration_id' => $this->registration->id,
             'reason' => 'Conflict',
@@ -130,8 +137,11 @@ class RefundTest extends TestCase
         // Assert refund is approved
         $this->assertEquals('approved', $refund->fresh()->status);
 
-        // Assert registration is cancelled
-        $this->assertEquals('cancelled', $this->registration->fresh()->status);
+        // Assert registration status fields are synchronized and cancelled
+        $freshRegistration = $this->registration->fresh();
+        $this->assertEquals('cancelled', $freshRegistration->status);
+        $this->assertEquals('cancelled', $freshRegistration->registration_status);
+        $this->assertEquals('failed', $freshRegistration->payment_status);
 
         // Assert seat is available
         $this->assertEquals('available', $this->seat->fresh()->status);

@@ -229,24 +229,29 @@
         </div>
 
         <!-- Next / Finish Action Buttons -->
-        <div class="flex justify-end mt-10 pt-8 border-t border-gray-100 flex-wrap gap-4">
-            @if($hasFeatures)
-                <a href="{{ route('admin.events.features', $event->id) }}" 
-                   class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-sm shadow-md transition hover:-translate-y-0.5 duration-200 flex items-center gap-2">
-                    <span>Next: Feature Setup</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-white">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                    </svg>
-                </a>
-            @else
-                <a href="{{ route('admin.events.finish', $event->id) }}" 
-                   class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-sm shadow-md transition hover:-translate-y-0.5 duration-200 flex items-center gap-2">
-                    <span>Finish Setup</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-white">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                </a>
-            @endif
+        <div class="mt-10 pt-8 border-t border-gray-100">
+            <div class="flex justify-end flex-wrap gap-4">
+                @if($hasFeatures)
+                    <a href="{{ route('admin.events.features', $event->id) }}" id="nextStepButton"
+                       class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-sm shadow-md transition duration-200 flex items-center gap-2 {{ $tickets->isEmpty() ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:-translate-y-0.5' }}">
+                        <span>Next: Feature Setup</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-white">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
+                    </a>
+                @else
+                    <a href="{{ route('admin.events.finish', $event->id) }}" id="nextStepButton"
+                       class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-sm shadow-md transition duration-200 flex items-center gap-2 {{ $tickets->isEmpty() ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:-translate-y-0.5' }}">
+                        <span>Finish Setup</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-white">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                        </svg>
+                    </a>
+                @endif
+            </div>
+            <p id="ticketRequirementHint" class="text-xs text-red-500 font-semibold mt-2.5 text-right transition duration-200 {{ $tickets->isEmpty() ? '' : 'hidden' }}">
+                * Tambahkan minimal satu kategori tiket untuk melanjutkan.
+            </p>
         </div>
  
     </div>
@@ -376,6 +381,7 @@
     const destroyRouteUrlTemplate = "{{ route('admin.tickets.destroy', 'TICKET_ID') }}";
     let eventCapacity = {{ $eventCapacityLimit }};
     let usedQuota = {{ $currentTotalQuota }};
+    let ticketCount = {{ $tickets->count() }};
 
     function openAddTicketModal() {
         const modal = document.getElementById('addTicketModal');
@@ -622,7 +628,9 @@
                 // Update used quota and UI
                 const addedQuota = parseInt(data.ticket.quota) || 0;
                 usedQuota += addedQuota;
+                ticketCount++;
                 updateQuotaInfoUI();
+                updateNextButtonState();
 
                 const tableBody = document.getElementById('ticketTableBody');
                 if (tableBody) {
@@ -722,12 +730,28 @@
         }
     }
 
+    function updateNextButtonState() {
+        const nextBtn = document.getElementById('nextStepButton');
+        const hintEl = document.getElementById('ticketRequirementHint');
+        if (!nextBtn) return;
+        if (ticketCount === 0) {
+            nextBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            nextBtn.classList.remove('hover:-translate-y-0.5');
+            if (hintEl) hintEl.classList.remove('hidden');
+        } else {
+            nextBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            nextBtn.classList.add('hover:-translate-y-0.5');
+            if (hintEl) hintEl.classList.add('hidden');
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const quotaInput = document.getElementById('ticketQuotaInput');
         if (quotaInput) {
             quotaInput.addEventListener('input', validateQuotaInput);
             quotaInput.addEventListener('change', validateQuotaInput);
         }
+        updateNextButtonState();
     });
 </script>
  

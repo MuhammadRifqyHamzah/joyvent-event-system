@@ -4,7 +4,7 @@
  
 @section('content')
  
-<div class="space-y-8">
+<div class="space-y-4 md:space-y-8">
     @include('admin.events.partials.header')
     @php
         $eventStatus = $event->calculated_status;
@@ -77,7 +77,7 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-2">
  
         <div>
-            <h1 class="text-4xl font-extrabold text-gray-800 tracking-tight">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-800 tracking-tight">
                 Participants
             </h1>
             <p class="text-gray-400 text-sm mt-2 font-semibold">
@@ -106,7 +106,7 @@
     </div>
  
     <!-- Table Card Container -->
-    <div class="bg-white rounded-[32px] shadow-sm border border-gray-100/80 overflow-hidden p-10">
+    <div class="bg-white rounded-[32px] shadow-sm border border-gray-100/80 overflow-hidden p-4 sm:p-6 md:p-10">
  
         <div class="overflow-x-auto">
             <table class="w-full">

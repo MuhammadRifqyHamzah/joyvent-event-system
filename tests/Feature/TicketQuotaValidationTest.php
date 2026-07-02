@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Event;
 use App\Models\TicketCategory;
+use App\Models\Registration;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -129,5 +130,164 @@ class TicketQuotaValidationTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonValidationErrors('quota');
         $this->assertEquals(50, $vip->fresh()->quota);
+    }
+
+    /**
+     * Test registration fails when ticket category quota is exceeded.
+     */
+    public function test_registration_fails_when_ticket_quota_is_exceeded()
+    {
+        $user1 = User::create([
+            'name' => 'User One',
+            'email' => 'user1@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        $user2 = User::create([
+            'name' => 'User Two',
+            'email' => 'user2@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        $ticketCat = TicketCategory::create([
+            'event_id' => $this->event->id,
+            'name' => 'Limited Class',
+            'price' => 100000,
+            'quota' => 1,
+        ]);
+
+        // First user registers -> succeeds
+        $response = $this->actingAs($user1, 'sanctum')->postJson('/api/registrations', [
+            'event_id' => $this->event->id,
+            'ticket_category_id' => $ticketCat->id,
+        ]);
+        $response->assertStatus(200);
+
+        // Second user registers -> fails (quota exceeded)
+        $response = $this->actingAs($user2, 'sanctum')->postJson('/api/registrations', [
+            'event_id' => $this->event->id,
+            'ticket_category_id' => $ticketCat->id,
+        ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('ticket_category_id');
+    }
+
+    /**
+     * Test registration succeeds when cancelled registration frees quota.
+     */
+    public function test_registration_succeeds_when_cancelled_registration_frees_quota()
+    {
+        $user1 = User::create([
+            'name' => 'User One',
+            'email' => 'user1@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        $user2 = User::create([
+            'name' => 'User Two',
+            'email' => 'user2@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        $ticketCat = TicketCategory::create([
+            'event_id' => $this->event->id,
+            'name' => 'Limited Class',
+            'price' => 100000,
+            'quota' => 1,
+        ]);
+
+        // First user registers -> succeeds
+        $response = $this->actingAs($user1, 'sanctum')->postJson('/api/registrations', [
+            'event_id' => $this->event->id,
+            'ticket_category_id' => $ticketCat->id,
+        ]);
+        $response->assertStatus(200);
+        $regId = $response->json('data.id');
+
+        // Second user registers -> fails
+        $response = $this->actingAs($user2, 'sanctum')->postJson('/api/registrations', [
+            'event_id' => $this->event->id,
+            'ticket_category_id' => $ticketCat->id,
+        ]);
+        $response->assertStatus(422);
+
+        // Cancel first registration
+        $registration = Registration::findOrFail($regId);
+        // We use admin to update registration to cancelled
+        $response = $this->actingAs($this->admin, 'sanctum')->putJson("/api/registrations/{$regId}", [
+            'status' => 'cancelled'
+        ]);
+        $response->assertStatus(200);
+
+        // Second user registers again -> succeeds now
+        $response = $this->actingAs($user2, 'sanctum')->postJson('/api/registrations', [
+            'event_id' => $this->event->id,
+            'ticket_category_id' => $ticketCat->id,
+        ]);
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Test registration quota check on seated layout events.
+     */
+    public function test_registration_quota_seated_layout()
+    {
+        $user = User::create([
+            'name' => 'Seated User',
+            'email' => 'seated_user@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        // Create a seated event
+        $seatedEvent = Event::create([
+            'name' => 'Seated Event 2026',
+            'category' => 'Business',
+            'location' => 'JCC Jakarta',
+            'start_date' => '2026-06-10',
+            'end_date' => '2026-06-12',
+            'start_time' => '09:00:00',
+            'end_time' => '17:00:00',
+            'capacity' => 10,
+            'is_configured' => true,
+            'has_seat_layout' => true,
+        ]);
+
+        $ticketCat = TicketCategory::create([
+            'event_id' => $seatedEvent->id,
+            'name' => 'VIP',
+            'price' => 100000,
+            'quota' => 1,
+        ]);
+
+        $seat = \App\Models\Seat::create([
+            'event_id' => $seatedEvent->id,
+            'ticket_category_id' => $ticketCat->id,
+            'seat_number' => 'A1',
+            'status' => 'available',
+        ]);
+
+        // Register with seat layout -> succeeds
+        $response = $this->actingAs($user, 'sanctum')->postJson('/api/registrations', [
+            'event_id' => $seatedEvent->id,
+            'ticket_category_id' => $ticketCat->id,
+            'seat_id' => $seat->id,
+            'seat_number' => 'A1',
+        ]);
+        $response->assertStatus(200);
+
+        // Attempt another registration when quota is full -> fails
+        $user2 = User::create([
+            'name' => 'Seated User 2',
+            'email' => 'seated_user2@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        $response = $this->actingAs($user2, 'sanctum')->postJson('/api/registrations', [
+            'event_id' => $seatedEvent->id,
+            'ticket_category_id' => $ticketCat->id,
+            'seat_id' => $seat->id,
+            'seat_number' => 'A1',
+        ]);
+        $response->assertStatus(422);
     }
 }

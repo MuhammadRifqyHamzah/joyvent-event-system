@@ -12,6 +12,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // In production, only run the safe bootstrapping seeder (AdminSeeder)
+        if (app()->environment('production')) {
+            $this->call([
+                AdminSeeder::class,
+            ]);
+            return;
+        }
+
         // Panggil AdminSeeder terlebih dahulu untuk memastikan akun admin default terbentuk
         // Setelah itu baru jalankan EventSeeder untuk seed data demo/event
         $this->call([
